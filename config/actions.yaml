@@ -1,11 +1,17 @@
-- id: 1
-  name: self_introduce
+- id: do_nothing
+  name: Do nothing
+  sentence: ''
+  gesture: none
+  face_expression: none
+
+- id: self_introduce
+  name: Self-introduce
   sentence: Hello I am QT robot
   gesture: send_kiss
   face_expression: happy
 
-- id: 2
-  name: give_feedback
+- id: give_feedback
+  name: Give feedback
   sentence: Very good, keep going
   gesture: clapping
   face_expression: happy
