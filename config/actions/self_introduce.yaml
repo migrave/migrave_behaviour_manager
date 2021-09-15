@@ -1,0 +1,6 @@
+action_id: 1
+action_name: self_introduce
+
+sentence: Hello I am QT robot
+gesture: send_kiss
+face_expression: happy
