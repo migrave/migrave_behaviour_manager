@@ -31,7 +31,14 @@ class ActionInterface():
 
 
     def get_action(self, action_name):
-        return [action for action in self.actions if action_name == action['name']][0]
+        actions_list = [action for action in self.actions if action_name == action['name']]
+        
+        if not actions_list:
+            return None
+        elif len(actions_list) > 1:
+            raise ValueError
+        else:
+            return actions_list[0]
 
     
 # if __name__ == '__main__':
