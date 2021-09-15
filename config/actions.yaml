@@ -1,0 +1,11 @@
+- id: 1
+  name: self_introduce
+  sentence: Hello I am QT robot
+  gesture: send_kiss
+  face_expression: happy
+
+- id: 2
+  name: give_feedback
+  sentence: Very good, keep going
+  gesture: clapping
+  face_expression: happy
