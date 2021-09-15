@@ -1,16 +1,14 @@
-import os
+from typing import Dict
+
 import yaml
 import rospy
 
-class ActionInterface():
+class ActionInterface(object):
     'The purpose of this class is to fetch actions defined in the config/actions directory'
-    
-    def __init__(self):
+
+    def __init__(self, config_path: str):
         self.actions = []
-
-        # TO-DO make reconfigurable
-        self.path = '../../../config/actions.yaml'
-
+        self.path = config_path
         self.refresh()
 
     def refresh(self):
@@ -20,27 +18,24 @@ class ActionInterface():
         with open(self.path, "r") as config:
             try:
                 actions = yaml.safe_load(config)
-                
+
             except yaml.YAMLError as exc:
                 rospy.logerr(exc)
-        
+
         return actions
 
     def get_actions(self):
         return self.actions
 
-
-    def get_action(self, action_name):
-        actions_list = [action for action in self.actions if action_name == action['name']]
-        
+    def get_action(self, action_name: str) -> Dict[str, str]:
+        actions_list = [action for action in self.actions if action_name == action['id']]
         if not actions_list:
             return None
-        elif len(actions_list) > 1:
+        if len(actions_list) > 1:
             raise ValueError
-        else:
-            return actions_list[0]
+        return actions_list[0]
 
-    
+
 # if __name__ == '__main__':
 #     actionint = ActionInterface()
 #     print(actionint.get_actions())
