@@ -3,8 +3,9 @@
     <node pkg="migrave_behaviour_manager" type="behaviour_manager"
           name="behaviour_manager" ns='migrave_behaviour_manager' output="screen">
         <param name="action_config_path" type="str" value="$(find migrave_behaviour_manager)/config/actions.yaml" />
-        <param name="game_performance_topic" type="str" value="game_performance" />
-        <param name="affective_state_topic" type="str" value="affective_state" />
+        <param name="therapist_feedback_topic" type="str" value="/migrave/therapist_feedback" />
+        <param name="game_performance_topic" type="str" value="/migrave/game_performance" />
+        <param name="affective_state_topic" type="str" value="/migrave_perception/person_state_estimator/affective_state" />
         <param name="suggested_action_topic" type="str" value="suggested_robot_action" />
         <param name="robot_action_topic" type="str" value="robot_action" />
     </node>
