@@ -15,3 +15,15 @@
   sentence: Very good, keep going
   gesture: clapping
   face_expression: happy
+
+- id: come_back
+  name: Come back
+  sentence: Please come back, I am sad
+  gesture: one-arm-up
+  face_expression: sad
+
+- id: relax_child
+  name: Relax child
+  sentence: You are quite nervous, lets relax
+  gesture: neutral
+  face_expression: calm
