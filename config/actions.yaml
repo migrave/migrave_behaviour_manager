@@ -6,24 +6,24 @@
 
 - id: self_introduce
   name: Self-introduce
-  sentence: Hello I am QT robot
+  sentence: Hallo Ich bin QT Robot!
   gesture: send_kiss
   face_expression: happy
 
 - id: give_feedback
   name: Give feedback
-  sentence: Very good, keep going
+  sentence: Gut gemacht, weiter so
   gesture: clapping
   face_expression: happy
 
 - id: come_back
   name: Come back
-  sentence: Please come back, I am sad
+  sentence: Wo bist du? Komm zurueck!
   gesture: one-arm-up
   face_expression: sad
 
 - id: relax_child
   name: Relax child
-  sentence: You are quite nervous, lets relax
+  sentence: Wieso bist du wuetend? Sieh mich an!
   gesture: neutral
   face_expression: calm
