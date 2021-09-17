@@ -8,5 +8,11 @@
         <param name="affective_state_topic" type="str" value="/migrave_perception/person_state_estimator/affective_state" />
         <param name="suggested_action_topic" type="str" value="suggested_robot_action" />
         <param name="robot_action_topic" type="str" value="robot_action" />
+        <param name="event_in_topic" type="str" value="event_in" />
+        <param name="ask_for_therapist_feedback_before_acting" type="bool" value="true" />
+
+        <!-- dependencies -->
+        <param name="person_state_estimator_event_topic" type="str" value="/migrave_perception/person_state_estimator/event_in" />
+        <param name="face_feature_detector_event_topic" type="str" value="/migrave_perception/face_feature_detector/event_in" />
     </node>
 </launch>

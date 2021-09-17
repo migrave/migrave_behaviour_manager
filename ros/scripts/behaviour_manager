@@ -7,7 +7,8 @@ if __name__ == '__main__':
     behaviour_manager = BehaviourManagerWrapper()
     try:
         while not rospy.is_shutdown():
-            behaviour_manager.act()
+            if behaviour_manager.running:
+                behaviour_manager.act()
             rospy.sleep(0.05)
     except rospy.ROSInterruptException as exc:
         print('behaviour_manager exiting...')
