@@ -1,9 +1,12 @@
+import os
 import rospy
 from std_msgs.msg import String, Bool
 
-from qt_gesture_controller.srv import gesture_play as qt_gesture_play
-from migrave_ros_msgs.msg import GamePerformance
 from qt_robot_interface.srv import behavior_talk_text, emotion_show, audio_play
+from qt_gesture_controller.srv import gesture_play as qt_gesture_play
+
+from mas_tools.file_utils import load_yaml_file
+from migrave_ros_msgs.msg import GamePerformance
 
 class GameBase(object):
     """! Base class for implementing games.
@@ -44,7 +47,8 @@ class GameBase(object):
 
     gesture_speed = 1.0
 
-    def __init__(self, game_id: str,
+    def __init__(self, game_config_dir_path: str,
+                 game_id: str,
                  game_status_topic: str,
                  game_answer_topic: str,
                  game_performance_topic: str):
@@ -53,6 +57,7 @@ class GameBase(object):
         self.game_answer_topic = game_answer_topic
         self.game_performance_topic = game_performance_topic
         self.game_performance = GamePerformance()
+        self.game_config = load_yaml_file(os.path.join(game_config_dir_path, game_id + '.yaml'))
         self.setup_ros()
 
     def game_start(self):
