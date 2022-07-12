@@ -58,6 +58,13 @@ class GameBase(object):
         self.game_performance_topic = game_performance_topic
         self.game_performance = GamePerformance()
         self.game_config = load_yaml_file(os.path.join(game_config_dir_path, game_id + '.yaml'))
+
+        self.game_id = self.game_config["general_game_params"]["game_id"]
+        self.tasks = self.game_config["general_game_params"]["tasks"]
+        self.game_activity_ids = self.game_config["general_game_params"]["game_activity_ids"]
+        self.difficulty_levels = self.game_config["general_game_params"]["difficulty_levels"]
+        self.answer_correctnesses = self.game_config["general_game_params"]['answer_correctnesses']
+
         self.setup_ros()
 
     def game_start(self):
@@ -75,7 +82,26 @@ class GameBase(object):
         self.correct = 0
 
     def task_start(self):
-        raise NotImplementedError("task_start needs to be overridden")
+        rospy.loginfo("Starting new task")
+
+        # reset the counters when starting a new task;
+        # publish the game performance when resuming
+        if "resume" not in self.game_status:
+            self.count = 0
+            self.correct = 0
+        else:
+            self.game_performance.answer_correctness = -1
+            self.game_performance.game_activity.game_id = self.game_id
+            self.game_performance.game_activity.game_activity_id = self.game_status
+            self.game_performance.stamp = rospy.Time.now()
+            self.game_performance_pub.publish(self.game_performance)
+
+        self.task = self.game_status
+        rospy.loginfo(f"Running task: {self.task}")
+
+        rospy.loginfo("Publishing task status: running")
+        self.task_status = "running"
+        self.task_status_pub.publish(self.task_status)
 
     def evaluate_answer(self):
         raise NotImplementedError("evaluate_answer needs to be overridden")
@@ -111,8 +137,8 @@ class GameBase(object):
             rospy.loginfo(f"Service call failed: {e}")
 
     def gesture_play(self, gesture):
-        qt_gesture_play_proxy = rospy.ServiceProxy(
-            "/qt_robot/gesture/play", qt_gesture_play)
+        qt_gesture_play_proxy = rospy.ServiceProxy("/qt_robot/gesture/play",
+                                                   qt_gesture_play)
         # block/wait for ros service
         rospy.wait_for_service("/qt_robot/gesture/play")
         try:
@@ -130,7 +156,6 @@ class GameBase(object):
             self.game_performance.game_activity.game_activity_id = "robot_gesture_end"
             self.game_performance.stamp = rospy.Time.now()
             self.game_performance_pub.publish(self.game_performance)
-
         except rospy.ServiceException as e:
             rospy.loginfo(f"Service call failed: {e}")
 
@@ -154,7 +179,6 @@ class GameBase(object):
             self.game_performance.game_activity.game_activity_id = "robot_talk_end"
             self.game_performance.stamp = rospy.Time.now()
             self.game_performance_pub.publish(self.game_performance)
-
         except rospy.ServiceException as e:
             rospy.loginfo(f"Service call failed: {e}")
 
