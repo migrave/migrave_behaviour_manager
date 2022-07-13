@@ -63,7 +63,8 @@ class GameBase(object):
         self.tasks = self.game_config["general_game_params"]["tasks"]
         self.game_activity_ids = self.game_config["general_game_params"]["game_activity_ids"]
         self.difficulty_levels = self.game_config["general_game_params"]["difficulty_levels"]
-        self.answer_correctnesses = self.game_config["general_game_params"]['answer_correctnesses']
+        self.answer_correctnesses = self.game_config["general_game_params"]["answer_correctnesses"]
+        self.celebration_sound_name = self.game_config["media_params"]["celebration_sound_name"]
 
         self.setup_ros()
 
@@ -223,22 +224,25 @@ class GameBase(object):
         rospy.set_param("/migrave/game_performance/participant_id", msg.person.id)
 
     def finish_one_task(self):
+        self.count = 0
+        self.correct = 0
+
         self.show_emotion("showing_smile")
         self.say_text("Geschafft! Das hast du super gemacht!")
         self.gesture_play("QT/Dance/Dance-1-1")
         self.show_emotion("showing_smile")
         self.gesture_play("QT/imitation/hands-up-back")
+
+        rospy.loginfo("Publishing task status: finish")
         self.task_status_pub.publish("finish")
 
-        rospy.loginfo("Publish task status: finish")
+        rospy.loginfo("Publishing image: Fireworks")
         self.say_text("Schau mal auf das Tablet. Da ist ein Feuerwerk für dich!")
         self.tablet_image_pub.publish("Fireworks")
 
-        rospy.loginfo("Publish image: Fireworks")
+        rospy.loginfo("Publishing sounds: Fireworks")
         rospy.sleep(2)
-        self.audio_play("rfh-koeln/MIGRAVE/Fireworks")
-        self.count = 0
-        self.correct = 0
+        self.audio_play(self.celebration_sound_name)
 
     def setup_ros(self):
         game_status_topic = f"/migrave_game_{self.game_id}/status"
