@@ -59,7 +59,7 @@ class GameBase(object):
         self.game_performance = GamePerformance()
         self.game_config = load_yaml_file(os.path.join(game_config_dir_path, game_id + '.yaml'))
 
-        self.game_id = self.game_config["general_game_params"]["game_id"]
+        self.game_id = self.game_config["game_id"]
         self.tasks = self.game_config["general_game_params"]["tasks"]
         self.game_activity_ids = self.game_config["general_game_params"]["game_activity_ids"]
         self.difficulty_levels = self.game_config["general_game_params"]["difficulty_levels"]
