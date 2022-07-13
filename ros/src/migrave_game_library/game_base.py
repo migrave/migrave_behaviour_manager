@@ -112,7 +112,23 @@ class GameBase(object):
         self.evaluate_answer()
 
     def game_status_cb(self, msg):
-        raise NotImplementedError("game_status_cb needs to be overridden")
+        self.game_status = msg.data
+
+        # start the game
+        if "start" in self.game_status:
+            rospy.loginfo(f"Game {self.game_id} starts")
+            self.game_start()
+        # end the game
+        elif "end" in self.game_status:
+            rospy.loginfo(f"Game {self.game_id} ends")
+            # publish game performance when ending
+            self.game_performance.answer_correctness = -1
+            self.game_performance.game_activity.game_id = self.game_id
+            self.game_performance.game_activity.game_activity_id = "game_end"
+            self.game_performance.stamp = rospy.Time.now()
+            self.game_performance_pub.publish(self.game_performance)
+        elif self.game_status in self.tasks:
+            self.task_start()
 
     def audio_play(self, audio):
         qt_audio_play = rospy.ServiceProxy("/qt_robot/audio/play", audio_play)
