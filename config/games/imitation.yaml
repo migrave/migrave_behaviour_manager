@@ -1,0 +1,46 @@
+game_id: imitation
+general_game_params:
+    tasks: [hands-up, hands-side, Fly, hands-up-resume, hands-side-resume, Fly-resume]
+    game_activity_ids:
+        hands-up: hands-up
+        hands-side: hands-side
+        Fly: Fly
+        hands-up-resume: hands-up
+        hands-side-resume: hands-side
+        Fly-resume: Fly
+    difficulty_levels:
+        hands-up: 1
+        hands-side: 1
+        Fly: 1
+        hands-up-resume: 1
+        hands-side-resume: 1
+        Fly-resume: 1
+    answer_correctnesses:
+        right: 1
+        right_after_wrong: 1
+        wrong: 0
+        wrong_again: 0
+game_specific_params:
+    gestures:
+        hands-up: QT/imitation/hands-up
+        hands-side: QT/imitation/hands-side
+        Fly: QT/Pretend-play/Fly
+        hands-up-resume: QT/imitation/hands-up
+        hands-side-resume: QT/imitation/hands-side
+        Fly-resume: QT/Pretend-play/Fly
+    gesture_texts:
+        hands-up: Beide Arme nach oben!
+        hands-side: Beide Arme zur Seite strecken!
+        Fly: Arme seitlich rauf und runter!
+        hands-up-resume: Beide Arme nach oben!
+        hands-side-resume: Beide Arme zur Seite strecken!
+        Fly-resume: Arme seitlich rauf und runter!
+    retrieval_gestures:
+        hands-up: QT/imitation/hands-up-back
+        hands-side: QT/imitation/hands-side-back
+        Fly: ""
+        hands-up-resume: QT/imitation/hands-up-back
+        hands-side-resume: QT/imitation/hands-side-back
+        Fly-resume: ""
+media_params:
+    celebration_sound_name: rfh-koeln/MIGRAVE/Fireworks
