@@ -1,3 +1,4 @@
+from typing import Dict
 import os
 import rospy
 from std_msgs.msg import String, Bool
@@ -104,8 +105,133 @@ class GameBase(object):
         self.task_status = "running"
         self.task_status_pub.publish(self.task_status)
 
-    def evaluate_answer(self):
-        raise NotImplementedError("evaluate_answer needs to be overridden")
+    def evaluate_answer(self, feedback_emotions: Dict[str, str],
+                        feedback_texts: Dict[str, str]) -> None:
+        result = self.result
+
+        self.game_performance.stamp = rospy.Time.now()
+        self.game_performance.game_activity.game_id = self.game_id
+        self.game_performance.game_activity.game_activity_id = self.game_activity_ids[self.task]
+        self.game_performance.game_activity.difficulty_level = self.difficulty_levels[self.task]
+        self.game_performance.answer_correctness = self.answer_correctnesses[result]
+        self.game_performance_pub.publish(self.game_performance)
+        rospy.loginfo("Publish game performance")
+
+        if self.count < 5:
+            # Reaction after grading
+            emotion = feedback_emotions[result]
+            self.show_emotion(emotion)
+            text = feedback_texts[result]
+            self.say_text(text)
+
+            if self.result == "right":
+                self.count += 1
+                self.correct += 1
+                rospy.loginfo(f"Count: {self.count}; Correct: {self.correct}")
+
+                # Finish the task when correct >= 4 times in the first 5 rounds
+                if self.count == 5 and self.correct >= 4:
+                    self.say_text("Dafür bekommst du einen Stern! Schau mal auf das Tablet.")
+                    self.audio_play("rfh-koeln/MIGRAVE/Reward2")
+                    image = f"{self.correct}Token"
+                    rospy.loginfo(image)
+                    self.tablet_image_pub.publish(image)
+                    rospy.sleep(6)
+                    rospy.loginfo("Ending")
+                    rospy.loginfo(f"Count: {self.count}; Correct: {self.correct}")
+                    self.finish_one_task()
+
+                # For other cases, start a new round
+                else:
+                    rospy.loginfo("Continue")
+                    self.say_text("Dafür bekommst du einen Stern! Schau mal auf das Tablet.")
+                    self.audio_play("rfh-koeln/MIGRAVE/Reward2")
+
+                    image = f"{self.correct}Token"
+                    rospy.loginfo(image)
+                    self.tablet_image_pub.publish(image)
+                    rospy.loginfo(f"Publish image: {self.correct}Token")
+                    rospy.sleep(6)
+
+                    self.show_emotion("showing_smile")
+                    self.say_text("Noch ein mal!")
+
+                    self.start_new_round_and_grade()
+
+            if result == "wrong":
+                self.count += 1
+                rospy.loginfo(f"Count: {self.count}; Correct: {self.correct}")
+                self.retry_after_wrong()
+
+            if result.startswith("right") and result != "right":
+                self.show_emotion("showing_smile")
+                self.say_text("Noch ein mal!")
+                self.start_new_round_and_grade()
+
+            if result.startswith("wrong") and result != "wrong":
+                self.retry_after_wrong()
+
+        else:  # self.count = 5, self.correct <=4 at the first iteration
+            emotion = feedback_emotions[result]
+            self.show_emotion(emotion)
+            text = feedback_texts[result]
+            self.say_text(text)
+
+            if self.count == 5 and self.correct == 4:
+                rospy.loginfo("80% correctness case")
+                if result == "right":
+                    self.count += 1
+                    self.correct += 1
+                    rospy.loginfo(f"Count: {self.count}; Correct: {self.correct}")
+                    self.say_text("Dafür bekommst du einen Stern! Schau mal auf das Tablet.")
+                    self.audio_play("rfh-koeln/MIGRAVE/Reward2")
+                    image = f"{self.correct}Token"
+                    rospy.loginfo(image)
+
+                    self.tablet_image_pub.publish(image)
+                    rospy.loginfo(f"Publish image: {self.correct}Token")
+                    rospy.sleep(6)
+                elif result.startswith("wrong"):
+                    self.retry_after_wrong()
+                else:  # right_after_wrong
+                    self.say_text("Noch ein mal!")
+                    self.start_new_round_and_grade()
+            if self.count == 5 and self.correct <= 3:
+                rospy.loginfo("less than 80% correctness case")
+                if result == "right":
+                    self.correct += 1
+                    rospy.loginfo(f"Count: {self.count}; Correct: {self.correct}")
+                    self.say_text("Dafür bekommst du einen Stern! Schau mal auf das Tablet.")
+                    self.audio_play("rfh-koeln/MIGRAVE/Reward2")
+
+                    image = f"{self.correct}Token"
+                    rospy.loginfo(image)
+                    self.tablet_image_pub.publish(image)
+                    rospy.loginfo(f"Publish image: {self.correct}Token")
+                    rospy.sleep(6)
+                    if self.count == 5 and self.correct == 4:
+                        rospy.loginfo("3 out of 5 -> 4 correct, finish")
+                        self.finish_one_task()
+                    if self.count == 5 and self.correct < 4:
+                        rospy.loginfo("Less than 4, continue")
+                        self.say_text("Noch ein mal!")
+                        self.start_new_round_and_grade()
+                if result.startswith("right") and result != "right":
+                    self.say_text("Noch ein mal!")
+                    self.start_new_round_and_grade()
+                if result.startswith("wrong"):
+                    self.retry_after_wrong()
+
+            if self.correct == 5:  # finish the task when correct 5 times
+                rospy.loginfo("Ending")
+                rospy.loginfo(f"Count: {self.count}; Correct: {self.correct}")
+                self.finish_one_task()
+
+    def retry_after_wrong(self):
+        raise NotImplementedError("retry_after_wrong needs to be overridden")
+
+    def start_new_round_and_grade(self):
+        raise NotImplementedError("start_new_round_and_grade needs to be overridden")
 
     def game_answer_cb(self, msg):
         self.result = msg.data
