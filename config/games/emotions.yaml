@@ -1,0 +1,37 @@
+game_id: emotions
+general_game_params:
+    tasks: [happy, sad, happy_vs_sad, sad_vs_happy, happy_or_sad, happy_resume, sad_resume, happy_vs_sad_resume, sad_vs_happy_resume, happy_or_sad_resume]
+    game_activity_ids:
+        happy: happy
+        sad: sad
+        happy_vs_sad: happy_vs_sad
+        sad_vs_happy: sad_vs_happy
+        happy_or_sad: happy_or_sad
+        happy_resume: happy
+        sad_resume: sad
+        happy_vs_sad_resume: happy_vs_sad
+        sad_vs_happy_resume: sad_vs_happy
+        happy_or_sad_resume: happy_or_sad
+    difficulty_levels:
+        happy: 1
+        sad: 1
+        happy_vs_sad: 2
+        sad_vs_happy: 2
+        happy_or_sad: 3
+        happy_resume: 1
+        sad_resume: 1
+        happy_vs_sad_resume: 2
+        sad_vs_happy_resume: 2
+        happy_or_sad_resume: 3
+    answer_correctnesses:
+        right: 1
+        right_1: 1
+        right_2: 1
+        wrong: 0
+        wrong_1: 0
+        wrong_2: 0
+game_specific_params:
+    happy_images: [Happy1, Happy2]
+    sad_images: [Sad1, Sad2]
+media_params:
+    celebration_sound_name: rfh-koeln/MIGRAVE/Fireworks
