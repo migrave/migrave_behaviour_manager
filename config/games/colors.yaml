@@ -1,0 +1,37 @@
+game_id: colors
+general_game_params:
+    tasks: [red, red_vs_other, blue, blue_vs_other, green, green_vs_other, yellow, yellow_vs_other]
+    resumption_tasks: [red_resume, blue_resume, green_resume, yellow_resume]
+    game_activity_ids:
+        red: red
+        blue: blue
+        green: green
+        yellow: yellow
+        red_vs_other: red_vs_other
+        blue_vs_other: blue_vs_other
+        green_vs_other: green_vs_other
+        yellow_vs_other: yellow_vs_other
+        red_resume: red
+        blue_resume: blue
+        green_resume: green
+        yellow_resume: yellow
+    difficulty_levels:
+        red: 1
+        blue: 1
+        green: 1
+        yellow: 1
+        red_resume: 1
+        blue_resume: 1
+        green_resume: 1
+        yellow_resume: 1
+    answer_correctnesses:
+        right: 1
+        right_1: 1
+        right_2: 1
+        wrong: 0
+        wrong_1: 0
+        wrong_2: 0
+game_specific_params:
+    distractor_images: [black-square, brown-square, lilac-square, orange-square, pink-square]
+media_params:
+    celebration_sound_name: rfh-koeln/MIGRAVE/Fireworks
