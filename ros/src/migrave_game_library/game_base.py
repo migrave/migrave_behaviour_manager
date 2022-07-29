@@ -371,11 +371,6 @@ class GameBase(object):
         self.audio_play(self.celebration_sound_name)
 
     def setup_ros(self):
-        game_status_topic = f"/migrave_game_{self.game_id}/status"
-        rospy.loginfo('[%s] Initialising publisher on topic %s', self.game_id, game_status_topic)
-        self.game_status_pub = rospy.Publisher(game_status_topic, String, queue_size=10)
-        rospy.loginfo('[%s] Initialised %s publisher', self.game_id, game_status_topic)
-
         task_status_topic = f"/migrave_game_{self.game_id}/task_status"
         rospy.loginfo('[%s] Initialising publisher on topic %s', self.game_id, task_status_topic)
         self.task_status_pub = rospy.Publisher(task_status_topic, String, queue_size=10)
