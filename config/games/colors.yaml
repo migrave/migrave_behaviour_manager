@@ -1,7 +1,8 @@
 game_id: colors
 general_game_params:
-    tasks: [red, red_vs_other, blue, blue_vs_other, green, green_vs_other, yellow, yellow_vs_other]
-    resumption_tasks: [red_resume, blue_resume, green_resume, yellow_resume]
+    tasks: [red, red_vs_other, yellow, yellow_vs_other, red_or_yellow_vs_other,
+            blue, blue_vs_other, green, green_vs_other, blue_or_green_vs_other]
+    resumption_tasks: [red_resume, yellow_resume, blue_resume, green_resume]
     game_activity_ids:
         red: red
         blue: blue
@@ -11,6 +12,8 @@ general_game_params:
         blue_vs_other: blue_vs_other
         green_vs_other: green_vs_other
         yellow_vs_other: yellow_vs_other
+        red_or_yellow_vs_other: red_or_yellow_vs_other
+        blue_or_green_vs_other: blue_or_green_vs_other
         red_resume: red
         blue_resume: blue
         green_resume: green
