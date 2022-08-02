@@ -37,10 +37,12 @@ class MigraveGameColors(GameBase):
         self.show_emotion("showing_smile")
         self.say_text("Hände auf den Tisch. Schau mich an.")
         self.show_emotion("showing_smile")
-        self.say_text("Ich nenne dir eine Farbe.und du tippst auf das passende Bild.")
+        self.say_text("Ich nenne dir eine Farbe und du tippst auf das passende Bild.")
 
     def task_start(self):
         super().task_start()
+        if self.task_status == "done":
+            return
 
         if self.task in ["red", "green", "blue", "yellow",
                          "red_resume", "green_resume", "blue_resume", "yellow_resume"]:
@@ -75,7 +77,7 @@ class MigraveGameColors(GameBase):
         self.task_parameters.image_1 = self.color_image
 
         rospy.loginfo(f"[start_new_simple_round] Publishing task parameters " +\
-                      "-- color: {self.color}, image: {self.color_image}")
+                      f"-- color: {self.color}, image: {self.color_image}")
         self.task_parameters_pub.publish(self.task_parameters)
 
         self.say_text(f"Tippe auf {self.en_to_de_color_map[self.color]}!")
