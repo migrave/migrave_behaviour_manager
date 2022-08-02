@@ -33,6 +33,6 @@ general_game_params:
         wrong_2: 0
     end_sentence: Wir sind fertig mit Farben lernen. Gut gemacht!
 game_specific_params:
-    distractor_images: [black-square, brown-square, lilac-square, orange-square, pink-square]
+    distractor_colors: [black, brown, lilac, orange, pink]
 media_params:
     celebration_sound_name: rfh-koeln/MIGRAVE/Fireworks
