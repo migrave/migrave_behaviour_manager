@@ -30,6 +30,9 @@ class GameBase(object):
     ## currently performed task
     task = "waiting"
 
+    ## index of the currently performed task
+    task_idx = -1
+
     ## current game status
     game_status = "waiting"
 
@@ -65,6 +68,7 @@ class GameBase(object):
         self.game_activity_ids = self.game_config["general_game_params"]["game_activity_ids"]
         self.difficulty_levels = self.game_config["general_game_params"]["difficulty_levels"]
         self.answer_correctnesses = self.game_config["general_game_params"]["answer_correctnesses"]
+        self.end_sentence = self.game_config["general_game_params"]["end_sentence"]
         self.celebration_sound_name = self.game_config["media_params"]["celebration_sound_name"]
 
         self.setup_ros()
@@ -80,6 +84,7 @@ class GameBase(object):
         rospy.set_param("/migrave/game_performance/game_id", self.game_id)
 
         # reset counters
+        self.task_idx = 0
         self.count = 0
         self.correct = 0
 
@@ -98,12 +103,30 @@ class GameBase(object):
             self.game_performance.stamp = rospy.Time.now()
             self.game_performance_pub.publish(self.game_performance)
 
-        self.task = self.game_status
-        rospy.loginfo(f"Running task: {self.task}")
+        if "resume" in self.game_status:
+            task_name = self.game_status[0:self.game_status.find('_resume')]
+            self.task_idx = self.tasks.index(task_name)
+        elif "next_task" in self.game_status:
+            self.task_idx += 1
+            if self.task_idx != len(self.tasks):
+                self.say_text("Lass uns weiter machen!")
+                rospy.sleep(2)
 
-        rospy.loginfo("Publishing task status: running")
-        self.task_status = "running"
-        self.task_status_pub.publish(self.task_status)
+        # we complete the game if the previous activity was the last one
+        if self.task_idx == len(self.tasks):
+            rospy.loginfo("Game complete; no new task to start")
+            self.say_text("Geschafft, du hast super mitgemacht!")
+            self.show_emotion("showing_smile")
+            self.say_text(self.end_sentence)
+            self.task_status = "done"
+            self.task_status_pub.publish("done")
+        else:
+            self.task = self.tasks[self.task_idx]
+            rospy.loginfo(f"Running task: {self.task}")
+
+            rospy.loginfo("Publishing task status: running")
+            self.task_status = "running"
+            self.task_status_pub.publish(self.task_status)
 
     def evaluate_answer(self, feedback_emotions: Dict[str, str],
                         feedback_texts: Dict[str, str]) -> None:
@@ -117,13 +140,12 @@ class GameBase(object):
         self.game_performance_pub.publish(self.game_performance)
         rospy.loginfo("Publish game performance")
 
-        if self.count < 5:
-            # Reaction after grading
-            emotion = feedback_emotions[result]
-            self.show_emotion(emotion)
-            text = feedback_texts[result]
-            self.say_text(text)
+        emotion = feedback_emotions[result]
+        self.show_emotion(emotion)
+        text = feedback_texts[result]
+        self.say_text(text)
 
+        if self.count < 5:
             if self.result == "right":
                 self.count += 1
                 self.correct += 1
@@ -170,13 +192,7 @@ class GameBase(object):
 
             if result.startswith("wrong") and result != "wrong":
                 self.retry_after_wrong()
-
         else:  # self.count = 5, self.correct <=4 at the first iteration
-            emotion = feedback_emotions[result]
-            self.show_emotion(emotion)
-            text = feedback_texts[result]
-            self.say_text(text)
-
             if self.count == 5 and self.correct == 4:
                 rospy.loginfo("80% correctness case")
                 if result == "right":
@@ -245,6 +261,7 @@ class GameBase(object):
         if "start" in self.game_status:
             rospy.loginfo(f"Game {self.game_id} starts")
             self.game_start()
+            self.task_start()
         # end the game
         elif "end" in self.game_status:
             rospy.loginfo(f"Game {self.game_id} ends")
@@ -254,7 +271,7 @@ class GameBase(object):
             self.game_performance.game_activity.game_activity_id = "game_end"
             self.game_performance.stamp = rospy.Time.now()
             self.game_performance_pub.publish(self.game_performance)
-        elif self.game_status in self.tasks:
+        else:
             self.task_start()
 
     def audio_play(self, audio):
@@ -359,9 +376,6 @@ class GameBase(object):
         self.show_emotion("showing_smile")
         self.gesture_play("QT/imitation/hands-up-back")
 
-        rospy.loginfo("Publishing task status: finish")
-        self.task_status_pub.publish("finish")
-
         rospy.loginfo("Publishing image: Fireworks")
         self.say_text("Schau mal auf das Tablet. Da ist ein Feuerwerk für dich!")
         self.tablet_image_pub.publish("Fireworks")
@@ -369,6 +383,9 @@ class GameBase(object):
         rospy.loginfo("Publishing sounds: Fireworks")
         rospy.sleep(2)
         self.audio_play(self.celebration_sound_name)
+
+        rospy.loginfo("Publishing task status: finish")
+        self.task_status_pub.publish("finish")
 
     def setup_ros(self):
         task_status_topic = f"/migrave_game_{self.game_id}/task_status"
