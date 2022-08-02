@@ -63,8 +63,7 @@ class MigraveGameColors(GameBase):
                          "red_resume", "green_resume", "blue_resume", "yellow_resume"]:
             self.start_new_simple_round()
         elif self.task in ["red_vs_other", "green_vs_other", "blue_vs_other", "yellow_vs_other",
-                           "red_vs_other_resume", "green_vs_other_resume",
-                           "blue_vs_other_resume", "yellow_vs_other_resume"]:
+                           "red_or_yellow_vs_other", "blue_or_green_vs_other"]:
             self.start_new_differentiation_round()
 
     def start_new_simple_round(self):
@@ -84,18 +83,24 @@ class MigraveGameColors(GameBase):
         self.say_text(f"Tippe auf {self.en_to_de_color_map[self.color]}!")
 
     def start_new_differentiation_round(self):
-        # differentiation tasks are expected to have names of the form [color]_vs_other
-        self.color = self.task.split('_')[0]
+        # differentiation tasks are expected to have names of the form
+        # [color]_vs_other or [color1]_or_[color2]_vs_other
+        if "or" in self.task:
+            tested_colors = self.task[0:self.task.find("vs")-1].split("_or_")
+            self.color = random.choice(tested_colors)
+        else:
+            self.color = self.task.split('_')[0]
         self.color_image = f"{self.color}-square"
 
         distractor_color = random.choice(self.distractor_colors)
         distractor_image = f"{distractor_color}-square"
 
-        r = random.random()
         self.task_parameters.emotion = self.color
         self.task_parameters.correct_image = self.color_image
         self.task_parameters.image_x = f"{self.color_image}-highlighted"
-        if r < 0.5:
+
+        # we randomise the position of the correct image
+        if random.random() < 0.5:
             self.task_parameters.image_1 = self.color_image
             self.task_parameters.image_2 = distractor_image
         else:
