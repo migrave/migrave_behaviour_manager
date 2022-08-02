@@ -18,7 +18,7 @@ class MigraveGameColors(GameBase):
                                                 game_answer_topic,
                                                 game_performance_topic)
 
-        self.distractor_images = self.game_config["game_specific_params"]["distractor_images"]
+        self.distractor_colors = self.game_config["game_specific_params"]["distractor_colors"]
 
         self.task_parameters = TaskParameters()
         self.task_parameters_pub = rospy.Publisher("/migrave_game_colors/task_parameters",
@@ -71,19 +71,43 @@ class MigraveGameColors(GameBase):
         self.color = self.task
         self.color_image = f"{self.task}-square"
 
-        self.say_text("Schau auf das Tablet!")
-
         self.task_parameters.emotion = self.color
         self.task_parameters.image_1 = self.color_image
+        self.task_parameters.image_2 = ""
+        self.task_parameters.image_x = ""
+        self.task_parameters.correct_image = self.color_image
 
+        self.say_text("Schau auf das Tablet!")
         rospy.loginfo(f"[start_new_simple_round] Publishing task parameters " +\
                       f"-- color: {self.color}, image: {self.color_image}")
         self.task_parameters_pub.publish(self.task_parameters)
-
         self.say_text(f"Tippe auf {self.en_to_de_color_map[self.color]}!")
 
     def start_new_differentiation_round(self):
-        pass
+        # differentiation tasks are expected to have names of the form [color]_vs_other
+        self.color = self.task.split('_')[0]
+        self.color_image = f"{self.color}-square"
+
+        distractor_color = random.choice(self.distractor_colors)
+        distractor_image = f"{distractor_color}-square"
+
+        r = random.random()
+        self.task_parameters.emotion = self.color
+        self.task_parameters.correct_image = self.color_image
+        self.task_parameters.image_x = f"{self.color_image}-highlighted"
+        if r < 0.5:
+            self.task_parameters.image_1 = self.color_image
+            self.task_parameters.image_2 = distractor_image
+        else:
+            self.task_parameters.image_1 = distractor_image
+            self.task_parameters.image_2 = self.color_image
+
+        self.say_text("Schau auf das Tablet!")
+        rospy.loginfo(f"[start_new_simple_round] Publishing task parameters " +\
+                      f"-- color: {self.color}, image: {self.color_image}, " +\
+                      f"distractor image: {distractor_image}")
+        self.task_parameters_pub.publish(self.task_parameters)
+        self.say_text(f"Tippe auf {self.en_to_de_color_map[self.color]}!")
 
     def evaluate_answer(self):
         feedback_emotions = {
