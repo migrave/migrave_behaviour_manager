@@ -162,19 +162,19 @@ class MigraveGameColors(GameBase):
             "wrong_2": ""
         }
         right_texts = {
-            "red": "\emph\ Rot! \emph\ Richtig! \emph\ Wunderbar!",
-            "red_vs_other": "\emph\ Rot! \emph\ Richtig! \emph\ Wunderbar!",
-            "green": "\emph\ Grün! \emph\ Richtig! \emph\ Wunderbar!",
-            "green_vs_other": "\emph\ Grün! \emph\ Richtig! \emph\ Wunderbar!",
-            "blue": "\emph\ Blau! \emph\ Richtig! \emph\ Wunderbar!",
-            "blue_vs_other": "\emph\ Blau! \emph\ Richtig! \emph\ Wunderbar!",
-            "yellow": "\emph\ Gelb! \emph\ Richtig! \emph\ Wunderbar!",
-            "yellow_vs_other": "\emph\ Gelb! \emph\ Richtig! \emph\ Wunderbar!",
-            "red_or_yellow_vs_other": f"\emph\ {self.en_to_de_color_map[self.color]}! \emph\ Richtig! \emph\ Wunderbar!",
-            "blue_or_green_vs_other": f"{self.en_to_de_color_map[self.color]}! \emph\ Richtig! \emph\ Wunderbar!",
-            "three_squares": f"\emph\ {self.en_to_de_color_map[self.color]}! \emph\ Richtig! \emph\ Wunderbar!",
-            "three_cars": f"\emph\ {self.en_to_de_color_map[self.color]}! \emph\ Richtig! \emph\ Wunderbar!",
-            "three_objects": f"\emph\ {self.en_to_de_color_map[self.color]}! \emph\ Richtig! \emph\ Wunderbar!"
+            "red": r"\emph\ Rot! \emph\ Richtig! \emph\ Wunderbar!",
+            "red_vs_other": r"\emph\ Rot! \emph\ Richtig! \emph\ Wunderbar!",
+            "green": r"\emph\ Grün! \emph\ Richtig! \emph\ Wunderbar!",
+            "green_vs_other": r"\emph\ Grün! \emph\ Richtig! \emph\ Wunderbar!",
+            "blue": r"\emph\ Blau! \emph\ Richtig! \emph\ Wunderbar!",
+            "blue_vs_other": r"\emph\ Blau! \emph\ Richtig! \emph\ Wunderbar!",
+            "yellow": r"\emph\ Gelb! \emph\ Richtig! \emph\ Wunderbar!",
+            "yellow_vs_other": r"\emph\ Gelb! \emph\ Richtig! \emph\ Wunderbar!",
+            "red_or_yellow_vs_other": fr"\emph\ {self.en_to_de_color_map[self.color]}! \emph\ Richtig! \emph\ Wunderbar!",
+            "blue_or_green_vs_other": fr"{self.en_to_de_color_map[self.color]}! \emph\ Richtig! \emph\ Wunderbar!",
+            "three_squares": fr"\emph\ {self.en_to_de_color_map[self.color]}! \emph\ Richtig! \emph\ Wunderbar!",
+            "three_cars": fr"\emph\ {self.en_to_de_color_map[self.color]}! \emph\ Richtig! \emph\ Wunderbar!",
+            "three_objects": fr"\emph\ {self.en_to_de_color_map[self.color]}! \emph\ Richtig! \emph\ Wunderbar!"
         }
         feedback_texts = {
             "right": right_texts[self.task],
