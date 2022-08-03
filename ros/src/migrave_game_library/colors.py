@@ -18,7 +18,9 @@ class MigraveGameColors(GameBase):
                                                 game_answer_topic,
                                                 game_performance_topic)
 
+        self.target_colors = self.game_config["game_specific_params"]["target_colors"]
         self.distractor_colors = self.game_config["game_specific_params"]["distractor_colors"]
+        self.generalisation_objects = self.game_config["game_specific_params"]["generalisation_objects"]
 
         self.activity_parameters = UIActivityParameters()
         self.activity_parameters_pub = rospy.Publisher("/migrave_game_colors/activity_parameters",
@@ -54,6 +56,9 @@ class MigraveGameColors(GameBase):
                            "blue_vs_other_resume", "yellow_vs_other_resume"]:
             rospy.loginfo(f"Starting differentiation task '{self.task}'")
             self.start_new_differentiation_round()
+        elif self.task in ["three_squares", "three_cars", "three_objects"]:
+            rospy.loginfo(f"Starting generalisation task '{self.task}'")
+            self.start_new_generalisation_round()
 
     def start_new_round_and_grade(self):
         rospy.loginfo("[start_new_round_and_grade] Publishing task status 'running'")
@@ -66,6 +71,8 @@ class MigraveGameColors(GameBase):
         elif self.task in ["red_vs_other", "green_vs_other", "blue_vs_other", "yellow_vs_other",
                            "red_or_yellow_vs_other", "blue_or_green_vs_other"]:
             self.start_new_differentiation_round()
+        elif self.task in ["three_squares", "three_cars", "three_objects"]:
+            self.start_new_generalisation_round()
 
     def start_new_simple_round(self):
         self.color = self.task
@@ -103,9 +110,45 @@ class MigraveGameColors(GameBase):
             self.activity_parameters.images = [distractor_image, self.color_image]
 
         self.say_text("Schau auf das Tablet!")
-        rospy.loginfo(f"[start_new_simple_round] Publishing task parameters " +\
+        rospy.loginfo(f"[start_new_differentiation_round] Publishing task parameters " +\
                       f"-- color: {self.color}, image: {self.color_image}, " +\
                       f"distractor image: {distractor_image}")
+        self.activity_parameters_pub.publish(self.activity_parameters)
+        self.say_text(f"Tippe auf {self.en_to_de_color_map[self.color]}!")
+
+    def start_new_generalisation_round(self):
+        possible_colors = list(self.target_colors)
+        for _ in range(5):
+            random.shuffle(possible_colors)
+            rospy.sleep(0.05)
+
+        # we only take the first three elements of the list
+        possible_colors = possible_colors[0:3]
+
+        self.color = random.choice(possible_colors)
+        if "squares" in self.task:
+            self.color_image = f"{self.color}-square"
+            self.activity_parameters.correct_image = self.color_image
+            self.activity_parameters.correct_image_highlighted = f"{self.color_image}-highlighted"
+            self.activity_parameters.images = [f"{x}-square" for x in possible_colors]
+        elif "cars" in self.task:
+            self.color_image = f"{self.color}-car"
+            self.activity_parameters.correct_image = self.color_image
+            self.activity_parameters.correct_image_highlighted = f"{self.color_image}-highlighted"
+            self.activity_parameters.images = [f"{x}-car" for x in possible_colors]
+        elif "objects" in self.task:
+            self.color_image = random.choice(self.generalisation_objects[self.color])
+            self.activity_parameters.correct_image = self.color_image
+            self.activity_parameters.correct_image_highlighted = f"{self.color_image}-highlighted"
+            self.activity_parameters.images = [random.choice(self.generalisation_objects[x])
+                                               if x != self.color
+                                               else self.color_image
+                                               for x in possible_colors]
+
+        self.say_text("Schau auf das Tablet!")
+        rospy.loginfo(f"[start_new_generalisation_round] Publishing task parameters " +\
+                      f"-- color: {self.color}, image: {self.color_image}, " +\
+                      f"all images: {self.activity_parameters.images}")
         self.activity_parameters_pub.publish(self.activity_parameters)
         self.say_text(f"Tippe auf {self.en_to_de_color_map[self.color]}!")
 
@@ -128,7 +171,10 @@ class MigraveGameColors(GameBase):
             "yellow": "Gelb! Richtig! Wunderbar!",
             "yellow_vs_other": "Gelb! Richtig! Wunderbar!",
             "red_or_yellow_vs_other": f"{self.en_to_de_color_map[self.color]}! Richtig! Wunderbar!",
-            "blue_or_green_vs_other": f"{self.en_to_de_color_map[self.color]}! Richtig! Wunderbar!"
+            "blue_or_green_vs_other": f"{self.en_to_de_color_map[self.color]}! Richtig! Wunderbar!",
+            "three_squares": f"{self.en_to_de_color_map[self.color]}! Richtig! Wunderbar!",
+            "three_cars": f"{self.en_to_de_color_map[self.color]}! Richtig! Wunderbar!",
+            "three_objects": f"{self.en_to_de_color_map[self.color]}! Richtig! Wunderbar!"
         }
         feedback_texts = {
             "right": right_texts[self.task],
