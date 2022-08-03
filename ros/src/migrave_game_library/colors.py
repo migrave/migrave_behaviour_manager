@@ -178,11 +178,7 @@ class MigraveGameColors(GameBase):
         }
         feedback_texts = {
             "right": right_texts[self.task],
-            "right_1": right_texts[self.task],
-            "right_2": right_texts[self.task],
-            "wrong": "Lass es uns nochmal probieren!",
-            "wrong_1": "Lass es uns nochmal probieren!",
-            "wrong_2": "Lass es uns nochmal probieren!"
+            "wrong": "Lass es uns nochmal probieren!"
         }
 
         super().evaluate_answer(feedback_emotions, feedback_texts)
@@ -191,3 +187,18 @@ class MigraveGameColors(GameBase):
         rospy.loginfo("[retry_after_wrong] Publishing task status 'running'")
         self.task_status_pub.publish("running")
         rospy.sleep(2)
+
+        if self.wrong_answer_count == 1:
+            correct_image_idx = self.activity_parameters.images.index(self.activity_parameters.correct_image)
+            self.activity_parameters.images[correct_image_idx] = self.activity_parameters.correct_image_highlighted
+            self.activity_parameters.correct_image = self.activity_parameters.correct_image_highlighted
+        elif self.wrong_answer_count == 2:
+            self.activity_parameters.images = [self.activity_parameters.correct_image_highlighted]
+            self.activity_parameters.correct_image = self.activity_parameters.correct_image_highlighted
+
+        self.say_text("Schau auf das Tablet!")
+        rospy.loginfo(f"[start_new_generalisation_round] Publishing task parameters " +\
+                      f"-- color: {self.color}, image: {self.color_image}, " +\
+                      f"all images: {self.activity_parameters.images}")
+        self.activity_parameters_pub.publish(self.activity_parameters)
+        self.say_text(f"Tippe auf {self.en_to_de_color_map[self.color]}!")

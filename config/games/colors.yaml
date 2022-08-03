@@ -36,13 +36,6 @@ general_game_params:
         three_squares: 4
         three_cars: 4
         three_objects: 5
-    answer_correctnesses:
-        right: 1
-        right_1: 1
-        right_2: 1
-        wrong: 0
-        wrong_1: 0
-        wrong_2: 0
     end_sentence: Wir sind fertig mit Farben lernen. Gut gemacht!
 game_specific_params:
     target_colors: [red, yellow, blue, green]

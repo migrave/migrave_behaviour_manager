@@ -25,8 +25,6 @@ class GameBase(object):
     ## dictionary of activity names and their difficulty levels
     difficulty_levels = None
 
-    answer_correctnesses = None
-
     ## currently performed task
     task = "waiting"
 
@@ -42,10 +40,14 @@ class GameBase(object):
     ## result of the latest answer
     result = "waiting"
 
-    count = 0
+    ## number of rounds that have been played of the current activity
+    round_count = 0
 
     ## correct answer counter
-    correct = 0
+    correct_answer_count = 0
+
+    ## number of times an incorrect answer has been given in the current activity
+    wrong_answer_count = 0
 
     game_performance = None
 
@@ -67,7 +69,6 @@ class GameBase(object):
         self.tasks = self.game_config["general_game_params"]["tasks"]
         self.game_activity_ids = self.game_config["general_game_params"]["game_activity_ids"]
         self.difficulty_levels = self.game_config["general_game_params"]["difficulty_levels"]
-        self.answer_correctnesses = self.game_config["general_game_params"]["answer_correctnesses"]
         self.end_sentence = self.game_config["general_game_params"]["end_sentence"]
         self.celebration_sound_name = self.game_config["media_params"]["celebration_sound_name"]
 
@@ -85,17 +86,19 @@ class GameBase(object):
 
         # reset counters
         self.task_idx = 0
-        self.count = 0
-        self.correct = 0
+        self.round_count = 0
+        self.wrong_answer_count
+        self.correct_answer_count = 0
 
     def task_start(self):
         rospy.loginfo("Starting new task")
+        self.wrong_answer_count = 0
 
         # reset the counters when starting a new task;
         # publish the game performance when resuming
         if "resume" not in self.game_status:
-            self.count = 0
-            self.correct = 0
+            self.round_count = 0
+            self.correct_answer_count = 0
         else:
             self.game_performance.answer_correctness = -1
             self.game_performance.game_activity.game_id = self.game_id
@@ -136,7 +139,7 @@ class GameBase(object):
         self.game_performance.game_activity.game_id = self.game_id
         self.game_performance.game_activity.game_activity_id = self.game_activity_ids[self.task]
         self.game_performance.game_activity.difficulty_level = self.difficulty_levels[self.task]
-        self.game_performance.answer_correctness = self.answer_correctnesses[result]
+        self.game_performance.answer_correctness = 1 if "right" in result else 0
         self.game_performance_pub.publish(self.game_performance)
         rospy.loginfo("Publish game performance")
 
@@ -145,103 +148,32 @@ class GameBase(object):
         text = feedback_texts[result]
         self.say_text(text)
 
-        if self.count < 5:
-            if self.result == "right":
-                self.count += 1
-                self.correct += 1
-                rospy.loginfo(f"Count: {self.count}; Correct: {self.correct}")
+        if self.result == "right":
+            self.round_count += 1
+            self.correct_answer_count += 1
+            self.wrong_answer_count = 0
+            rospy.loginfo(f"Count: {self.round_count}; Correct: {self.correct_answer_count}")
 
-                # Finish the task when correct >= 4 times in the first 5 rounds
-                if self.count == 5 and self.correct >= 4:
-                    self.say_text("Dafür bekommst du einen Stern! Schau mal auf das Tablet.")
-                    self.audio_play("rfh-koeln/MIGRAVE/Reward2")
-                    image = f"{self.correct}Token"
-                    rospy.loginfo(image)
-                    self.tablet_image_pub.publish(image)
-                    rospy.sleep(6)
-                    rospy.loginfo("Ending")
-                    rospy.loginfo(f"Count: {self.count}; Correct: {self.correct}")
-                    self.finish_one_task()
+            self.say_text("Dafür bekommst du einen Stern! Schau mal auf das Tablet.")
+            self.audio_play("rfh-koeln/MIGRAVE/Reward2")
+            image = f"{self.correct_answer_count}Token"
+            rospy.loginfo(image)
+            self.tablet_image_pub.publish(image)
+            rospy.loginfo(f"Publish image: {self.correct_answer_count}Token")
+            rospy.sleep(6)
 
-                # For other cases, start a new round
-                else:
-                    rospy.loginfo("Continue")
-                    self.say_text("Dafür bekommst du einen Stern! Schau mal auf das Tablet.")
-                    self.audio_play("rfh-koeln/MIGRAVE/Reward2")
-
-                    image = f"{self.correct}Token"
-                    rospy.loginfo(image)
-                    self.tablet_image_pub.publish(image)
-                    rospy.loginfo(f"Publish image: {self.correct}Token")
-                    rospy.sleep(6)
-
-                    self.show_emotion("showing_smile")
-                    self.say_text("Noch ein mal!")
-
-                    self.start_new_round_and_grade()
-
-            if result == "wrong":
-                self.count += 1
-                rospy.loginfo(f"Count: {self.count}; Correct: {self.correct}")
-                self.retry_after_wrong()
-
-            if result.startswith("right") and result != "right":
+            if self.round_count == 5:
+                rospy.loginfo("Ending current task")
+                self.finish_one_task()
+            else:
+                rospy.loginfo("Continuing current task")
                 self.show_emotion("showing_smile")
                 self.say_text("Noch ein mal!")
                 self.start_new_round_and_grade()
-
-            if result.startswith("wrong") and result != "wrong":
-                self.retry_after_wrong()
-        else:  # self.count = 5, self.correct <=4 at the first iteration
-            if self.count == 5 and self.correct == 4:
-                rospy.loginfo("80% correctness case")
-                if result == "right":
-                    self.count += 1
-                    self.correct += 1
-                    rospy.loginfo(f"Count: {self.count}; Correct: {self.correct}")
-                    self.say_text("Dafür bekommst du einen Stern! Schau mal auf das Tablet.")
-                    self.audio_play("rfh-koeln/MIGRAVE/Reward2")
-                    image = f"{self.correct}Token"
-                    rospy.loginfo(image)
-
-                    self.tablet_image_pub.publish(image)
-                    rospy.loginfo(f"Publish image: {self.correct}Token")
-                    rospy.sleep(6)
-                elif result.startswith("wrong"):
-                    self.retry_after_wrong()
-                else:  # right_after_wrong
-                    self.say_text("Noch ein mal!")
-                    self.start_new_round_and_grade()
-            if self.count == 5 and self.correct <= 3:
-                rospy.loginfo("less than 80% correctness case")
-                if result == "right":
-                    self.correct += 1
-                    rospy.loginfo(f"Count: {self.count}; Correct: {self.correct}")
-                    self.say_text("Dafür bekommst du einen Stern! Schau mal auf das Tablet.")
-                    self.audio_play("rfh-koeln/MIGRAVE/Reward2")
-
-                    image = f"{self.correct}Token"
-                    rospy.loginfo(image)
-                    self.tablet_image_pub.publish(image)
-                    rospy.loginfo(f"Publish image: {self.correct}Token")
-                    rospy.sleep(6)
-                    if self.count == 5 and self.correct == 4:
-                        rospy.loginfo("3 out of 5 -> 4 correct, finish")
-                        self.finish_one_task()
-                    if self.count == 5 and self.correct < 4:
-                        rospy.loginfo("Less than 4, continue")
-                        self.say_text("Noch ein mal!")
-                        self.start_new_round_and_grade()
-                if result.startswith("right") and result != "right":
-                    self.say_text("Noch ein mal!")
-                    self.start_new_round_and_grade()
-                if result.startswith("wrong"):
-                    self.retry_after_wrong()
-
-            if self.correct == 5:  # finish the task when correct 5 times
-                rospy.loginfo("Ending")
-                rospy.loginfo(f"Count: {self.count}; Correct: {self.correct}")
-                self.finish_one_task()
+        elif result == "wrong":
+            self.wrong_answer_count += 1
+            rospy.loginfo(f"Wrong answer count: {self.wrong_answer_count}")
+            self.retry_after_wrong()
 
     def retry_after_wrong(self):
         raise NotImplementedError("retry_after_wrong needs to be overridden")
@@ -367,8 +299,9 @@ class GameBase(object):
         rospy.set_param("/migrave/game_performance/participant_id", msg.person.id)
 
     def finish_one_task(self):
-        self.count = 0
-        self.correct = 0
+        self.round_count = 0
+        self.correct_answer_count = 0
+        self.wrong_answer_count = 0
 
         self.show_emotion("showing_smile")
         self.say_text("Geschafft! Das hast du super gemacht!")
