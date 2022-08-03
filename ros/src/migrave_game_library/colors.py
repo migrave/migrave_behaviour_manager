@@ -49,6 +49,7 @@ class MigraveGameColors(GameBase):
             rospy.loginfo(f"Starting simple task '{self.task}'")
             self.start_new_simple_round()
         elif self.task in ["red_vs_other", "green_vs_other", "blue_vs_other", "yellow_vs_other",
+                           "red_or_yellow_vs_other", "blue_or_green_vs_other",
                            "red_vs_other_resume", "green_vs_other_resume",
                            "blue_vs_other_resume", "yellow_vs_other_resume"]:
             rospy.loginfo(f"Starting differentiation task '{self.task}'")
@@ -125,7 +126,9 @@ class MigraveGameColors(GameBase):
             "blue": "Blau! Richtig! Wunderbar!",
             "blue_vs_other": "Blau! Richtig! Wunderbar!",
             "yellow": "Gelb! Richtig! Wunderbar!",
-            "yellow_vs_other": "Gelb! Richtig! Wunderbar!"
+            "yellow_vs_other": "Gelb! Richtig! Wunderbar!",
+            "red_or_yellow_vs_other": f"{self.en_to_de_color_map[self.color]}! Richtig! Wunderbar!",
+            "blue_or_green_vs_other": f"{self.en_to_de_color_map[self.color]}! Richtig! Wunderbar!"
         }
         feedback_texts = {
             "right": right_texts[self.task],
