@@ -1,7 +1,8 @@
 game_id: colors
 general_game_params:
     tasks: [red, red_vs_other, yellow, yellow_vs_other, red_or_yellow_vs_other,
-            blue, blue_vs_other, green, green_vs_other, blue_or_green_vs_other]
+            blue, blue_vs_other, green, green_vs_other, blue_or_green_vs_other,
+            three_squares, three_cars, three_objects]
     resumption_tasks: [red_resume, yellow_resume, blue_resume, green_resume]
     game_activity_ids:
         red: red
@@ -14,6 +15,9 @@ general_game_params:
         yellow_vs_other: yellow_vs_other
         red_or_yellow_vs_other: red_or_yellow_vs_other
         blue_or_green_vs_other: blue_or_green_vs_other
+        three_squares: three_squares
+        three_cars: three_cars
+        three_objects: three_objects
         red_resume: red
         blue_resume: blue
         green_resume: green
@@ -29,6 +33,9 @@ general_game_params:
         yellow_vs_other: 2
         red_or_yellow_vs_other: 3
         blue_or_green_vs_other: 3
+        three_squares: 4
+        three_cars: 4
+        three_objects: 5
     answer_correctnesses:
         right: 1
         right_1: 1
@@ -38,6 +45,12 @@ general_game_params:
         wrong_2: 0
     end_sentence: Wir sind fertig mit Farben lernen. Gut gemacht!
 game_specific_params:
+    target_colors: [red, yellow, blue, green]
     distractor_colors: [black, brown, lilac, orange, pink]
+    generalisation_objects:
+        red: []
+        yellow: []
+        blue: []
+        green: []
 media_params:
     celebration_sound_name: rfh-koeln/MIGRAVE/Fireworks
