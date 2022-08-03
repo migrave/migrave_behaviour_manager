@@ -23,10 +23,12 @@ general_game_params:
         blue: 1
         green: 1
         yellow: 1
-        red_resume: 1
-        blue_resume: 1
-        green_resume: 1
-        yellow_resume: 1
+        red_vs_other: 2
+        blue_vs_other: 2
+        green_vs_other: 2
+        yellow_vs_other: 2
+        red_or_yellow_vs_other: 3
+        blue_or_green_vs_other: 3
     answer_correctnesses:
         right: 1
         right_1: 1
