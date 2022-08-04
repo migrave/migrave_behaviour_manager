@@ -309,16 +309,16 @@ class GameBase(object):
         self.show_emotion("showing_smile")
         self.gesture_play("QT/imitation/hands-up-back")
 
-        rospy.loginfo("Publishing image: Fireworks")
+        rospy.loginfo("Publishing task status: finish")
+        self.task_status_pub.publish("finish")
+
+        rospy.loginfo("Publishing image: fireworks")
         self.say_text("Schau mal auf das Tablet. Da ist ein Feuerwerk für dich!")
-        self.tablet_image_pub.publish("Fireworks")
+        self.tablet_image_pub.publish("fireworks")
 
         rospy.loginfo("Publishing sounds: Fireworks")
         rospy.sleep(2)
         self.audio_play(self.celebration_sound_name)
-
-        rospy.loginfo("Publishing task status: finish")
-        self.task_status_pub.publish("finish")
 
     def setup_ros(self):
         task_status_topic = f"/migrave_game_{self.game_id}/task_status"
