@@ -62,8 +62,11 @@ class MigraveGameColors(GameBase):
 
     def start_new_round_and_grade(self):
         rospy.loginfo("[start_new_round_and_grade] Publishing task status 'running'")
-        self.task_status_pub.publish("running")
-        rospy.sleep(2)
+
+        self.msg_acknowledged = False
+        while not self.msg_acknowledged:
+            self.task_status_pub.publish("running")
+            rospy.sleep(2)
 
         if self.task in ["red", "green", "blue", "yellow",
                          "red_resume", "green_resume", "blue_resume", "yellow_resume"]:
@@ -82,9 +85,12 @@ class MigraveGameColors(GameBase):
         self.activity_parameters.correct_image = self.color_image
 
         self.say_text("Schau auf das Tablet!")
-        rospy.loginfo(f"[start_new_simple_round] Publishing task parameters " +\
-                      f"-- color: {self.color}, image: {self.color_image}")
-        self.activity_parameters_pub.publish(self.activity_parameters)
+        self.msg_acknowledged = False
+        while not self.msg_acknowledged:
+            rospy.loginfo(f"[start_new_simple_round] Publishing task parameters " +\
+                          f"-- color: {self.color}, image: {self.color_image}")
+            self.activity_parameters_pub.publish(self.activity_parameters)
+            rospy.sleep(0.5)
         self.say_text(f"Tippe auf {self.en_to_de_color_map[self.color]}!")
 
     def start_new_differentiation_round(self):
@@ -110,10 +116,13 @@ class MigraveGameColors(GameBase):
             self.activity_parameters.images = [distractor_image, self.color_image]
 
         self.say_text("Schau auf das Tablet!")
-        rospy.loginfo(f"[start_new_differentiation_round] Publishing task parameters " +\
-                      f"-- color: {self.color}, image: {self.color_image}, " +\
-                      f"distractor image: {distractor_image}")
-        self.activity_parameters_pub.publish(self.activity_parameters)
+        self.msg_acknowledged = False
+        while not self.msg_acknowledged:
+            rospy.loginfo(f"[start_new_differentiation_round] Publishing task parameters " +\
+                          f"-- color: {self.color}, image: {self.color_image}, " +\
+                          f"distractor image: {distractor_image}")
+            self.activity_parameters_pub.publish(self.activity_parameters)
+            rospy.sleep(0.5)
         self.say_text(f"Tippe auf {self.en_to_de_color_map[self.color]}!")
 
     def start_new_generalisation_round(self):
@@ -146,10 +155,13 @@ class MigraveGameColors(GameBase):
                                                for x in possible_colors]
 
         self.say_text("Schau auf das Tablet!")
-        rospy.loginfo(f"[start_new_generalisation_round] Publishing task parameters " +\
-                      f"-- color: {self.color}, image: {self.color_image}, " +\
-                      f"all images: {self.activity_parameters.images}")
-        self.activity_parameters_pub.publish(self.activity_parameters)
+        self.msg_acknowledged = False
+        while not self.msg_acknowledged:
+            rospy.loginfo(f"[start_new_generalisation_round] Publishing task parameters " +\
+                          f"-- color: {self.color}, image: {self.color_image}, " +\
+                          f"all images: {self.activity_parameters.images}")
+            self.activity_parameters_pub.publish(self.activity_parameters)
+            rospy.sleep(0.5)
         self.say_text(f"Tippe auf {self.en_to_de_color_map[self.color]}!")
 
     def evaluate_answer(self):
@@ -185,8 +197,10 @@ class MigraveGameColors(GameBase):
 
     def retry_after_wrong(self):
         rospy.loginfo("[retry_after_wrong] Publishing task status 'running'")
-        self.task_status_pub.publish("running")
-        rospy.sleep(2)
+        self.msg_acknowledged = False
+        while not self.msg_acknowledged:
+            self.task_status_pub.publish("running")
+            rospy.sleep(2)
 
         if self.wrong_answer_count == 1:
             correct_image_idx = self.activity_parameters.images.index(self.activity_parameters.correct_image)
@@ -197,8 +211,11 @@ class MigraveGameColors(GameBase):
             self.activity_parameters.correct_image = self.activity_parameters.correct_image_highlighted
 
         self.say_text("Schau auf das Tablet!")
-        rospy.loginfo(f"[start_new_generalisation_round] Publishing task parameters " +\
-                      f"-- color: {self.color}, image: {self.color_image}, " +\
-                      f"all images: {self.activity_parameters.images}")
-        self.activity_parameters_pub.publish(self.activity_parameters)
+        self.msg_acknowledged = False
+        while not self.msg_acknowledged:
+            rospy.loginfo(f"[start_new_generalisation_round] Publishing task parameters " +\
+                          f"-- color: {self.color}, image: {self.color_image}, " +\
+                          f"all images: {self.activity_parameters.images}")
+            self.activity_parameters_pub.publish(self.activity_parameters)
+            rospy.sleep(0.5)
         self.say_text(f"Tippe auf {self.en_to_de_color_map[self.color]}!")

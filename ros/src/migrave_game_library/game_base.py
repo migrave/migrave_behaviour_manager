@@ -51,18 +51,23 @@ class GameBase(object):
 
     game_performance = None
 
+    msg_acknowledged = False
+
     gesture_speed = 1.0
 
     def __init__(self, game_config_dir_path: str,
                  game_id: str,
                  game_status_topic: str,
                  game_answer_topic: str,
-                 game_performance_topic: str):
+                 game_performance_topic: str,
+                 msg_acknowledgement_topic: str = '/migrave/msg_acknowledgement'):
         self.game_id = game_id
         self.game_status_topic = game_status_topic
         self.game_answer_topic = game_answer_topic
         self.game_performance_topic = game_performance_topic
+        self.msg_acknowledgement_topic = msg_acknowledgement_topic
         self.game_performance = GamePerformance()
+        self.msg_acknowledged = False
         self.game_config = load_yaml_file(os.path.join(game_config_dir_path, game_id + '.yaml'))
 
         self.game_id = self.game_config["game_id"]
@@ -181,12 +186,18 @@ class GameBase(object):
     def start_new_round_and_grade(self):
         raise NotImplementedError("start_new_round_and_grade needs to be overridden")
 
-    def game_answer_cb(self, msg):
+    def game_answer_cb(self, msg: String):
+        rospy.loginfo("[game_answer_cb] Publishing acknowledgement")
+        self.msg_acknowledgement_pub.publish(True)
+
         self.result = msg.data
         rospy.loginfo(f"Game result: {self.result}")
         self.evaluate_answer()
 
-    def game_status_cb(self, msg):
+    def game_status_cb(self, msg: String):
+        rospy.loginfo("[game_status_cb] Publishing acknowledgement")
+        self.msg_acknowledgement_pub.publish(True)
+
         self.game_status = msg.data
 
         # start the game
@@ -206,7 +217,14 @@ class GameBase(object):
         else:
             self.task_start()
 
-    def audio_play(self, audio):
+    def game_performance_cb(self, msg: GamePerformance):
+        self.game_performance = msg
+        rospy.set_param("/migrave/game_performance/participant_id", msg.person.id)
+
+    def msg_acknowledgement_cb(self, msg: Bool):
+        self.msg_acknowledged = True
+
+    def audio_play(self, audio: str):
         qt_audio_play = rospy.ServiceProxy("/qt_robot/audio/play", audio_play)
         rospy.wait_for_service("/qt_robot/audio/play")
         try:
@@ -228,7 +246,7 @@ class GameBase(object):
         except rospy.ServiceException as e:
             rospy.loginfo(f"Service call failed: {e}")
 
-    def gesture_play(self, gesture):
+    def gesture_play(self, gesture: str):
         qt_gesture_play_proxy = rospy.ServiceProxy("/qt_robot/gesture/play",
                                                    qt_gesture_play)
         # block/wait for ros service
@@ -251,7 +269,7 @@ class GameBase(object):
         except rospy.ServiceException as e:
             rospy.loginfo(f"Service call failed: {e}")
 
-    def say_text(self, text):
+    def say_text(self, text: str):
         qt_talk_text = rospy.ServiceProxy("/qt_robot/behavior/talkText",
                                           behavior_talk_text)
         # block/wait for ros service
@@ -274,7 +292,7 @@ class GameBase(object):
         except rospy.ServiceException as e:
             rospy.loginfo(f"Service call failed: {e}")
 
-    def show_emotion(self, emotion):
+    def show_emotion(self, emotion: str):
         qt_emotion_show = rospy.ServiceProxy("/qt_robot/emotion/show", emotion_show)
         rospy.wait_for_service("/qt_robot/emotion/show")
         try:
@@ -293,10 +311,6 @@ class GameBase(object):
             self.game_performance_pub.publish(self.game_performance)
         except rospy.ServiceException as e:
             rospy.loginfo(f"Service call failed: {e}")
-
-    def game_performance_cb(self, msg):
-        self.game_performance = msg
-        rospy.set_param("/migrave/game_performance/participant_id", msg.person.id)
 
     def finish_one_task(self):
         self.round_count = 0
@@ -341,6 +355,11 @@ class GameBase(object):
                                                     GamePerformance, queue_size=1)
         rospy.loginfo('[%s] Initialised %s publisher', self.game_id, self.game_performance_topic)
 
+        rospy.loginfo('[%s] Initialising publisher on topic %s', self.game_id, self.msg_acknowledgement_topic)
+        self.msg_acknowledgement_pub = rospy.Publisher(self.msg_acknowledgement_topic,
+                                                       Bool, queue_size=1)
+        rospy.loginfo('[%s] Initialised %s publisher', self.game_id, self.msg_acknowledgement_topic)
+
         rospy.loginfo('[%s] Initialising subscriber on topic %s', self.game_id, self.game_performance_topic)
         self.game_performance_sub = rospy.Subscriber(self.game_performance_topic,
                                                      GamePerformance,
@@ -356,3 +375,8 @@ class GameBase(object):
         self.game_answer_sub = rospy.Subscriber(self.game_answer_topic, String,
                                                 self.game_answer_cb)
         rospy.loginfo('[%s] Initialised %s subscriber', self.game_id, self.game_answer_topic)
+
+        rospy.loginfo('[%s] Initialising subscriber on topic %s', self.game_id, self.msg_acknowledgement_topic)
+        self.msg_acknowledgement_sub = rospy.Subscriber(self.msg_acknowledgement_topic, Bool,
+                                                        self.msg_acknowledgement_cb)
+        rospy.loginfo('[%s] Initialised %s subscriber', self.game_id, self.msg_acknowledgement_topic)
