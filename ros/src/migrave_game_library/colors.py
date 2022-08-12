@@ -61,10 +61,9 @@ class MigraveGameColors(GameBase):
             self.start_new_generalisation_round()
 
     def start_new_round_and_grade(self):
-        rospy.loginfo("[start_new_round_and_grade] Publishing task status 'running'")
-
         self.msg_acknowledged = False
         while not self.msg_acknowledged:
+            rospy.loginfo("[start_new_round_and_grade] Publishing task status 'running'")
             self.task_status_pub.publish("running")
             rospy.sleep(2)
 
