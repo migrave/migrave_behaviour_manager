@@ -7,7 +7,7 @@ from qt_robot_interface.srv import behavior_talk_text, emotion_show, audio_play
 from qt_gesture_controller.srv import gesture_play as qt_gesture_play
 
 from mas_tools.file_utils import load_yaml_file
-from migrave_ros_msgs.msg import GamePerformance
+from migrave_ros_msgs.msg import GamePerformance, StampedString
 
 class GameBase(object):
     """! Base class for implementing games.
@@ -49,6 +49,12 @@ class GameBase(object):
     ## number of times an incorrect answer has been given in the current activity
     wrong_answer_count = 0
 
+    ## list of IDs of received answer messages (to prevent processing messages multiple times)
+    received_answer_msg_ids = None
+
+    ## list of IDs of received status messages (to prevent processing messages multiple times)
+    received_status_msg_ids = None
+
     game_performance = None
 
     msg_acknowledged = False
@@ -68,6 +74,8 @@ class GameBase(object):
         self.msg_acknowledgement_topic = msg_acknowledgement_topic
         self.game_performance = GamePerformance()
         self.msg_acknowledged = False
+        self.received_answer_msg_ids = []
+        self.received_status_msg_ids = []
         self.game_config = load_yaml_file(os.path.join(game_config_dir_path, game_id + '.yaml'))
 
         self.game_id = self.game_config["game_id"]
@@ -173,7 +181,7 @@ class GameBase(object):
             else:
                 rospy.loginfo("Continuing current task")
                 self.show_emotion("showing_smile")
-                self.say_text("Noch ein mal!")
+                self.say_text("Noch einmal!")
                 self.start_new_round_and_grade()
         elif result == "wrong":
             self.wrong_answer_count += 1
@@ -186,10 +194,21 @@ class GameBase(object):
     def start_new_round_and_grade(self):
         raise NotImplementedError("start_new_round_and_grade needs to be overridden")
 
-    def game_answer_cb(self, msg: String):
+    def game_answer_cb(self, msg: StampedString):
         rospy.loginfo("[game_answer_cb] Publishing acknowledgement")
         self.msg_acknowledgement_pub.publish(True)
 
+        # we sleep for a while to allow subscribers on
+        # the game side to receive the acknowledgement
+        rospy.sleep(3.)
+
+        # we reset the acknowledgement due to the message latching
+        rospy.loginfo("[game_answer_cb] Resetting acknowledgement")
+        self.msg_acknowledgement_pub.publish(False)
+        if msg.id in self.received_answer_msg_ids:
+            return
+
+        self.received_answer_msg_ids.append(msg.id)
         self.result = msg.data
         rospy.loginfo(f"Game result: {self.result}")
         self.evaluate_answer()
@@ -198,6 +217,17 @@ class GameBase(object):
         rospy.loginfo("[game_status_cb] Publishing acknowledgement")
         self.msg_acknowledgement_pub.publish(True)
 
+        # we sleep for a while to allow subscribers on
+        # the game side to receive the acknowledgement
+        rospy.sleep(3.)
+
+        # we reset the acknowledgement due to the message latching
+        rospy.loginfo("[game_status_cb] Resetting acknowledgement")
+        self.msg_acknowledgement_pub.publish(False)
+        if msg.id in self.received_status_msg_ids:
+            return
+
+        self.received_status_msg_ids.append(msg.id)
         self.game_status = msg.data
 
         # start the game
@@ -357,7 +387,7 @@ class GameBase(object):
 
         rospy.loginfo('[%s] Initialising publisher on topic %s', self.game_id, self.msg_acknowledgement_topic)
         self.msg_acknowledgement_pub = rospy.Publisher(self.msg_acknowledgement_topic,
-                                                       Bool, queue_size=1)
+                                                       Bool, queue_size=1, latch=True)
         rospy.loginfo('[%s] Initialised %s publisher', self.game_id, self.msg_acknowledgement_topic)
 
         rospy.loginfo('[%s] Initialising subscriber on topic %s', self.game_id, self.game_performance_topic)
@@ -367,12 +397,12 @@ class GameBase(object):
         rospy.loginfo('[%s] Initialised %s subscriber', self.game_id, self.game_performance_topic)
 
         rospy.loginfo('[%s] Initialising subscriber on topic %s', self.game_id, self.game_status_topic)
-        self.game_status_sub = rospy.Subscriber(self.game_status_topic, String,
+        self.game_status_sub = rospy.Subscriber(self.game_status_topic, StampedString,
                                                 self.game_status_cb)
         rospy.loginfo('[%s] Initialised %s subscriber', self.game_id, self.game_status_topic)
 
         rospy.loginfo('[%s] Initialising subscriber on topic %s', self.game_id, self.game_answer_topic)
-        self.game_answer_sub = rospy.Subscriber(self.game_answer_topic, String,
+        self.game_answer_sub = rospy.Subscriber(self.game_answer_topic, StampedString,
                                                 self.game_answer_cb)
         rospy.loginfo('[%s] Initialised %s subscriber', self.game_id, self.game_answer_topic)
 
