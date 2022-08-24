@@ -41,9 +41,9 @@ game_specific_params:
     target_colors: [red, yellow, blue, green]
     distractor_colors: [black, brown, lilac, orange, pink]
     generalisation_objects:
-        red: [red-book, red-cup, red-pillow]
-        yellow: [yellow-sponge, yellow-banana, yellow-cup]
-        blue: [blue-book, blue-cup, blue-pitcher]
-        green: [green-bucket, green-cup, green-leaves]
+        red: [red-car, red-ball, red-bike, red-flower, red-socks, red-strawberry, red-toys, red-t-shirt, red-watering-can]
+        yellow: [yellow-car, yellow-ball, yellow-bike, yellow-flower, yellow-socks, yellow-banana, yellow-toys, yellow-t-shirt, yellow-watering-can]
+        blue: [blue-car, blue-ball, blue-bike, blue-flower, blue-socks, blue-blueberries, blue-toys, blue-t-shirt, blue-watering-can]
+        green: [green-car, green-ball, green-bike, green-flower, green-socks, green-apple, green-toys, green-t-shirt, green-watering-can]
 media_params:
     celebration_sound_name: rfh-koeln/MIGRAVE/Fireworks
