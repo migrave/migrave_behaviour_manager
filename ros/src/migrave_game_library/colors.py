@@ -22,6 +22,10 @@ class MigraveGameColors(GameBase):
         self.distractor_colors = self.game_config["game_specific_params"]["distractor_colors"]
         self.generalisation_objects = self.game_config["game_specific_params"]["generalisation_objects"]
 
+        # during a generalisation task, objects should not be repeated in multiple rounds;
+        # we thus keep a list of selected objects so that they can be avoided in subsequent rounds
+        self.used_generalisation_objects = []
+
         self.activity_parameters = UIActivityParameters()
         self.activity_parameters_pub = rospy.Publisher("/migrave_game_colors/activity_parameters",
                                                        UIActivityParameters, queue_size=1)
@@ -58,6 +62,11 @@ class MigraveGameColors(GameBase):
             self.start_new_differentiation_round()
         elif self.task in ["three_squares", "three_cars", "three_objects"]:
             rospy.loginfo(f"Starting generalisation task '{self.task}'")
+
+            # we reset the list of previously used generalisation objects
+            # before (re)starting a generalisation task
+            self.used_generalisation_objects = []
+
             self.start_new_generalisation_round()
 
     def start_new_round_and_grade(self):
@@ -145,13 +154,22 @@ class MigraveGameColors(GameBase):
             self.activity_parameters.correct_image_highlighted = f"{self.color_image}-highlighted"
             self.activity_parameters.images = [f"{x}-car" for x in possible_colors]
         elif "objects" in self.task:
-            self.color_image = random.choice(self.generalisation_objects[self.color])
+            # we select generalisation images by ensuring that previously used
+            # images are not repeated in subsequent rounds
+            self.activity_parameters.images = []
+            for current_color in possible_colors:
+                image_for_color = None
+                image_selected = False
+                while not image_selected:
+                    image_for_color = random.choice(self.generalisation_objects[current_color])
+                    image_selected = image_for_color not in self.used_generalisation_objects
+                self.activity_parameters.images.append(image_for_color)
+                self.used_generalisation_objects.append(image_for_color)
+
+            # we extract the image corresponding to the correct color
+            self.color_image = self.activity_parameters.images[possible_colors.index(self.color)]
             self.activity_parameters.correct_image = self.color_image
             self.activity_parameters.correct_image_highlighted = f"{self.color_image}-highlighted"
-            self.activity_parameters.images = [random.choice(self.generalisation_objects[x])
-                                               if x != self.color
-                                               else self.color_image
-                                               for x in possible_colors]
 
         self.say_text("Schau auf das Tablet!")
         self.msg_acknowledged = False
