@@ -118,7 +118,7 @@ class GameBase(object):
             self.game_performance.game_activity.game_activity_id = self.game_status
             self.game_performance.stamp = rospy.Time.now()
             self.game_performance_pub.publish(self.game_performance)
-
+        
         if "resume" in self.game_status:
             task_name = self.game_status[0:self.game_status.find('_resume')]
             self.task_idx = self.tasks.index(task_name)
@@ -145,7 +145,8 @@ class GameBase(object):
             self.task_status_pub.publish(self.task_status)
 
     def evaluate_answer(self, feedback_emotions: Dict[str, str],
-                        feedback_texts: Dict[str, str]) -> None:
+                        feedback_texts: Dict[str, str],
+                        feedback_sounds: Dict[str, str] = None) -> None:
         result = self.result
 
         self.game_performance.stamp = rospy.Time.now()
@@ -166,7 +167,8 @@ class GameBase(object):
             self.correct_answer_count += 1
             self.wrong_answer_count = 0
             rospy.loginfo(f"Count: {self.round_count}; Correct: {self.correct_answer_count}")
-
+            if feedback_sounds != None:
+                self.audio_play(str(feedback_sounds[result]) + ".mp3")
             self.say_text("Dafür bekommst du einen Stern! Schau mal auf das Tablet.")
             self.audio_play("rfh-koeln/MIGRAVE/Reward2")
             image = f"{self.correct_answer_count}Token"
