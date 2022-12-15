@@ -57,7 +57,11 @@ class GameBase(object):
 
     game_performance = None
 
-    msg_acknowledged = False
+    status_msg_acknowledged = False
+
+    parameter_msg_acknowledged = False
+
+    answer_msg_acknowledged = False
 
     gesture_speed = 1.0
 
@@ -73,7 +77,9 @@ class GameBase(object):
         self.game_performance_topic = game_performance_topic
         self.msg_acknowledgement_topic = msg_acknowledgement_topic
         self.game_performance = GamePerformance()
-        self.msg_acknowledged = False
+        self.status_msg_acknowledged = False
+        self.parameter_msg_acknowledged = False
+        self.answer_msg_acknowledged = False
         self.received_answer_msg_ids = []
         self.received_status_msg_ids = []
         self.game_config = load_yaml_file(os.path.join(game_config_dir_path, game_id + '.yaml'))
@@ -132,7 +138,7 @@ class GameBase(object):
         if self.task_idx == len(self.tasks):
             rospy.loginfo("Game complete; no new task to start")
             self.say_text("Geschafft, du hast super mitgemacht!")
-            self.show_emotion("showing_smile")
+            # self.show_emotion("showing_smile")
             self.say_text(self.end_sentence)
             self.task_status = "done"
             self.task_status_pub.publish("done")
@@ -143,6 +149,8 @@ class GameBase(object):
             rospy.loginfo("Publishing task status: running")
             self.task_status = "running"
             self.task_status_pub.publish(self.task_status)
+            rospy.sleep(2)
+            self.task_status_pub.publish("")
 
     def evaluate_answer(self, feedback_emotions: Dict[str, str],
                         feedback_texts: Dict[str, str]) -> None:
@@ -157,7 +165,7 @@ class GameBase(object):
         rospy.loginfo("Publish game performance")
 
         emotion = feedback_emotions[result]
-        self.show_emotion(emotion)
+        # self.show_emotion(emotion)
         text = feedback_texts[result]
         self.say_text(text)
 
@@ -180,7 +188,7 @@ class GameBase(object):
                 self.finish_one_task()
             else:
                 rospy.loginfo("Continuing current task")
-                self.show_emotion("showing_smile")
+                # self.show_emotion("showing_smile")
                 self.say_text("Noch einmal!")
                 self.start_new_round_and_grade()
         elif result == "wrong":
@@ -196,7 +204,7 @@ class GameBase(object):
 
     def game_answer_cb(self, msg: StampedString):
         rospy.loginfo("[game_answer_cb] Publishing acknowledgement")
-        self.msg_acknowledgement_pub.publish(True)
+        self.answer_msg_acknowledgement_pub.publish(True)
 
         # we sleep for a while to allow subscribers on
         # the game side to receive the acknowledgement
@@ -204,7 +212,7 @@ class GameBase(object):
 
         # we reset the acknowledgement due to the message latching
         rospy.loginfo("[game_answer_cb] Resetting acknowledgement")
-        self.msg_acknowledgement_pub.publish(False)
+        self.answer_msg_acknowledgement_pub.publish(False)
         if msg.id in self.received_answer_msg_ids:
             return
 
@@ -215,7 +223,7 @@ class GameBase(object):
 
     def game_status_cb(self, msg: String):
         rospy.loginfo("[game_status_cb] Publishing acknowledgement")
-        self.msg_acknowledgement_pub.publish(True)
+        self.status_msg_acknowledgement_pub.publish(True)
 
         # we sleep for a while to allow subscribers on
         # the game side to receive the acknowledgement
@@ -223,7 +231,7 @@ class GameBase(object):
 
         # we reset the acknowledgement due to the message latching
         rospy.loginfo("[game_status_cb] Resetting acknowledgement")
-        self.msg_acknowledgement_pub.publish(False)
+        self.status_msg_acknowledgement_pub.publish(False)
         if msg.id in self.received_status_msg_ids:
             return
 
@@ -251,8 +259,17 @@ class GameBase(object):
         self.game_performance = msg
         rospy.set_param("/migrave/game_performance/participant_id", msg.person.id)
 
-    def msg_acknowledgement_cb(self, msg: Bool):
-        self.msg_acknowledged = True
+    def status_msg_acknowledgement_cb(self, msg: Bool):
+        rospy.loginfo('Status acknowledgement received')
+        self.status_msg_acknowledged = True
+
+    def parameter_msg_acknowledgement_cb(self, msg: Bool):
+        rospy.loginfo('Parameter acknowledgement received')
+        self.parameter_msg_acknowledged = True
+
+    def answer_msg_acknowledgement_cb(self, msg: Bool):
+        rospy.loginfo('Answer acknowledgement received')
+        self.answer_msg_acknowledged = True
 
     def audio_play(self, audio: str):
         qt_audio_play = rospy.ServiceProxy("/qt_robot/audio/play", audio_play)
@@ -347,11 +364,11 @@ class GameBase(object):
         self.correct_answer_count = 0
         self.wrong_answer_count = 0
 
-        self.show_emotion("showing_smile")
+        # self.show_emotion("showing_smile")
         self.say_text("Geschafft! Das hast du super gemacht!")
-        self.gesture_play("QT/Dance/Dance-1-1")
-        self.show_emotion("showing_smile")
-        self.gesture_play("QT/imitation/hands-up-back")
+        # self.gesture_play("QT/Dance/Dance-1-1")
+        # self.show_emotion("showing_smile")
+        # self.gesture_play("QT/imitation/hands-up-back")
 
         rospy.loginfo("Publishing task status: finish")
         self.task_status_pub.publish("finish")
@@ -386,8 +403,18 @@ class GameBase(object):
         rospy.loginfo('[%s] Initialised %s publisher', self.game_id, self.game_performance_topic)
 
         rospy.loginfo('[%s] Initialising publisher on topic %s', self.game_id, self.msg_acknowledgement_topic)
-        self.msg_acknowledgement_pub = rospy.Publisher(self.msg_acknowledgement_topic,
-                                                       Bool, queue_size=1, latch=True)
+        self.status_msg_acknowledgement_pub = rospy.Publisher('/migrave/status_msg_acknowledgement',
+                                                              Bool, queue_size=1, latch=True)
+        rospy.loginfo('[%s] Initialised %s publisher', self.game_id, self.msg_acknowledgement_topic)
+
+        rospy.loginfo('[%s] Initialising publisher on topic %s', self.game_id, self.msg_acknowledgement_topic)
+        self.parameter_msg_acknowledgement_pub = rospy.Publisher('/migrave/parameter_msg_acknowledgement',
+                                                                 Bool, queue_size=1, latch=True)
+        rospy.loginfo('[%s] Initialised %s publisher', self.game_id, self.msg_acknowledgement_topic)
+
+        rospy.loginfo('[%s] Initialising publisher on topic %s', self.game_id, self.msg_acknowledgement_topic)
+        self.answer_msg_acknowledgement_pub = rospy.Publisher('/migrave/answer_msg_acknowledgement',
+                                                              Bool, queue_size=1, latch=True)
         rospy.loginfo('[%s] Initialised %s publisher', self.game_id, self.msg_acknowledgement_topic)
 
         rospy.loginfo('[%s] Initialising subscriber on topic %s', self.game_id, self.game_performance_topic)
@@ -407,6 +434,11 @@ class GameBase(object):
         rospy.loginfo('[%s] Initialised %s subscriber', self.game_id, self.game_answer_topic)
 
         rospy.loginfo('[%s] Initialising subscriber on topic %s', self.game_id, self.msg_acknowledgement_topic)
-        self.msg_acknowledgement_sub = rospy.Subscriber(self.msg_acknowledgement_topic, Bool,
-                                                        self.msg_acknowledgement_cb)
+        self.status_msg_acknowledgement_sub = rospy.Subscriber('/migrave/status_msg_acknowledgement', Bool,
+                                                               self.status_msg_acknowledgement_cb)
+        rospy.loginfo('[%s] Initialised %s subscriber', self.game_id, self.msg_acknowledgement_topic)
+
+        rospy.loginfo('[%s] Initialising subscriber on topic %s', self.game_id, self.msg_acknowledgement_topic)
+        self.parameter_msg_acknowledgement_sub = rospy.Subscriber('/migrave/parameter_msg_acknowledgement', Bool,
+                                                                  self.parameter_msg_acknowledgement_cb)
         rospy.loginfo('[%s] Initialised %s subscriber', self.game_id, self.msg_acknowledgement_topic)

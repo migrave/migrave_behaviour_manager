@@ -40,9 +40,9 @@ class MigraveGameColors(GameBase):
 
         rospy.loginfo("Color game starts")
         self.say_text("Heute lernen wir Farben. Fangen wir an!")
-        self.show_emotion("showing_smile")
+        # self.show_emotion("showing_smile")
         self.say_text("Hände auf den Tisch. Schau mich an.")
-        self.show_emotion("showing_smile")
+        # self.show_emotion("showing_smile")
         self.say_text("Ich nenne dir eine Farbe und du tippst auf das passende Bild.")
 
     def task_start(self):
@@ -70,11 +70,12 @@ class MigraveGameColors(GameBase):
             self.start_new_generalisation_round()
 
     def start_new_round_and_grade(self):
-        self.msg_acknowledged = False
-        while not self.msg_acknowledged:
+        self.status_msg_acknowledged = False
+        while not self.status_msg_acknowledged:
             rospy.loginfo("[start_new_round_and_grade] Publishing task status 'running'")
             self.task_status_pub.publish("running")
             rospy.sleep(2)
+        self.task_status_pub.publish("")
 
         if self.task in ["red", "green", "blue", "yellow",
                          "red_resume", "green_resume", "blue_resume", "yellow_resume"]:
@@ -93,8 +94,8 @@ class MigraveGameColors(GameBase):
         self.activity_parameters.correct_image = self.color_image
 
         self.say_text("Schau auf das Tablet!")
-        self.msg_acknowledged = False
-        while not self.msg_acknowledged:
+        self.parameter_msg_acknowledged = False
+        while not self.parameter_msg_acknowledged:
             rospy.loginfo(f"[start_new_simple_round] Publishing task parameters " +\
                           f"-- color: {self.color}, image: {self.color_image}")
             self.activity_parameters_pub.publish(self.activity_parameters)
@@ -124,8 +125,8 @@ class MigraveGameColors(GameBase):
             self.activity_parameters.images = [distractor_image, self.color_image]
 
         self.say_text("Schau auf das Tablet!")
-        self.msg_acknowledged = False
-        while not self.msg_acknowledged:
+        self.parameter_msg_acknowledged = False
+        while not self.parameter_msg_acknowledged:
             rospy.loginfo(f"[start_new_differentiation_round] Publishing task parameters " +\
                           f"-- color: {self.color}, image: {self.color_image}, " +\
                           f"distractor image: {distractor_image}")
@@ -172,8 +173,8 @@ class MigraveGameColors(GameBase):
             self.activity_parameters.correct_image_highlighted = f"{self.color_image}-highlighted"
 
         self.say_text("Schau auf das Tablet!")
-        self.msg_acknowledged = False
-        while not self.msg_acknowledged:
+        self.parameter_msg_acknowledged = False
+        while not self.parameter_msg_acknowledged:
             rospy.loginfo(f"[start_new_generalisation_round] Publishing task parameters " +\
                           f"-- color: {self.color}, image: {self.color_image}, " +\
                           f"all images: {self.activity_parameters.images}")
@@ -214,10 +215,11 @@ class MigraveGameColors(GameBase):
 
     def retry_after_wrong(self):
         rospy.loginfo("[retry_after_wrong] Publishing task status 'running'")
-        self.msg_acknowledged = False
-        while not self.msg_acknowledged:
+        self.status_msg_acknowledged = False
+        while not self.status_msg_acknowledged:
             self.task_status_pub.publish("running")
             rospy.sleep(2)
+        self.task_status_pub.publish("")
 
         if self.wrong_answer_count == 1:
             correct_image_idx = self.activity_parameters.images.index(self.activity_parameters.correct_image)
@@ -228,8 +230,8 @@ class MigraveGameColors(GameBase):
             self.activity_parameters.correct_image = self.activity_parameters.correct_image_highlighted
 
         self.say_text("Schau auf das Tablet!")
-        self.msg_acknowledged = False
-        while not self.msg_acknowledged:
+        self.parameter_msg_acknowledged = False
+        while not self.parameter_msg_acknowledged:
             rospy.loginfo(f"[start_new_generalisation_round] Publishing task parameters " +\
                           f"-- color: {self.color}, image: {self.color_image}, " +\
                           f"all images: {self.activity_parameters.images}")
