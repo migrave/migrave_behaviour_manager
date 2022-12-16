@@ -31,6 +31,7 @@ class MigraveGameColors(GameBase):
                                                        UIActivityParameters, queue_size=1)
         self.color = "Waiting"
         self.color_image = "Kein"
+        # self.possitive_feedback = []
 
         self.en_to_de_color_map = {"red": "rot", "green": "grün",
                                    "blue": "blau", "yellow": "gelb"}
@@ -90,16 +91,17 @@ class MigraveGameColors(GameBase):
         self.color_image = f"{self.task}-square"
 
         self.activity_parameters.images = [self.color_image]
-        self.activity_parameters.correct_image = self.color_image
+        self.activity_parameters.correct_image = [self.color_image]
 
-        self.say_text("Schau auf das Tablet!")
+        rospy.sleep(2)
         self.msg_acknowledged = False
         while not self.msg_acknowledged:
             rospy.loginfo(f"[start_new_simple_round] Publishing task parameters " +\
                           f"-- color: {self.color}, image: {self.color_image}")
             self.activity_parameters_pub.publish(self.activity_parameters)
             rospy.sleep(0.5)
-        self.say_text(f"Tippe auf {self.en_to_de_color_map[self.color]}!")
+        rospy.sleep(2)
+        self.say_text(f"Schau auf das Tablet! Tippe auf {self.en_to_de_color_map[self.color]}!")
 
     def start_new_differentiation_round(self):
         # differentiation tasks are expected to have names of the form
@@ -114,8 +116,8 @@ class MigraveGameColors(GameBase):
         distractor_color = random.choice(self.distractor_colors)
         distractor_image = f"{distractor_color}-square"
 
-        self.activity_parameters.correct_image = self.color_image
-        self.activity_parameters.correct_image_highlighted = f"{self.color_image}-highlighted"
+        self.activity_parameters.correct_image = [self.color_image]
+        self.activity_parameters.correct_image_highlighted = [f"{self.color_image}-highlighted"]
 
         # we randomise the position of the correct image
         if random.random() < 0.5:
@@ -123,7 +125,7 @@ class MigraveGameColors(GameBase):
         else:
             self.activity_parameters.images = [distractor_image, self.color_image]
 
-        self.say_text("Schau auf das Tablet!")
+        rospy.sleep(2)
         self.msg_acknowledged = False
         while not self.msg_acknowledged:
             rospy.loginfo(f"[start_new_differentiation_round] Publishing task parameters " +\
@@ -131,7 +133,8 @@ class MigraveGameColors(GameBase):
                           f"distractor image: {distractor_image}")
             self.activity_parameters_pub.publish(self.activity_parameters)
             rospy.sleep(0.5)
-        self.say_text(f"Tippe auf {self.en_to_de_color_map[self.color]}!")
+        rospy.sleep(2)
+        self.say_text(f"Schau auf das Tablet! Tippe auf {self.en_to_de_color_map[self.color]}!")
 
     def start_new_generalisation_round(self):
         possible_colors = list(self.target_colors)
@@ -145,13 +148,13 @@ class MigraveGameColors(GameBase):
         self.color = random.choice(possible_colors)
         if "squares" in self.task:
             self.color_image = f"{self.color}-square"
-            self.activity_parameters.correct_image = self.color_image
-            self.activity_parameters.correct_image_highlighted = f"{self.color_image}-highlighted"
+            self.activity_parameters.correct_image = [self.color_image]
+            self.activity_parameters.correct_image_highlighted = [f"{self.color_image}-highlighted"]
             self.activity_parameters.images = [f"{x}-square" for x in possible_colors]
         elif "cars" in self.task:
             self.color_image = f"{self.color}-car"
-            self.activity_parameters.correct_image = self.color_image
-            self.activity_parameters.correct_image_highlighted = f"{self.color_image}-highlighted"
+            self.activity_parameters.correct_image = [self.color_image]
+            self.activity_parameters.correct_image_highlighted = [f"{self.color_image}-highlighted"]
             self.activity_parameters.images = [f"{x}-car" for x in possible_colors]
         elif "objects" in self.task:
             # we select generalisation images by ensuring that previously used
@@ -168,10 +171,9 @@ class MigraveGameColors(GameBase):
 
             # we extract the image corresponding to the correct color
             self.color_image = self.activity_parameters.images[possible_colors.index(self.color)]
-            self.activity_parameters.correct_image = self.color_image
-            self.activity_parameters.correct_image_highlighted = f"{self.color_image}-highlighted"
-
-        self.say_text("Schau auf das Tablet!")
+            self.activity_parameters.correct_image = [self.color_image]
+            self.activity_parameters.correct_image_highlighted = [f"{self.color_image}-highlighted"]
+        rospy.sleep(2)
         self.msg_acknowledged = False
         while not self.msg_acknowledged:
             rospy.loginfo(f"[start_new_generalisation_round] Publishing task parameters " +\
@@ -179,9 +181,16 @@ class MigraveGameColors(GameBase):
                           f"all images: {self.activity_parameters.images}")
             self.activity_parameters_pub.publish(self.activity_parameters)
             rospy.sleep(0.5)
-        self.say_text(f"Tippe auf {self.en_to_de_color_map[self.color]}!")
+        rospy.sleep(2)
+        self.say_text(f"Schau auf das Tablet! Tippe auf {self.en_to_de_color_map[self.color]}!")
 
     def evaluate_answer(self):
+
+        if self.wrong_answer_count > 0:
+            self.possitive_feedback = random.choice(["gut gemacht", "gut"])
+        else:
+            self.possitive_feedback = random.choice(["Wunderbar", "Klasse", "Spitzenmäßig", "Sehr gut"])
+
         feedback_emotions = {
             "right": "showing_smile",
             "right_1": "showing_smile",
@@ -191,25 +200,24 @@ class MigraveGameColors(GameBase):
             "wrong_2": ""
         }
         right_texts = {
-            "red": r"\emph\ Rot! \emph\ Richtig! \emph\ Wunderbar!",
-            "red_vs_other": r"\emph\ Rot! \emph\ Richtig! \emph\ Wunderbar!",
-            "green": r"\emph\ Grün! \emph\ Richtig! \emph\ Wunderbar!",
-            "green_vs_other": r"\emph\ Grün! \emph\ Richtig! \emph\ Wunderbar!",
-            "blue": r"\emph\ Blau! \emph\ Richtig! \emph\ Wunderbar!",
-            "blue_vs_other": r"\emph\ Blau! \emph\ Richtig! \emph\ Wunderbar!",
-            "yellow": r"\emph\ Gelb! \emph\ Richtig! \emph\ Wunderbar!",
-            "yellow_vs_other": r"\emph\ Gelb! \emph\ Richtig! \emph\ Wunderbar!",
-            "red_or_yellow_vs_other": fr"\emph\ {self.en_to_de_color_map[self.color]}! \emph\ Richtig! \emph\ Wunderbar!",
-            "blue_or_green_vs_other": fr"{self.en_to_de_color_map[self.color]}! \emph\ Richtig! \emph\ Wunderbar!",
-            "three_squares": fr"\emph\ {self.en_to_de_color_map[self.color]}! \emph\ Richtig! \emph\ Wunderbar!",
-            "three_cars": fr"\emph\ {self.en_to_de_color_map[self.color]}! \emph\ Richtig! \emph\ Wunderbar!",
-            "three_objects": fr"\emph\ {self.en_to_de_color_map[self.color]}! \emph\ Richtig! \emph\ Wunderbar!"
+            "red": r"\emph\ Richtig! \emph\ Rot! \emph\ {self.possitive_feedback}!",
+            "red_vs_other": fr"\emph\ Richtig! \emph\ Rot! \emph\ {self.possitive_feedback}!",
+            "green": fr" \emph\ Richtig! \emph\ Grün! \emph\ {self.possitive_feedback}!",
+            "green_vs_other": fr" \emph\ Richtig! \emph\ Grün! \emph\ {self.possitive_feedback}!",
+            "blue": fr" \emph\ Richtig! \emph\ Blau! \emph\ {self.possitive_feedback}!",
+            "blue_vs_other": fr" \emph\ Richtig! \emph\ Blau! \emph\ {self.possitive_feedback}!",
+            "yellow": fr"\emph\ Richtig! \emph\ Gelb! \emph\ {self.possitive_feedback}!",
+            "yellow_vs_other": fr"\emph\ Richtig! \emph\ Gelb! \emph\ {self.possitive_feedback}!",
+            "red_or_yellow_vs_other": fr"\emph\ Richtig! \emph\ {self.en_to_de_color_map[self.color]}! \emph\ {self.possitive_feedback}!",
+            "blue_or_green_vs_other": fr"\emph\ Richtig! {self.en_to_de_color_map[self.color]}! \emph\ {self.possitive_feedback}!",
+            "three_squares": fr"\emph\ Richtig! \emph\ {self.en_to_de_color_map[self.color]}! \emph\ {self.possitive_feedback}!",
+            "three_cars": fr"\emph\ Richtig! \emph\ {self.en_to_de_color_map[self.color]}!  \emph\ {self.possitive_feedback}!",
+            "three_objects": fr"\emph\ Richtig! \emph\ {self.en_to_de_color_map[self.color]}! \emph\ {self.possitive_feedback}!"
         }
         feedback_texts = {
             "right": right_texts[self.task],
             "wrong": "Lass es uns nochmal probieren!"
         }
-
         super().evaluate_answer(feedback_emotions, feedback_texts)
 
     def retry_after_wrong(self):
@@ -220,14 +228,13 @@ class MigraveGameColors(GameBase):
             rospy.sleep(2)
 
         if self.wrong_answer_count == 1:
-            correct_image_idx = self.activity_parameters.images.index(self.activity_parameters.correct_image)
-            self.activity_parameters.images[correct_image_idx] = self.activity_parameters.correct_image_highlighted
+            correct_image_idx = self.activity_parameters.images.index(self.activity_parameters.correct_image[0])
+            self.activity_parameters.images[correct_image_idx] = self.activity_parameters.correct_image_highlighted[0]
             self.activity_parameters.correct_image = self.activity_parameters.correct_image_highlighted
         elif self.wrong_answer_count == 2:
-            self.activity_parameters.images = [self.activity_parameters.correct_image_highlighted]
+            self.activity_parameters.images = self.activity_parameters.correct_image_highlighted
             self.activity_parameters.correct_image = self.activity_parameters.correct_image_highlighted
-
-        self.say_text("Schau auf das Tablet!")
+        rospy.sleep(2)
         self.msg_acknowledged = False
         while not self.msg_acknowledged:
             rospy.loginfo(f"[start_new_generalisation_round] Publishing task parameters " +\
@@ -235,4 +242,5 @@ class MigraveGameColors(GameBase):
                           f"all images: {self.activity_parameters.images}")
             self.activity_parameters_pub.publish(self.activity_parameters)
             rospy.sleep(0.5)
-        self.say_text(f"Tippe auf {self.en_to_de_color_map[self.color]}!")
+        rospy.sleep(2)
+        self.say_text(f"Schau auf das Tablet! Tippe auf {self.en_to_de_color_map[self.color]}!")
