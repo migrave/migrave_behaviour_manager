@@ -148,7 +148,6 @@ class GameBase(object):
                         feedback_texts: Dict[str, str],
                         feedback_sounds: Dict[str, str] = None) -> None:
         result = self.result
-
         self.game_performance.stamp = rospy.Time.now()
         self.game_performance.game_activity.game_id = self.game_id
         self.game_performance.game_activity.game_activity_id = self.game_activity_ids[self.task]
@@ -156,7 +155,6 @@ class GameBase(object):
         self.game_performance.answer_correctness = 1 if "right" in result else 0
         self.game_performance_pub.publish(self.game_performance)
         rospy.loginfo("Publish game performance")
-
         emotion = feedback_emotions[result]
         self.show_emotion(emotion)
         text = feedback_texts[result]
@@ -171,13 +169,18 @@ class GameBase(object):
                 self.audio_play(str(feedback_sounds[result]) + ".mp3")
             self.say_text("Dafür bekommst du einen Stern! Schau mal auf das Tablet.")
             self.audio_play("rfh-koeln/MIGRAVE/Reward2")
-            image = f"{self.correct_answer_count}Token"
+            if self.task == "order_steps":
+                image = f"{self.correct_answer_count}_3Token"
+            else: 
+                image = f"{self.correct_answer_count}Token"
             rospy.loginfo(image)
             self.tablet_image_pub.publish(image)
             rospy.loginfo(f"Publish image: {self.correct_answer_count}Token")
-            rospy.sleep(6)
-
-            if self.round_count == 5:
+            rospy.sleep(3)
+            if self.round_count == 3 and self.task == "order_steps":
+                rospy.loginfo("Ending current task")
+                self.finish_one_task()
+            elif self.round_count == 5:
                 rospy.loginfo("Ending current task")
                 self.finish_one_task()
             else:
@@ -351,9 +354,9 @@ class GameBase(object):
 
         self.show_emotion("showing_smile")
         self.say_text("Geschafft! Das hast du super gemacht!")
-        self.gesture_play("QT/Dance/Dance-1-1")
+        # self.gesture_play("QT/Dance/Dance-1-1")
         self.show_emotion("showing_smile")
-        self.gesture_play("QT/imitation/hands-up-back")
+        # self.gesture_play("QT/imitation/hands-up-back")
 
         rospy.loginfo("Publishing task status: finish")
         self.task_status_pub.publish("finish")
@@ -361,10 +364,11 @@ class GameBase(object):
         rospy.loginfo("Publishing image: fireworks")
         self.say_text("Schau mal auf das Tablet. Da ist ein Feuerwerk für dich!")
         self.tablet_image_pub.publish("fireworks")
+        rospy.sleep(1)
 
-        rospy.loginfo("Publishing sounds: Fireworks")
-        rospy.sleep(2)
-        self.audio_play(self.celebration_sound_name)
+        # rospy.loginfo("Publishing sounds: Fireworks")
+        # rospy.sleep(2)
+        # self.audio_play(self.celebration_sound_name)
 
     def setup_ros(self):
         task_status_topic = f"/migrave_game_{self.game_id}/task_status"
