@@ -103,16 +103,17 @@ class MigraveGameAnimals(GameBase):
         self.animal_image = f"{self.task}" 
 
         self.activity_parameters.images = [self.animal_image]
-        self.activity_parameters.correct_image = self.animal_image
+        self.activity_parameters.correct_image = [self.animal_image]
 
-        self.say_text("Schau auf das Tablet!")
+        rospy.sleep(2)
         self.msg_acknowledged = False
         while not self.msg_acknowledged:
             rospy.loginfo(f"[start_new_simple_round] Publishing task parameters " +\
                           f"-- animal: {self.animal}, image: {self.animal_image}")
             self.activity_parameters_pub.publish(self.activity_parameters)
             rospy.sleep(0.5)
-        self.say_text(f"Tippe auf {self.ak_article_animal_map[self.animal]} {self.en_to_de_animal_map[self.animal]}!")
+        rospy.sleep(2)
+        self.say_text(f"Schau auf das Tablet! Tippe auf {self.ak_article_animal_map[self.animal]} {self.en_to_de_animal_map[self.animal]}!")
 
     def start_new_differentiation_round(self, type_of_differentiation):
         if "or" in self.task:
@@ -128,14 +129,14 @@ class MigraveGameAnimals(GameBase):
             distractors = random.sample(self.distractor_animals, 2)
 
         distractor_image = f"{distractors}"
-        self.activity_parameters.correct_image = self.animal_image
+        self.activity_parameters.correct_image = [self.animal_image]
         self.activity_parameters.correct_image_highlighted = f"{self.animal_image}-highlighted"
         
         # we randomise the position of the correct image
         list_of_images = [self.animal_image, distractors[0], distractors[1]]
         self.activity_parameters.images = random.sample(list_of_images, len(list_of_images))
 
-        self.say_text("Schau auf das Tablet!")
+        rospy.sleep(2)
         self.msg_acknowledged = False
         while not self.msg_acknowledged:
             rospy.loginfo(f"[start_new_differentiation_round] Publishing task parameters " +\
@@ -143,7 +144,8 @@ class MigraveGameAnimals(GameBase):
                           f"distractor image: {distractor_image}")
             self.activity_parameters_pub.publish(self.activity_parameters)
             rospy.sleep(0.5)
-        self.say_text(f"Tippe auf {self.ak_article_animal_map[self.animal]} {self.en_to_de_animal_map[self.animal]}!")
+        rospy.sleep(2)
+        self.say_text(f"Schau auf das Tablet! Tippe auf {self.ak_article_animal_map[self.animal]} {self.en_to_de_animal_map[self.animal]}!")
 
     def start_new_generalisation_round(self):
         possible_animals = list(self.target_animals)
@@ -157,18 +159,18 @@ class MigraveGameAnimals(GameBase):
         self.animal = random.choice(possible_animals)
         if "cartoon" in self.task:
             self.animal_image = f"{self.animal}-cartoon"
-            self.activity_parameters.correct_image = self.animal_image
-            self.activity_parameters.correct_image_highlighted = f"{self.animal_image}-highlighted"
+            self.activity_parameters.correct_image = [self.animal_image]
+            self.activity_parameters.correct_image_highlighted = [f"{self.animal_image}-highlighted"]
             # self.activity_parameters.images = [f"{x}-cartoon" for x in possible_animals]
         elif "black-white" in self.task:
             self.animal_image = f"{self.animal}-black-white"
-            self.activity_parameters.correct_image = self.animal_image
-            self.activity_parameters.correct_image_highlighted = f"{self.animal_image}-highlighted"
+            self.activity_parameters.correct_image = [self.animal_image]
+            self.activity_parameters.correct_image_highlighted = [f"{self.animal_image}-highlighted"]
             # self.activity_parameters.images = [f"{x}-black-white" for x in possible_animals]
         elif "draw" in self.task:
             self.animal_image = f"{self.animal}-draw"
-            self.activity_parameters.correct_image = self.animal_image
-            self.activity_parameters.correct_image_highlighted = f"{self.animal_image}-highlighted"
+            self.activity_parameters.correct_image = [self.animal_image]
+            self.activity_parameters.correct_image_highlighted = [f"{self.animal_image}-highlighted"]
             # self.activity_parameters.images = [f"{x}-draw" for x in possible_animals]
         
         #geralisation with random images (no animals)
@@ -191,10 +193,10 @@ class MigraveGameAnimals(GameBase):
 
             # we extract the image corresponding to the correct animal
             self.animal_image = self.activity_parameters.images[possible_animals.index(self.animal)]
-            self.activity_parameters.correct_image = self.animal_image
-            self.activity_parameters.correct_image_highlighted = f"{self.animal_image}-highlighted"
+            self.activity_parameters.correct_image = [self.animal_image]
+            self.activity_parameters.correct_image_highlighted = [f"{self.animal_image}-highlighted"]
         
-        self.say_text("Schau auf das Tablet!")
+        rospy.sleep(2)
         self.msg_acknowledged = False
         while not self.msg_acknowledged:
             rospy.loginfo(f"[start_new_generalisation_round] Publishing task parameters " +\
@@ -202,9 +204,15 @@ class MigraveGameAnimals(GameBase):
                           f"all images: {self.activity_parameters.images}")
             self.activity_parameters_pub.publish(self.activity_parameters)
             rospy.sleep(0.5)
-        self.say_text(f"Tippe auf {self.ak_article_animal_map[self.animal]} {self.en_to_de_animal_map[self.animal]}!")
+        rospy.sleep(2)
+        self.say_text(f"Schau auf das Tablet! Tippe auf {self.ak_article_animal_map[self.animal]} {self.en_to_de_animal_map[self.animal]}!")
 
     def evaluate_answer(self):
+        if self.wrong_answer_count > 0:
+            self.possitive_feedback = random.choice(["gut gemacht", "gut"])
+        else:
+            self.possitive_feedback = random.choice(["Wunderbar", "Klasse", "Spitzenmäßig", "Sehr gut"])
+
         feedback_emotions = {
             "right": "showing_smile",
             "right_1": "showing_smile",
@@ -214,30 +222,30 @@ class MigraveGameAnimals(GameBase):
             "wrong_2": ""
         }
         right_texts = {
-            "cat": r"\emph\ die Katze! \emph\ Richtig! \emph\ Wunderbar!",
-            "cat_vs_objects": r"\emph\ die Katze! \emph\ Richtig! \emph\ Wunderbar!",
-            "cat_vs_animals": r"\emph\ die Katze! \emph\ Richtig! \emph\ Wunderbar!",
-            "cat_vs_others": r"\emph\ die Katze! \emph\ Richtig! \emph\ Wunderbar!",
+            "cat": fr"\emph\ Richtig! \emph\ die Katze! \emph\ {self.possitive_feedback}!",
+            "cat_vs_objects": fr"\emph\ Richtig! \emph\ die Katze! \emph\ {self.possitive_feedback}!",
+            "cat_vs_animals": fr"\emph\ Richtig! \emph\ die Katze! \emph\ {self.possitive_feedback}!",
+            "cat_vs_others": fr"\emph\ Richtig! \emph\ die Katze! \emph\ {self.possitive_feedback}!",
 
-            "dog": r"\emph\ der Hund! \emph\ Richtig! \emph\ Wunderbar!",
-            "dog_vs_objects": r"\emph\ der Hund! \emph\ Richtig! \emph\ Wunderbar!",
-            "dog_vs_animals": r"\emph\ der Hund! \emph\ Richtig! \emph\ Wunderbar!",
-            "dog_vs_others": r"\emph\ der Hund! \emph\ Richtig! \emph\ Wunderbar!",
+            "dog": fr"\emph\ Richtig!\emph\ der Hund! \emph\ {self.possitive_feedback}!",
+            "dog_vs_objects": fr"\emph\ Richtig! \emph\ der Hund! \emph\ {self.possitive_feedback}!",
+            "dog_vs_animals": fr"\emph\ Richtig! \emph\ der Hund! \emph\ {self.possitive_feedback}!",
+            "dog_vs_others": fr"\emph\ Richtig! \emph\ der Hund! \emph\ {self.possitive_feedback}!",
 
-            "cow": r"\emph\ die Kuh! \emph\ Richtig! \emph\ Wunderbar!",
-            "cow_vs_objects": r"\emph\ die Kuh! \emph\ Richtig! \emph\ Wunderbar!",
-            "cow_vs_animals": r"\emph\ die Kuh! \emph\ Richtig! \emph\ Wunderbar!",
-            "cow_vs_others": r"\emph\ die Kuh! \emph\ Richtig! \emph\ Wunderbar!",
+            "cow": fr"\emph\ Richtig! \emph\ die Kuh! \emph\ {self.possitive_feedback}!",
+            "cow_vs_objects": fr"\emph\ Richtig! \emph\ die Kuh! \emph\ {self.possitive_feedback}!",
+            "cow_vs_animals": fr"\emph\ Richtig! \emph\ die Kuh! \emph\ {self.possitive_feedback}!",
+            "cow_vs_others": fr"\emph\ Richtig! \emph\ die Kuh! \emph\ {self.possitive_feedback}!",
 
-            "horse": r"\emph\ das Pferd! \emph\ Richtig! \emph\ Wunderbar!",
-            "horse_vs_objects": r"\emph\ das Pferd! \emph\ Richtig! \emph\ Wunderbar!",
-            "horse_vs_animals": r"\emph\ das Pferd! \emph\ Richtig! \emph\ Wunderbar!",
-            "horse_vs_others": r"\emph\ das Pferd! \emph\ Richtig! \emph\ Wunderbar!",
+            "horse": fr"\emph\ Richtig! \emph\ das Pferd! \emph\ {self.possitive_feedback}!",
+            "horse_vs_objects": fr"\emph\ Richtig! \emph\ das Pferd! \emph\ {self.possitive_feedback}!",
+            "horse_vs_animals": fr"\emph\ Richtig! \emph\ das Pferd! \emph\ {self.possitive_feedback}!",
+            "horse_vs_others": fr"\emph\ Richtig! \emph\ das Pferd! \emph\ {self.possitive_feedback}!",
 
-            "cartoon_vs_objects": fr"\emph\ {self.no_article_animal_map[self.animal]} {self.en_to_de_animal_map[self.animal]}! \emph\ Richtig! \emph\ Wunderbar!",
-            "black-white_vs_objects": fr"\emph\ {self.no_article_animal_map[self.animal]} {self.en_to_de_animal_map[self.animal]}! \emph\ Richtig! \emph\ Wunderbar!",
-            "draw_vs_objects": fr"\emph\ {self.no_article_animal_map[self.animal]} {self.en_to_de_animal_map[self.animal]}! \emph\ Richtig! \emph\ Wunderbar!",
-            "animal_vs_animals": fr"\emph\ {self.no_article_animal_map[self.animal]} {self.en_to_de_animal_map[self.animal]}! \emph\ Richtig! \emph\ Wunderbar!"
+            "cartoon_vs_objects": fr"\emph\ Richtig! \emph\ {self.no_article_animal_map[self.animal]} {self.en_to_de_animal_map[self.animal]}! \emph\ {self.possitive_feedback}!",
+            "black-white_vs_objects": fr"\emph\ Richtig! \emph\ {self.no_article_animal_map[self.animal]} {self.en_to_de_animal_map[self.animal]}! \emph\ {self.possitive_feedback}!",
+            "draw_vs_objects": fr"\emph\ Richtig! \emph\ {self.no_article_animal_map[self.animal]} {self.en_to_de_animal_map[self.animal]}! \emph\ {self.possitive_feedback}!",
+            "animal_vs_animals": fr"\emph\ Richtig! \emph\ {self.no_article_animal_map[self.animal]} {self.en_to_de_animal_map[self.animal]}! \emph\ {self.possitive_feedback}!"
         }
 
         right_audios = {
@@ -284,8 +292,8 @@ class MigraveGameAnimals(GameBase):
             rospy.sleep(2)
 
         if self.wrong_answer_count == 1:
-            correct_image_idx = self.activity_parameters.images.index(self.activity_parameters.correct_image)
-            self.activity_parameters.images[correct_image_idx] = self.activity_parameters.correct_image_highlighted
+            correct_image_idx = self.activity_parameters.images.index(self.activity_parameters.correct_image[0])
+            self.activity_parameters.images[correct_image_idx] = self.activity_parameters.correct_image_highlighted[0]
             self.activity_parameters.correct_image = self.activity_parameters.correct_image_highlighted
 
         elif self.wrong_answer_count == 2:
