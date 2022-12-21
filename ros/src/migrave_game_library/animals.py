@@ -161,17 +161,14 @@ class MigraveGameAnimals(GameBase):
             self.animal_image = f"{self.animal}-cartoon"
             self.activity_parameters.correct_image = [self.animal_image]
             self.activity_parameters.correct_image_highlighted = [f"{self.animal_image}-highlighted"]
-            # self.activity_parameters.images = [f"{x}-cartoon" for x in possible_animals]
         elif "black-white" in self.task:
             self.animal_image = f"{self.animal}-black-white"
             self.activity_parameters.correct_image = [self.animal_image]
             self.activity_parameters.correct_image_highlighted = [f"{self.animal_image}-highlighted"]
-            # self.activity_parameters.images = [f"{x}-black-white" for x in possible_animals]
         elif "draw" in self.task:
             self.animal_image = f"{self.animal}-draw"
             self.activity_parameters.correct_image = [self.animal_image]
             self.activity_parameters.correct_image_highlighted = [f"{self.animal_image}-highlighted"]
-            # self.activity_parameters.images = [f"{x}-draw" for x in possible_animals]
         
         #geralisation with random images (no animals)
         distractors = random.sample(self.distractor_objects, 2)
