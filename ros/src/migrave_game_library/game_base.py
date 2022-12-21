@@ -167,7 +167,7 @@ class GameBase(object):
 
             self.say_text("Dafür bekommst du einen Stern! Schau mal auf das Tablet.")
             self.audio_play("rfh-koeln/MIGRAVE/Reward2")
-            if self.task == "order_steps":
+            if self.task.find('order_steps') != -1:
                 image = f"{self.correct_answer_count}_3Token"
             else: 
                 image = f"{self.correct_answer_count}Token"
@@ -175,7 +175,7 @@ class GameBase(object):
             self.tablet_image_pub.publish(image)
             rospy.loginfo(f"Publish image: {self.correct_answer_count}Token")
             rospy.sleep(3)
-            if self.round_count == 3 and self.task == "order_steps":
+            if self.round_count == 3 and self.task.find('order_steps') != -1:
                 rospy.loginfo("Ending current task")
                 self.finish_one_task()
             elif self.round_count == 5:
