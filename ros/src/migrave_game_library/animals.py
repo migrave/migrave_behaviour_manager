@@ -31,7 +31,9 @@ class MigraveGameAnimals(GameBase):
                                                        UIActivityParameters, queue_size=1)
         self.animal = "Waiting"
         self.animal_image = "Kein"
-
+        
+        self.initial_phrase = ["Schau auf das Tablet!", "Guck auf das Tablet!", "Schau mal auf das Tablet!", "Guck mal auf das Tablet!",  "Sieh mal auf das Tablet!"]
+        
         self.en_to_de_animal_map = {"cat": "Katze", "dog": "Hund",
                                    "cow": "Kuh", "horse": "Pferd"}
         
@@ -113,7 +115,9 @@ class MigraveGameAnimals(GameBase):
             self.activity_parameters_pub.publish(self.activity_parameters)
             rospy.sleep(0.5)
         rospy.sleep(2)
-        self.say_text(f"Schau auf das Tablet! Tippe auf {self.ak_article_animal_map[self.animal]} {self.en_to_de_animal_map[self.animal]}!")
+
+        look_at_tablet = random.choice(self.initial_phrase)
+        self.say_text(f"{look_at_tablet} Tippe auf {self.ak_article_animal_map[self.animal]} {self.en_to_de_animal_map[self.animal]}!")
 
     def start_new_differentiation_round(self, type_of_differentiation):
         if "or" in self.task:
@@ -145,7 +149,9 @@ class MigraveGameAnimals(GameBase):
             self.activity_parameters_pub.publish(self.activity_parameters)
             rospy.sleep(0.5)
         rospy.sleep(2)
-        self.say_text(f"Schau auf das Tablet! Tippe auf {self.ak_article_animal_map[self.animal]} {self.en_to_de_animal_map[self.animal]}!")
+
+        look_at_tablet = random.choice(self.initial_phrase)
+        self.say_text(f"{look_at_tablet} Tippe auf {self.ak_article_animal_map[self.animal]} {self.en_to_de_animal_map[self.animal]}!")
 
     def start_new_generalisation_round(self):
         possible_animals = list(self.target_animals)
@@ -202,7 +208,9 @@ class MigraveGameAnimals(GameBase):
             self.activity_parameters_pub.publish(self.activity_parameters)
             rospy.sleep(0.5)
         rospy.sleep(2)
-        self.say_text(f"Schau auf das Tablet! Tippe auf {self.ak_article_animal_map[self.animal]} {self.en_to_de_animal_map[self.animal]}!")
+        
+        look_at_tablet = random.choice(self.initial_phrase)
+        self.say_text(f"{look_at_tablet} Tippe auf {self.ak_article_animal_map[self.animal]} {self.en_to_de_animal_map[self.animal]}!")
 
     def evaluate_answer(self):
         if self.wrong_answer_count > 0:
@@ -297,7 +305,9 @@ class MigraveGameAnimals(GameBase):
             self.activity_parameters.images = [self.activity_parameters.correct_image_highlighted]
             self.activity_parameters.correct_image = self.activity_parameters.correct_image_highlighted
 
-        self.say_text("Schau auf das Tablet!")
+        look_at_tablet = random.choice(self.initial_phrase)
+        self.say_text(f"{look_at_tablet}")
+
         self.msg_acknowledged = False
         while not self.msg_acknowledged:
             rospy.loginfo(f"[start_new_generalisation_round] Publishing task parameters " +\

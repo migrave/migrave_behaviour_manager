@@ -24,6 +24,7 @@ class MigraveGameHandWash(GameBase):
         self.ordered_activities = self.game_config["game_specific_params"]["ordered_activities"]
         self.when_to_wash = self.game_config["game_specific_params"]["wash"]
         self.when_to_not_wash = self.game_config["game_specific_params"]["not_wash"]
+        self.initial_phrase = ["Schau auf das Tablet!", "Guck auf das Tablet!", "Schau mal auf das Tablet!", "Guck mal auf das Tablet!",  "Sieh mal auf das Tablet!"]
 
         self.activity_parameters = UIActivityParameters()
         self.activity_parameters_pub = rospy.Publisher("/migrave_game_hand_wash/activity_parameters",
@@ -111,10 +112,13 @@ class MigraveGameHandWash(GameBase):
             self.activity_parameters_pub.publish(self.activity_parameters)
             rospy.sleep(0.5)
         rospy.sleep(2)
-        self.say_text("Schau auf das Tablet! Was brauchst du zum Hände waschen?")
+
+        look_at_tablet = random.choice(self.initial_phrase)
+        self.say_text(f"{look_at_tablet} Was brauchst du zum Hände waschen?")
 
     def start_new_selection_round(self, game_type):
-     
+        look_at_tablet = random.choice(self.initial_phrase)
+
         if game_type == "first":
             possible_activities = random.sample(self.target_activities, 2)
             if self.target_activities.index(possible_activities[0]) < self.target_activities.index(possible_activities[1]):
@@ -126,7 +130,7 @@ class MigraveGameHandWash(GameBase):
                 distractors = possible_activities[0]
                 distractor_images = f"{possible_activities[0]}"
             
-            audio_text = "Schau auf das Tablet! Was kommt zuerst? Tippe auf das richtige Bild!"
+            audio_text = look_at_tablet + "Was kommt zuerst? Tippe auf das richtige Bild!"
             self.object_image = f"{self.object}"
 
         elif game_type == "correct":
@@ -134,7 +138,8 @@ class MigraveGameHandWash(GameBase):
             self.object_image = f"{self.object}"
             distractors = random.sample(self.when_to_not_wash, 1)[0]
             distractor_images = f"{distractors}"
-            audio_text = "Schau auf das Tablet! Wann solltest du deine Hände waschen?"
+
+            audio_text = look_at_tablet + "Wann solltest du deine Hände waschen?"
 
         self.activity_parameters.correct_image = [self.object_image]
         self.activity_parameters.correct_image_highlighted = [f"{self.object_image}-highlighted"]
@@ -178,7 +183,10 @@ class MigraveGameHandWash(GameBase):
             self.activity_parameters_pub.publish(self.activity_parameters)
             rospy.sleep(0.5)
         rospy.sleep(2)
-        self.say_text("Schau auf das Tablet! Bringe die Bilder in die richtige Reihenfolge")
+        
+        look_at_tablet = random.choice(self.initial_phrase)
+        self.say_text(f"{look_at_tablet} Bringe die Bilder in die richtige Reihenfolge")
+
         self.object = 'ordering'
         self.ordering_game_idx = self.ordering_game_idx + 1
 
@@ -243,4 +251,11 @@ class MigraveGameHandWash(GameBase):
             self.activity_parameters_pub.publish(self.activity_parameters)
             rospy.sleep(0.5)
         rospy.sleep(2)
-        self.say_text(f"Schau auf das Tablet! Tippe auf das richtige Bild!")
+        look_at_tablet = random.choice(self.initial_phrase)
+        
+        if self.task in ["order_steps","order_steps_resume"]:
+            self.say_text(f"{look_at_tablet} Sortieren der Bilder in der richtigen Reihenfolge!")
+        else:
+            self.say_text(f"{look_at_tablet} Tippe auf das richtige Bild!")
+
+       

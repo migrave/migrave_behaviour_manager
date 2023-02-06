@@ -117,7 +117,9 @@ class MigraveGameTableware(GameBase):
             self.activity_parameters_pub.publish(self.activity_parameters)
             rospy.sleep(0.5)
         rospy.sleep(2)
-        self.say_text(f"Schau auf das Tablet! Tippe auf {self.en_article_crockery_map[self.crockery]} {self.en_to_de_crockery_map[self.crockery]}!")
+
+        look_at_tablet = random.choice(self.initial_phrase)  
+        self.say_text(f"{look_at_tablet} Tippe auf {self.en_article_crockery_map[self.crockery]} {self.en_to_de_crockery_map[self.crockery]}!")
 
     def start_new_differentiation_round(self, type_of_differentiation):
         # differentiation tasks are expected to have names of the form
@@ -151,8 +153,9 @@ class MigraveGameTableware(GameBase):
                           f"distractor image: {distractor_image}")
             self.activity_parameters_pub.publish(self.activity_parameters)
             rospy.sleep(0.5)
-        rospy.sleep(2)
-        self.say_text(f"Schau auf das Tablet! Tippe auf {self.en_article_crockery_map[self.crockery]} {self.en_to_de_crockery_map[self.crockery]}!")
+        rospy.sleep(2)        
+        look_at_tablet = random.choice(self.initial_phrase)
+        self.say_text(f"{look_at_tablet} Tippe auf {self.en_article_crockery_map[self.crockery]} {self.en_to_de_crockery_map[self.crockery]}!")
 
     def start_new_generalisation_round(self):
 
@@ -175,10 +178,14 @@ class MigraveGameTableware(GameBase):
             self.activity_parameters_pub.publish(self.activity_parameters)
             rospy.sleep(0.5)
         rospy.sleep(2)
-        self.say_text(f"Schau auf das Tablet! Tippe auf {self.en_article_crockery_map[self.crockery]} {self.en_to_de_crockery_map[self.crockery]}!")
+
+        self.initial_phrase = []
+        self.initial_phrase = random.choice(["Schau auf das Tablet!", "Guck auf das Tablet!", "Schau mal auf das Tablet!", "Guck mal auf das Tablet!",  "Sieh mal auf das Tablet!"])
+        self.say_text(f"{self.initial_phrase} Tippe auf {self.en_article_crockery_map[self.crockery]} {self.en_to_de_crockery_map[self.crockery]}!")
+
 
     def evaluate_answer(self):
-        
+        self.possitive_feedback = []
         if self.wrong_answer_count > 0:
             self.possitive_feedback = random.choice(["gut gemacht", "gut"])
         else:
@@ -244,4 +251,7 @@ class MigraveGameTableware(GameBase):
             self.activity_parameters_pub.publish(self.activity_parameters)
             rospy.sleep(0.5)
         rospy.sleep(2)
-        self.say_text(f"Schau auf das Tablet! Tippe auf {self.en_article_crockery_map[self.crockery]} {self.en_to_de_crockery_map[self.crockery]}!")
+        
+        look_at_tablet = random.choice(self.initial_phrase)
+        self.say_text(f"{look_at_tablet} Tippe auf {self.en_article_crockery_map[self.crockery]} {self.en_to_de_crockery_map[self.crockery]}!")
+

@@ -31,7 +31,7 @@ class MigraveGameColors(GameBase):
                                                        UIActivityParameters, queue_size=1)
         self.color = "Waiting"
         self.color_image = "Kein"
-        # self.possitive_feedback = []
+        self.initial_phrase = ["Schau auf das Tablet!", "Guck auf das Tablet!", "Schau mal auf das Tablet!", "Guck mal auf das Tablet!",  "Sieh mal auf das Tablet!"]
 
         self.en_to_de_color_map = {"red": "rot", "green": "grün",
                                    "blue": "blau", "yellow": "gelb"}
@@ -101,7 +101,9 @@ class MigraveGameColors(GameBase):
             self.activity_parameters_pub.publish(self.activity_parameters)
             rospy.sleep(0.5)
         rospy.sleep(2)
-        self.say_text(f"Schau auf das Tablet! Tippe auf {self.en_to_de_color_map[self.color]}!")
+
+        look_at_tablet = random.choice(self.initial_phrase)
+        self.say_text(f"{look_at_tablet} Tippe auf {self.en_to_de_color_map[self.color]}!")
 
     def start_new_differentiation_round(self):
         # differentiation tasks are expected to have names of the form
@@ -134,7 +136,9 @@ class MigraveGameColors(GameBase):
             self.activity_parameters_pub.publish(self.activity_parameters)
             rospy.sleep(0.5)
         rospy.sleep(2)
-        self.say_text(f"Schau auf das Tablet! Tippe auf {self.en_to_de_color_map[self.color]}!")
+
+        look_at_tablet = random.choice(self.initial_phrase)
+        self.say_text(f"{look_at_tablet} Tippe auf {self.en_to_de_color_map[self.color]}!")
 
     def start_new_generalisation_round(self):
         possible_colors = list(self.target_colors)
@@ -182,10 +186,12 @@ class MigraveGameColors(GameBase):
             self.activity_parameters_pub.publish(self.activity_parameters)
             rospy.sleep(0.5)
         rospy.sleep(2)
-        self.say_text(f"Schau auf das Tablet! Tippe auf {self.en_to_de_color_map[self.color]}!")
+        
+        look_at_tablet = random.choice(self.initial_phrase)
+        self.say_text(f"{look_at_tablet} Tippe auf {self.en_to_de_color_map[self.color]}!")
 
     def evaluate_answer(self):
-
+        self.possitive_feedback = []
         if self.wrong_answer_count > 0:
             self.possitive_feedback = random.choice(["gut gemacht", "gut"])
         else:
@@ -200,7 +206,7 @@ class MigraveGameColors(GameBase):
             "wrong_2": ""
         }
         right_texts = {
-            "red": r"\emph\ Richtig! \emph\ Rot! \emph\ {self.possitive_feedback}!",
+            "red": fr"\emph\ Richtig! \emph\ Rot! \emph\ {self.possitive_feedback}!",
             "red_vs_other": fr"\emph\ Richtig! \emph\ Rot! \emph\ {self.possitive_feedback}!",
             "green": fr" \emph\ Richtig! \emph\ Grün! \emph\ {self.possitive_feedback}!",
             "green_vs_other": fr" \emph\ Richtig! \emph\ Grün! \emph\ {self.possitive_feedback}!",
@@ -243,4 +249,6 @@ class MigraveGameColors(GameBase):
             self.activity_parameters_pub.publish(self.activity_parameters)
             rospy.sleep(0.5)
         rospy.sleep(2)
-        self.say_text(f"Schau auf das Tablet! Tippe auf {self.en_to_de_color_map[self.color]}!")
+
+        look_at_tablet = random.choice(self.initial_phrase)
+        self.say_text(f"{look_at_tablet} Tippe auf {self.en_to_de_color_map[self.color]}!")
