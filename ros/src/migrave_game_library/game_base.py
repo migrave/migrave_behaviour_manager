@@ -167,7 +167,7 @@ class GameBase(object):
             rospy.loginfo(f"Count: {self.round_count}; Correct: {self.correct_answer_count}")
             if feedback_sounds != None:
                 self.audio_play(str(feedback_sounds[result]) + ".mp3")
-            self.say_text("Dafür bekommst du einen Stern! Schau mal auf das Tablet.")
+            self.say_text("Dafür bekommst du einen Stern!")
             self.audio_play("rfh-koeln/MIGRAVE/Reward2")
             if self.task.find('order_steps') != -1:
                 image = f"{self.correct_answer_count}_3Token"
