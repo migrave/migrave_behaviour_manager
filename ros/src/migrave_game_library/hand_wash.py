@@ -167,7 +167,7 @@ class MigraveGameHandWash(GameBase):
         self.activity_parameters.correct_image_highlighted = []
         for i in self.object:
             self.activity_parameters.correct_image.append(f"{i}")
-            self.activity_parameters.correct_image_highlighted.append(f"{i}-enumerated")
+            self.activity_parameters.correct_image_highlighted.append(f"{i}-highlighted")
 
         self.numbers = [str(game_idx), str(game_idx+1), str(game_idx + 2)]
         list_of_images = random.sample(self.object, len(self.object)) + self.numbers
@@ -237,7 +237,7 @@ class MigraveGameHandWash(GameBase):
         elif self.wrong_answer_count == 2:
             if len(self.activity_parameters.correct_image) == 1:
                 self.activity_parameters.images = [self.activity_parameters.correct_image_highlighted[0]]
-                self.activity_parameters.correct_image = self.activity_parameters.correct_image_highlighted[0]
+                self.activity_parameters.correct_image = [self.activity_parameters.correct_image_highlighted[0]]
             else: 
                 self.activity_parameters.images = self.activity_parameters.correct_image_highlighted + self.numbers
                 self.activity_parameters.correct_image = self.activity_parameters.correct_image_highlighted
