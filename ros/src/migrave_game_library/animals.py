@@ -254,17 +254,17 @@ class MigraveGameAnimals(GameBase):
         }
 
         right_audios = {
-            "cat": "aleksandar.mitrevski/animals/cat",
+            "cat": "aleksandar.mitrevski/animals/Katze",
             "cat_vs_objects": "aleksandar.mitrevski/animals/Katze",
             "cat_vs_animals": "aleksandar.mitrevski/animals/Katze",
             "cat_vs_others": "aleksandar.mitrevski/animals/Katze",
             
-            "dog": "aleksandar.mitrevski/animals/dog",
+            "dog": "aleksandar.mitrevski/animals/Hund",
             "dog_vs_objects": "aleksandar.mitrevski/animals/Hund",
             "dog_vs_animals": "aleksandar.mitrevski/animals/Hund",
             "dog_vs_others": "aleksandar.mitrevski/animals/Hund",
             
-            "cow": "aleksandar.mitrevski/animals/cow",
+            "cow": "aleksandar.mitrevski/animals/Kuh",
             "cow_vs_objects": "aleksandar.mitrevski/animals/Kuh",
             "cow_vs_animals": "aleksandar.mitrevski/animals/Kuh",
             "cow_vs_others": "aleksandar.mitrevski/animals/Kuh",

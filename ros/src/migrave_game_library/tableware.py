@@ -32,7 +32,7 @@ class MigraveGameTableware(GameBase):
                                                        UIActivityParameters, queue_size=1)
         self.crockery = "Waiting"
         self.crockery_image = "Kein"
-
+        self.initial_phrase = ["Schau auf das Tablet!", "Guck auf das Tablet!", "Schau mal auf das Tablet!", "Guck mal auf das Tablet!",  "Sieh mal auf das Tablet!"]
         self.en_to_de_crockery_map = {"fork": "Gabel", "teacup": "Tasse",
                                    "spoon": "Löffel", "plate": "Teller"}
         self.en_article_crockery_map = {"fork": "die", "teacup": "die",
@@ -179,9 +179,8 @@ class MigraveGameTableware(GameBase):
             rospy.sleep(0.5)
         rospy.sleep(2)
 
-        self.initial_phrase = []
-        self.initial_phrase = random.choice(["Schau auf das Tablet!", "Guck auf das Tablet!", "Schau mal auf das Tablet!", "Guck mal auf das Tablet!",  "Sieh mal auf das Tablet!"])
-        self.say_text(f"{self.initial_phrase} Tippe auf {self.en_article_crockery_map[self.crockery]} {self.en_to_de_crockery_map[self.crockery]}!")
+        look_at_tablet = random.choice(self.initial_phrase)
+        self.say_text(f"{look_at_tablet} Tippe auf {self.en_article_crockery_map[self.crockery]} {self.en_to_de_crockery_map[self.crockery]}!")
 
 
     def evaluate_answer(self):
