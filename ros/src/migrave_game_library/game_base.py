@@ -188,10 +188,15 @@ class GameBase(object):
                 self.show_emotion("showing_smile")
                 self.say_text("Noch einmal!")
                 self.start_new_round_and_grade()
+
         elif result == "wrong":
             self.wrong_answer_count += 1
             rospy.loginfo(f"Wrong answer count: {self.wrong_answer_count}")
             self.retry_after_wrong()
+
+        elif result == "partially_correct":
+            self.say_text("Was kommt als nächstes?")            
+            self.wrong_answer_count = 0
 
     def retry_after_wrong(self):
         raise NotImplementedError("retry_after_wrong needs to be overridden")

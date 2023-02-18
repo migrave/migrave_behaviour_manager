@@ -169,7 +169,7 @@ class MigraveGameHandWash(GameBase):
             self.activity_parameters.correct_image.append(f"{i}")
             self.activity_parameters.correct_image_highlighted.append(f"{i}-highlighted")
 
-        self.numbers = [str(game_idx), str(game_idx+1), str(game_idx + 2)]
+        self.numbers = [str(game_idx), str(game_idx + 1), str(game_idx + 2)]
         list_of_images = random.sample(self.object, len(self.object)) + self.numbers
         self.object_image = self.object
         self.activity_parameters.images = list_of_images
