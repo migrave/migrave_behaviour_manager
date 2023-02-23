@@ -1,0 +1,23 @@
+game_id: tooth_brush
+general_game_params:
+    tasks: [object_vs_objects, first_activity, order_steps]
+    resumption_tasks: [object_vs_objects_resume, first_activity_resume, order_steps_resume]
+    game_activity_ids:
+        object_vs_objects: object_vs_objects
+        object_vs_objects_resume: object_vs_objects
+        first_activity: first_activity
+        first_activity_resume: first_activity
+        order_steps: order_steps
+        order_steps_resume: order_steps
+    difficulty_levels:
+        object_vs_objects: 1
+        first_activity: 2
+        order_steps: 3
+    end_sentence: Wir sind fertig mit dem Händewaschen. Gut gemacht!
+game_specific_params:
+    target_objects: [toothbrush, water, towel, toothpaste]
+    target_activities: [take_water, wet_toothbrush, open_toothpaste, take_toothpaste, brushing, clean_toothbrush, rinse_mouth, spit_water, wipe_mouth]
+    ordered_activities: [take_water, wet_toothbrush, open_toothpaste, take_toothpaste, brushing, clean_toothbrush, rinse_mouth, spit_water, wipe_mouth]
+    distractor_objects: [apple, cutlery, hairbrush, hammer, rubber_duck, screw, shampoo, sponge, toilet_paper]
+media_params:
+    celebration_sound_name: rfh-koeln/MIGRAVE/Fireworks
