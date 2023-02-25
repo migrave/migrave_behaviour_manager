@@ -13,7 +13,7 @@ general_game_params:
         object_vs_objects: 1
         first_activity: 2
         order_steps: 3
-    end_sentence: Wir sind fertig mit mit Zähneputzen. Gut gemacht!
+    end_sentence: Wir sind fertig mit Zähneputzen. Gut gemacht!
 game_specific_params:
     target_objects: [toothbrush, water, towel, toothpaste]
     target_activities: [take_water, wet_toothbrush, open_toothpaste, take_toothpaste, brushing, clean_toothbrush, rinse_mouth, spit_water, wipe_mouth]
