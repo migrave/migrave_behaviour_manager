@@ -46,6 +46,9 @@ class GameBase(object):
     ## correct answer counter
     correct_answer_count = 0
 
+    ## correct answer counter for the ordering activity
+    partially_correct_answer_count = 0
+
     ## number of times an incorrect answer has been given in the current activity
     wrong_answer_count = 0
 
@@ -139,7 +142,6 @@ class GameBase(object):
         else:
             self.task = self.tasks[self.task_idx]
             rospy.loginfo(f"Running task: {self.task}")
-
             rospy.loginfo("Publishing task status: running")
             self.task_status = "running"
             self.task_status_pub.publish(self.task_status)
@@ -160,7 +162,8 @@ class GameBase(object):
         text = feedback_texts[result]
         self.say_text(text)
 
-        if self.result == "right":
+        if result == "right":
+            self.partially_correct_answer_count = 0 
             self.round_count += 1
             self.correct_answer_count += 1
             self.wrong_answer_count = 0
@@ -170,14 +173,16 @@ class GameBase(object):
             self.say_text("Dafür bekommst du einen Stern!")
             self.audio_play("rfh-koeln/MIGRAVE/Reward2")
             if self.task.find('order_steps') != -1:
-                image = f"{self.correct_answer_count}_3Token"
+                image = f"{self.correct_answer_count}_2Token"
+                rospy.loginfo(f"Publish image: {self.correct_answer_count}_2Token")
             else: 
                 image = f"{self.correct_answer_count}Token"
+                rospy.loginfo(f"Publish image: {self.correct_answer_count}Token")
             rospy.loginfo(image)
             self.tablet_image_pub.publish(image)
-            rospy.loginfo(f"Publish image: {self.correct_answer_count}Token")
+
             rospy.sleep(3)
-            if self.round_count == 3 and self.task.find('order_steps') != -1:
+            if self.round_count == 2 and self.task.find('order_steps') != -1:
                 rospy.loginfo("Ending current task")
                 self.finish_one_task()
             elif self.round_count == 5:
@@ -192,6 +197,12 @@ class GameBase(object):
             self.wrong_answer_count += 1
             rospy.loginfo(f"Wrong answer count: {self.wrong_answer_count}")
             self.retry_after_wrong()
+        elif result == "partially_correct":
+            self.wrong_answer_count = 0
+            self.partially_correct_answer_count += 1
+            rospy.loginfo("Continuing current ordering round")
+            self.show_emotion("showing_smile")
+            self.start_new_round_and_grade()
 
     def retry_after_wrong(self):
         raise NotImplementedError("retry_after_wrong needs to be overridden")
@@ -416,3 +427,4 @@ class GameBase(object):
         self.msg_acknowledgement_sub = rospy.Subscriber(self.msg_acknowledgement_topic, Bool,
                                                         self.msg_acknowledgement_cb)
         rospy.loginfo('[%s] Initialised %s subscriber', self.game_id, self.msg_acknowledgement_topic)
+
