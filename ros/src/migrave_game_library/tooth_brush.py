@@ -21,7 +21,7 @@ class MigraveGameToothBrush(GameBase):
         self.target_objects = self.game_config["game_specific_params"]["target_objects"]
         self.distractor_objects = self.game_config["game_specific_params"]["distractor_objects"]
         self.target_activities = self.game_config["game_specific_params"]["target_activities"]
-        self.ordered_activities = self.game_config["game_specific_params"]["ordered_activities"]
+        self.ordered_activities = self.game_config["game_specific_params"]["target_activities"]
         self.initial_phrase = ["Schau auf das Tablet!", "Guck auf das Tablet!", "Schau mal auf das Tablet!", "Guck mal auf das Tablet!",  "Sieh mal auf das Tablet!"]
 
         self.activity_parameters = UIActivityParameters()
@@ -32,10 +32,10 @@ class MigraveGameToothBrush(GameBase):
         length = len(self.ordered_activities)
         self.ordering_sequence = [1, length - 2]
         self.ordering_game_idx = 0
-        self.en_to_de_map = {"water": "das wasser", "towel": "das handtuch", "toothbrush": "die Zahnbürste", "toothpaste": "die Zahnpasta",
-        "take_water": "Nimm Wasser", "wet_toothbrush": "Befeuchte deine Zahnbürste", "open_toothpaste": "öffne die Zahnpasta",
-        "take_toothpaste": "Nimm Zahnpasta", "brushing": "putzt deine Zähne", "clean_toothbrush": "reinigst deine Zahnbürste", "black_square":"",
-        "rinse_mouth": "reinigst deinen Mund", "spit_water": "spucke das Wasser aus", "wipe_mouth": "wisch dir deinen Mund ab", "ordering": "Richtig! Wunderbar!"}
+        self.en_to_de_map = {"water": "das wasser", "towel": "das handtuch", "toothbrush": "die Zahnbürste", "black_square":"", 
+        "toothpaste": "die Zahnpasta", "take_water": "Nimm Wasser", "wet_toothbrush": "Befeuchte deine Zahnbürste", 
+        "open_toothpaste": "öffne die Zahnpasta", "take_toothpaste": "Nimm Zahnpasta", "brushing": "putzt deine Zähne", 
+        "clean_toothbrush": "reinigst deine Zahnbürste", "rinse_mouth": "reinigst deinen Mund", "wipe_mouth": "wisch dir deinen Mund ab"}
         
     def game_start(self):
 
@@ -111,7 +111,7 @@ class MigraveGameToothBrush(GameBase):
     def start_new_selection_round(self):
 
         look_at_tablet = random.choice(self.initial_phrase)
-        
+
         possible_activities = random.sample(self.target_activities, 2)
         if self.target_activities.index(possible_activities[0]) < self.target_activities.index(possible_activities[1]):
             self.object = possible_activities[0]
@@ -168,17 +168,21 @@ class MigraveGameToothBrush(GameBase):
         rospy.sleep(2)
         
         look_at_tablet = random.choice(self.initial_phrase)
-        self.say_text(f"{look_at_tablet} Bringe die Bilder in die richtige Reihenfolge")
 
-        if self.partially_correct_answer_count == 2:
+        if self.partially_correct_answer_count == 0:
+            self.say_text(f"{look_at_tablet} Bring die Bilder in die richtige Reihenfolge! Was kommt zuerst?")
+        elif self.partially_correct_answer_count == 1:
+            self.say_text(f"{look_at_tablet} Was kommt jetzt?")
+        elif self.partially_correct_answer_count == 2:
             self.ordering_game_idx += 1
+            self.say_text(f"{look_at_tablet} Was kommt jetzt?")
 
     def evaluate_answer(self):
 
         if self.wrong_answer_count > 0:
-            self.possitive_feedback = random.choice(["gut gemacht", "gut"])
+            self.possitive_feedback = random.choice(["Gut gemacht", "Gut", "Prima"])
         else:
-            self.possitive_feedback = random.choice(["Wunderbar", "Klasse", "Spitzenmäßig", "Sehr gut"])
+            self.possitive_feedback = random.choice(["Wunderbar", "Klasse", "Spitzenmäßig", "Sehr gut", "Toll", "Super"])
 
         feedback_emotions = {
             "right": "showing_smile",
@@ -198,7 +202,7 @@ class MigraveGameToothBrush(GameBase):
         feedback_texts = {
             "right": right_texts[self.task],
             "wrong": "Lass es uns nochmal probieren!",
-            "partially_correct": "Richtig, was ist der nächste Schritt?"
+            "partially_correct": "Richtig!"
         }
         super().evaluate_answer(feedback_emotions, feedback_texts)
 
@@ -238,7 +242,7 @@ class MigraveGameToothBrush(GameBase):
         look_at_tablet = random.choice(self.initial_phrase)
         
         if self.task in ["order_steps","order_steps_resume"]:
-            self.say_text(f"{look_at_tablet} Sortieren der Bilder in der richtigen Reihenfolge!")
+            self.say_text(f"{look_at_tablet} Bring die Bilder in die richtige Reihenfolge!")
         else:
             self.say_text(f"{look_at_tablet} Tippe auf das richtige Bild!")
 
