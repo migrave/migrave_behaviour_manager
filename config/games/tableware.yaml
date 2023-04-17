@@ -1,0 +1,72 @@
+game_id: tableware
+general_game_params:
+    tasks: [fork, fork_vs_objects, fork_vs_tableware, fork_vs_random, fork_kid_vs_random,
+            teacup, teacup_vs_objects, teacup_vs_tableware, teacup_vs_random, teacup_kid_vs_random,
+            spoon, spoon_vs_objects, spoon_vs_tableware, spoon_vs_random, spoon_kid_vs_random,
+            plate, plate_vs_objects, plate_vs_tableware, plate_vs_random, plate_kid_vs_random]
+    resumption_tasks: [fork_resume, teacup_resume, spoon_resume, plate_resume
+                       fork_kid_vs_random_resume, teacup_kid_vs_random_resume,
+                       spoon_kid_vs_random_resume, plate_kid_vs_random_resume]
+    game_activity_ids:
+        fork: fork
+        teacup: teacup
+        spoon: spoon
+        plate: plate
+        fork_vs_objects: fork_vs_objects
+        teacup_vs_objects: teacup_vs_objects
+        plate_vs_objects: plate_vs_objects
+        spoon_vs_oobjects: spoon_vs_objects
+        fork_vs_tableware: fork_vs_tableware
+        teacup_vs_tableware: teacup_vs_tableware
+        spoon_vs_tableware: spoon_vs_tableware
+        plate_vs_tableware: plate_vs_tableware
+        fork_vs_random: fork_vs_random
+        teacup_vs_random: teacup_vs_random
+        spoon_vs_random: spoon_vs_random
+        plate_vs_random: plate_vs_random
+        fork_kid_vs_random: fork_kid_vs_random
+        teacup_kid_vs_random: teacup_kid_vs_random
+        spoon_kid_vs_random: spoon_kid_vs_random
+        plate_kid_vs_random: plate_kid_vs_random
+        fork_resume: fork
+        teacup_resume: teacup
+        spoon_resume: spoon
+        plate_resume: plate
+        fork_kid_vs_random_resume: fork_kid_vs_random
+        teacup_kid_vs_random_resume: teacup_kid_vs_random
+        spoon_kid_vs_random_resume: spoon_kid_vs_random
+        plate_kid_vs_random_resume: plate_kid_vs_random  
+    difficulty_levels:
+        fork: 1
+        teacup: 1
+        spoon: 1
+        plate: 1
+        fork_vs_objects: 1
+        teacup_vs_objects: 1
+        spoon_vs_objects: 1
+        plate_vs_objects: 1
+        fork_vs_tableware: 2
+        teacup_vs_tableware: 2
+        spoon_vs_tableware: 2
+        plate_vs_tableware: 2
+        fork_vs_random: 3
+        teacup_vs_random: 3
+        spoon_vs_random: 3
+        plate_vs_random: 3
+        fork_kid_vs_random: 4
+        teacup_kid_vs_random: 4
+        spoon_kid_vs_random: 4
+        plate_kid_vs_random: 4
+    end_sentence: Wir sind fertig mit Geschirr lernen. Gut gemacht!
+game_specific_params:
+    target_tableware: [fork, teacup, spoon, plate]
+    distractor_tableware: [knife, bowl, ladle, glass, teapot]
+    distractor_objects: [watermelon, truck, sun, shell, flowers, ball, bike]
+    distractor_child: [child-book, child-pen, child-bowl, child-fruit, child-knife, child-flowers]
+    generalisation_objects:
+        fork: [child-fork, child-fork_1, child-fork_2, child-fork_3, child-fork_4, child-fork_5]
+        teacup: [child-teacup]
+        spoon: [child-spoon]
+        plate: [child-plate]
+media_params:
+    celebration_sound_name: rfh-koeln/MIGRAVE/Fireworks

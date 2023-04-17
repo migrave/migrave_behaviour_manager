@@ -1,0 +1,28 @@
+game_id: hand_wash
+general_game_params:
+    tasks: [object_vs_objects, first_activity, order_steps, when_to_wash]
+    resumption_tasks: [object_vs_objects_resume, first_activity_resume, order_steps_resume, when_to_wash_resume]
+    game_activity_ids:
+        object_vs_objects: object_vs_objects
+        object_vs_objects_resume: object_vs_objects
+        first_activity: first_activity
+        first_activity_resume: first_activity
+        order_steps: order_steps
+        order_steps_resume: order_steps
+        when_to_wash: when_to_wash
+        when_to_wash_resume: when_to_wash
+    difficulty_levels:
+        object_vs_objects: 1
+        first_activity: 2
+        order_steps: 3
+        when_to_wash: 4
+    end_sentence: Wir sind fertig mit dem Händewaschen. Gut gemacht!
+game_specific_params:
+    target_objects: [soap, water, hand_towel]
+    target_activities: [take_soap, open_water_tap, rub_hands, rinse_hands, close_water_tap, dry_hands]
+    ordered_activities: [take_soap, open_water_tap, rub_hands, rinse_hands, close_water_tap, dry_hands]
+    distractor_objects: [hairbrush, rubber_duck, toilet_brush, pail, toothbrush, toilet, swimwear, toothpaste, toilet_paper]
+    wash: [eat, use_toilet, blow_nose, dirty_hands, play_outside]
+    not_wash: [play, read, swimming, clean_hands]
+media_params:
+    celebration_sound_name: rfh-koeln/MIGRAVE/Fireworks

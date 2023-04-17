@@ -46,6 +46,9 @@ class GameBase(object):
     ## correct answer counter
     correct_answer_count = 0
 
+    ## correct answer counter for the ordering activity
+    partially_correct_answer_count = 0
+
     ## number of times an incorrect answer has been given in the current activity
     wrong_answer_count = 0
 
@@ -139,7 +142,6 @@ class GameBase(object):
         else:
             self.task = self.tasks[self.task_idx]
             rospy.loginfo(f"Running task: {self.task}")
-
             rospy.loginfo("Publishing task status: running")
             self.task_status = "running"
             self.task_status_pub.publish(self.task_status)
@@ -148,7 +150,6 @@ class GameBase(object):
                         feedback_texts: Dict[str, str],
                         feedback_sounds: Dict[str, str] = None) -> None:
         result = self.result
-
         self.game_performance.stamp = rospy.Time.now()
         self.game_performance.game_activity.game_id = self.game_id
         self.game_performance.game_activity.game_activity_id = self.game_activity_ids[self.task]
@@ -156,28 +157,35 @@ class GameBase(object):
         self.game_performance.answer_correctness = 1 if "right" in result else 0
         self.game_performance_pub.publish(self.game_performance)
         rospy.loginfo("Publish game performance")
-
         emotion = feedback_emotions[result]
         self.show_emotion(emotion)
         text = feedback_texts[result]
         self.say_text(text)
 
-        if self.result == "right":
+        if result == "right":
+            self.partially_correct_answer_count = 0 
             self.round_count += 1
             self.correct_answer_count += 1
             self.wrong_answer_count = 0
             rospy.loginfo(f"Count: {self.round_count}; Correct: {self.correct_answer_count}")
             if feedback_sounds != None:
                 self.audio_play(str(feedback_sounds[result]) + ".mp3")
-            self.say_text("Dafür bekommst du einen Stern! Schau mal auf das Tablet.")
+            self.say_text("Dafür bekommst du einen Stern!")
             self.audio_play("rfh-koeln/MIGRAVE/Reward2")
-            image = f"{self.correct_answer_count}Token"
+            if self.task.find('order_steps') != -1:
+                image = f"{self.correct_answer_count}_2Token"
+                rospy.loginfo(f"Publish image: {self.correct_answer_count}_2Token")
+            else: 
+                image = f"{self.correct_answer_count}Token"
+                rospy.loginfo(f"Publish image: {self.correct_answer_count}Token")
             rospy.loginfo(image)
             self.tablet_image_pub.publish(image)
-            rospy.loginfo(f"Publish image: {self.correct_answer_count}Token")
-            rospy.sleep(6)
 
-            if self.round_count == 5:
+            rospy.sleep(3)
+            if self.round_count == 2 and self.task.find('order_steps') != -1:
+                rospy.loginfo("Ending current task")
+                self.finish_one_task()
+            elif self.round_count == 5:
                 rospy.loginfo("Ending current task")
                 self.finish_one_task()
             else:
@@ -189,6 +197,12 @@ class GameBase(object):
             self.wrong_answer_count += 1
             rospy.loginfo(f"Wrong answer count: {self.wrong_answer_count}")
             self.retry_after_wrong()
+        elif result == "partially_correct":
+            self.wrong_answer_count = 0
+            self.partially_correct_answer_count += 1
+            rospy.loginfo("Continuing current ordering round")
+            self.show_emotion("showing_smile")
+            self.start_new_round_and_grade()
 
     def retry_after_wrong(self):
         raise NotImplementedError("retry_after_wrong needs to be overridden")
@@ -351,9 +365,9 @@ class GameBase(object):
 
         self.show_emotion("showing_smile")
         self.say_text("Geschafft! Das hast du super gemacht!")
-        self.gesture_play("QT/Dance/Dance-1-1")
+        # self.gesture_play("QT/Dance/Dance-1-1")
         self.show_emotion("showing_smile")
-        self.gesture_play("QT/imitation/hands-up-back")
+        # self.gesture_play("QT/imitation/hands-up-back")
 
         rospy.loginfo("Publishing task status: finish")
         self.task_status_pub.publish("finish")
@@ -361,10 +375,11 @@ class GameBase(object):
         rospy.loginfo("Publishing image: fireworks")
         self.say_text("Schau mal auf das Tablet. Da ist ein Feuerwerk für dich!")
         self.tablet_image_pub.publish("fireworks")
+        rospy.sleep(1)
 
-        rospy.loginfo("Publishing sounds: Fireworks")
-        rospy.sleep(2)
-        self.audio_play(self.celebration_sound_name)
+        # rospy.loginfo("Publishing sounds: Fireworks")
+        # rospy.sleep(2)
+        # self.audio_play(self.celebration_sound_name)
 
     def setup_ros(self):
         task_status_topic = f"/migrave_game_{self.game_id}/task_status"
@@ -412,3 +427,4 @@ class GameBase(object):
         self.msg_acknowledgement_sub = rospy.Subscriber(self.msg_acknowledgement_topic, Bool,
                                                         self.msg_acknowledgement_cb)
         rospy.loginfo('[%s] Initialised %s subscriber', self.game_id, self.msg_acknowledgement_topic)
+
