@@ -86,7 +86,7 @@ class GameBase(object):
         self.game_activity_ids = self.game_config["general_game_params"]["game_activity_ids"]
         self.difficulty_levels = self.game_config["general_game_params"]["difficulty_levels"]
         self.end_sentence = self.game_config["general_game_params"]["end_sentence"]
-        self.celebration_sound_name = self.game_config["media_params"]["celebration_sound_name"]
+        # self.celebration_sound_name = self.game_config["media_params"]["celebration_sound_name"]
 
         self.setup_ros()
 
@@ -364,11 +364,9 @@ class GameBase(object):
         self.wrong_answer_count = 0
 
         self.show_emotion("showing_smile")
-        self.say_text("Geschafft! Das hast du super gemacht!")
-        # self.gesture_play("QT/Dance/Dance-1-1")
+        self.say_text("Super, du hast alle Sterne gesammelt!")
         self.show_emotion("showing_smile")
-        # self.gesture_play("QT/imitation/hands-up-back")
-
+        self.say_text("Gut gemacht!")
         rospy.loginfo("Publishing task status: finish")
         self.task_status_pub.publish("finish")
 
