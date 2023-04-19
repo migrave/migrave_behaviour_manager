@@ -57,7 +57,7 @@ general_game_params:
         teacup_kid_vs_random: 4
         spoon_kid_vs_random: 4
         plate_kid_vs_random: 4
-    end_sentence: Wir sind fertig mit Farben lernen. Gut gemacht!
+    end_sentence: Wir sind fertig mit Geschirr lernen. Gut gemacht!
 game_specific_params:
     target_tableware: [fork, teacup, spoon, plate]
     distractor_tableware: [knife, bowl, ladle, glass, teapot]
