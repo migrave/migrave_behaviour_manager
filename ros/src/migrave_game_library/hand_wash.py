@@ -21,7 +21,7 @@ class MigraveGameHandWash(GameBase):
         self.target_objects = self.game_config["game_specific_params"]["target_objects"]
         self.distractor_objects = self.game_config["game_specific_params"]["distractor_objects"]
         self.target_activities = self.game_config["game_specific_params"]["target_activities"]
-        self.ordered_activities = self.game_config["game_specific_params"]["ordered_activities"]
+        self.ordered_activities = self.game_config["game_specific_params"]["target_activities"]
         self.when_to_wash = self.game_config["game_specific_params"]["wash"]
         self.when_to_not_wash = self.game_config["game_specific_params"]["not_wash"]
         self.initial_phrase = ["Schau auf das Tablet!", "Guck auf das Tablet!", "Schau mal auf das Tablet!", "Guck mal auf das Tablet!",  "Sieh mal auf das Tablet!"]

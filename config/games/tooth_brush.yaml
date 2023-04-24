@@ -17,6 +17,6 @@ general_game_params:
 game_specific_params:
     target_objects: [toothbrush, water, towel, toothpaste]
     target_activities: [open_toothpaste, take_toothpaste, brushing, rinse_mouth, clean_toothbrush, wipe_mouth]
-    distractor_objects: [apple, cutlery, hairbrush, rubber_duck, screw, shampoo, sponge, toilet_paper]
+    distractor_objects: [apple, cutlery, hairbrush, rubber_duck, screw, shampoo, sponge, toilet_paper, hammer]
 media_params:
     celebration_sound_name: rfh-koeln/MIGRAVE/Fireworks
