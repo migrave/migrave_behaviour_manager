@@ -63,7 +63,8 @@ class MigraveGameAnimals(GameBase):
             rospy.loginfo(f"Starting differentiation task '{self.task}'")
             self.start_new_differentiation_round('animals')
 
-        elif self.task in ["animal_vs_objects", "animal_vs_animals", "animal_vs_objects_resume", "animal_vs_animals_resume"]:       
+        elif self.task in ["animal_vs_objects", "animal_vs_others", "animal_vs_animals", "animal_vs_objects_resume", 
+                           "animal_vs_others_resume", "animal_vs_animals_resume"]:     
             rospy.loginfo(f"Starting generalisation task '{self.task}'")
             self.start_new_generalisation_round()
 
@@ -83,7 +84,8 @@ class MigraveGameAnimals(GameBase):
         elif self.task in ["cat_vs_animals", "dog_vs_animals", "cow_vs_animals", "pig_vs_animals", "mouse_vs_animals"]:
             self.start_new_differentiation_round('animals')
 
-        elif self.task in ["animal_vs_objects", "animal_vs_animals", "animal_vs_objects_resume", "animal_vs_animals_resume"]:
+        elif self.task in ["animal_vs_objects", "animal_vs_others", "animal_vs_animals", "animal_vs_objects_resume", 
+                           "animal_vs_others_resume", "animal_vs_animals_resume"]:
             self.start_new_generalisation_round()
 
     def start_new_simple_round(self):
@@ -143,6 +145,12 @@ class MigraveGameAnimals(GameBase):
         if "objects" in self.task: 
             self.animal_image = self.target_animals[self.animal][0]
             distractors = random.sample(self.distractor_objects, 2)
+
+        elif "others" in self.task:
+            self.animal_image = self.target_animals[self.animal][0]
+            possible_choices = [f"{v}-1" for v in self.options_animals if v != self.animal]
+            distractors = random.sample(possible_choices, 2)
+
         elif "animals" in self.task:
             possible_animals = list(self.target_animals[self.animal] + self.generalisation_objects[self.animal])
             self.animal_image = random.choice(possible_animals)
@@ -203,6 +211,7 @@ class MigraveGameAnimals(GameBase):
             "mouse_vs_animals": fr"\emph\ Richtig! \emph\ die Maus! \emph\ {self.possitive_feedback}!",
             
             "animal_vs_objects": fr"\emph\ Richtig! \emph\ {self.no_article_animal_map[self.animal]} {self.en_to_de_animal_map[self.animal]}! \emph\ {self.possitive_feedback}!",
+            "animal_vs_others": fr"\emph\ Richtig! \emph\ {self.no_article_animal_map[self.animal]} {self.en_to_de_animal_map[self.animal]}! \emph\ {self.possitive_feedback}!",
             "animal_vs_animals": fr"\emph\ Richtig! \emph\ {self.no_article_animal_map[self.animal]} {self.en_to_de_animal_map[self.animal]}! \emph\ {self.possitive_feedback}!"
         }
 
@@ -228,6 +237,7 @@ class MigraveGameAnimals(GameBase):
             "mouse_vs_animals": "aleksandar.mitrevski/animals/Maus",
 
             "animal_vs_objects": "aleksandar.mitrevski/animals/"+ str(self.en_to_de_animal_map[self.animal]),
+            "animal_vs_others": "aleksandar.mitrevski/animals/"+ str(self.en_to_de_animal_map[self.animal]),
             "animal_vs_animals": "aleksandar.mitrevski/animals/"+ str(self.en_to_de_animal_map[self.animal])
         }
         feedback_texts = {

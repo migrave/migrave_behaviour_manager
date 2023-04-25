@@ -135,7 +135,7 @@ class GameBase(object):
         if self.task_idx == len(self.tasks):
             rospy.loginfo("Game complete; no new task to start")
             self.say_text("Geschafft, du hast super mitgemacht!")
-            self.show_emotion("showing_smile")
+            self.show_emotion("kiss")
             self.say_text(self.end_sentence)
             self.task_status = "done"
             self.task_status_pub.publish("done")
@@ -190,7 +190,7 @@ class GameBase(object):
                 self.finish_one_task()
             else:
                 rospy.loginfo("Continuing current task")
-                self.show_emotion("showing_smile")
+                self.show_emotion("kiss")
                 self.say_text("Noch einmal!")
                 self.start_new_round_and_grade()
         elif result == "wrong":
@@ -201,7 +201,7 @@ class GameBase(object):
             self.wrong_answer_count = 0
             self.partially_correct_answer_count += 1
             rospy.loginfo("Continuing current ordering round")
-            self.show_emotion("showing_smile")
+            self.show_emotion("kiss")
             self.start_new_round_and_grade()
 
     def retry_after_wrong(self):
@@ -363,9 +363,9 @@ class GameBase(object):
         self.correct_answer_count = 0
         self.wrong_answer_count = 0
 
-        self.show_emotion("showing_smile")
+        self.show_emotion("kiss")
         self.say_text("Super, du hast alle Sterne gesammelt!")
-        self.show_emotion("showing_smile")
+        self.show_emotion("kiss")
         self.say_text("Gut gemacht!")
         rospy.loginfo("Publishing task status: finish")
         self.task_status_pub.publish("finish")

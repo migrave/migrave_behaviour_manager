@@ -62,24 +62,16 @@ class MigraveGameTableware(GameBase):
             rospy.loginfo(f"Starting simple task '{self.task}'")
             self.start_new_simple_round()
         
-        elif self.task in ["fork_vs_objects", "spoon_vs_objects", "knife_vs_objects",
-                           "glass_vs_objects", "bowl_vs_objects"]:
+        elif self.task in ["fork_vs_objects", "spoon_vs_objects", "knife_vs_objects","glass_vs_objects", 
+                           "bowl_vs_objects", "fork_vs_tableware", "spoon_vs_tableware",
+                           "knife_vs_tableware", "glass_vs_tableware", "bowl_vs_tableware"]:
             rospy.loginfo(f"Starting differentiation task '{self.task}'")
-            self.start_new_differentiation_round('objects')
+            self.start_new_differentiation_round()
         
-        elif self.task in ["fork_vs_tableware", "spoon_vs_tableware", "knife_vs_tableware",
-                           "glass_vs_tableware", "bowl_vs_tableware"]:
+        elif self.task in ["object_vs_others", "object_vs_others_resume", "kid_vs_kids", "kid_vs_kids_resume",
+                           "object_vs_random", "object_vs_random_resume"]:
             rospy.loginfo(f"Starting differentiation task '{self.task}'")
-            self.start_new_differentiation_round('tableware')
-        
-        elif self.task in ["kid_vs_kids", "kid_vs_kids_resume"]:
-            rospy.loginfo(f"Starting differentiation task '{self.task}'")
-            self.start_new_generalisation_round('kids')
-      
-        elif self.task in ["object_vs_random", "object_vs_random_resume"]:
-            rospy.loginfo(f"Starting generalisation task '{self.task}'")
-            self.start_new_generalisation_round('random')
-
+            self.start_new_generalisation_round()
 
     def start_new_round_and_grade(self):
         self.msg_acknowledged = False
@@ -92,19 +84,14 @@ class MigraveGameTableware(GameBase):
                          "spoon_resume", "knife_resume", "glass_resume", "bowl_resume"]:
             self.start_new_simple_round()
       
-        elif self.task in ["fork_vs_objects", "spoon_vs_objects", "knife_vs_objects",
-                           "glass_vs_objects", "bowl_vs_objects"]:
-            self.start_new_differentiation_round('objects')
+        elif self.task in ["fork_vs_objects", "spoon_vs_objects", "knife_vs_objects","glass_vs_objects", 
+                           "bowl_vs_objects", "fork_vs_tableware", "spoon_vs_tableware",
+                           "knife_vs_tableware", "glass_vs_tableware", "bowl_vs_tableware"]:
+            self.start_new_differentiation_round()
       
-        elif self.task in ["fork_vs_tableware", "spoon_vs_tableware", "knife_vs_tableware",
-                           "glass_vs_tableware", "bowl_vs_tableware"]:
-            self.start_new_differentiation_round('tableware')
-      
-        elif self.task in ["kid_vs_kids", "kid_vs_kids_resume"]:
-            self.start_new_generalisation_round('kids')    
-      
-        elif self.task in ["object_vs_random", "object_vs_random_resume"]:
-            self.start_new_generalisation_round('random')
+        elif self.task in ["object_vs_others", "object_vs_others_resume", "kid_vs_kids", "kid_vs_kids_resume",
+                           "object_vs_random", "object_vs_random_resume"]:
+            self.start_new_generalisation_round()
 
     def start_new_simple_round(self):
         
@@ -130,9 +117,10 @@ class MigraveGameTableware(GameBase):
         self.crockery = self.task.split("_")[0]
         self.crockery_image = random.choice(self.target_tableware[self.crockery])
 
-        if type_of_differentiation == 'objects':
+        if "objects" in self.task:
             distractors = random.sample(self.distractor_objects, 2)
-        elif type_of_differentiation == 'tableware':
+
+        elif "tableware" in self.task:
             possible_choices = [f"{v}-{random.randint(1, 5)}" for v in self.options_tableware if v != self.crockery]
             distractors = random.sample(possible_choices, 2)
     
@@ -155,14 +143,20 @@ class MigraveGameTableware(GameBase):
         look_at_tablet = random.choice(self.initial_phrase)
         self.say_text(f"{look_at_tablet} Tippe auf {self.en_article_crockery_map[self.crockery]} {self.en_to_de_crockery_map[self.crockery]}!")
 
-    def start_new_generalisation_round(self, type_of_differentiation):
+    def start_new_generalisation_round(self):
         
         self.crockery = random.choice(self.options_tableware)
-        if type_of_differentiation == 'kids':
+        if "others" in self.task: 
+            self.crockery_image = self.target_tableware[self.crockery][0]
+            possible_choices = [f"{v}-1" for v in self.options_tableware if v != self.crockery]
+            distractors = random.sample(possible_choices, 2)
+
+        elif "kids" in self.task:
             self.crockery_image = f"{self.crockery}-kid"
             possible_choices = [v for v in self.generalisation_objects if v != self.crockery_image]
             distractors = random.sample(possible_choices, 2)
-        elif type_of_differentiation == 'random':
+
+        elif "random" in self.task: 
             self.crockery_image = f"{self.crockery}-{random.randint(1, 5)}"
             possible_choices = [f"{v}-{random.randint(1, 5)}" for v in self.options_tableware if v != self.crockery]
             distractors = [random.choice(possible_choices), random.choice(self.distractor_objects)]
@@ -222,6 +216,7 @@ class MigraveGameTableware(GameBase):
             "bowl_vs_objects": fr"\emph\ Richtig! \emph\ die Schüssel! \emph\ {self.possitive_feedback}!",
             "bowl_vs_tableware": fr"\emph\ Richtig! \emph\ die Schüssel! \emph\ {self.possitive_feedback}!",
             
+            "object_vs_others": fr"\emph\ Richtig! \emph\ {self.object_action_feedback[self.crockery]}! \emph\ {self.possitive_feedback}!",
             "kid_vs_kids": fr"\emph\ Richtig! \emph\ {self.kid_action_feedback[self.crockery]}! \emph\ {self.possitive_feedback}!",
             "object_vs_random": fr"\emph\ Richtig! \emph\ {self.object_action_feedback[self.crockery]}! \emph\ {self.possitive_feedback}!"
         }
