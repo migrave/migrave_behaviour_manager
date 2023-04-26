@@ -22,8 +22,10 @@ class MigraveGameToothBrush(GameBase):
         self.distractor_objects = self.game_config["game_specific_params"]["distractor_objects"]
         self.target_activities = self.game_config["game_specific_params"]["target_activities"]
         self.ordered_activities = self.game_config["game_specific_params"]["target_activities"]
+        self.first = self.game_config["game_specific_params"]["first"]
+        self.after = self.game_config["game_specific_params"]["after"]
+        self.answer_what_comes_first = self.game_config["media_params"]["answer_what_comes_first"]
         self.initial_phrase = ["Schau auf das Tablet!", "Guck auf das Tablet!", "Schau mal auf das Tablet!", "Guck mal auf das Tablet!",  "Sieh mal auf das Tablet!"]
-
         self.activity_parameters = UIActivityParameters()
         self.activity_parameters_pub = rospy.Publisher("/migrave_game_tooth_brush/activity_parameters",
                                                        UIActivityParameters, queue_size=1)
@@ -32,6 +34,7 @@ class MigraveGameToothBrush(GameBase):
         length = len(self.ordered_activities)
         self.ordering_sequence = [1, length - 2]
         self.ordering_game_idx = 0
+        self.ordering_activity = ""
         self.en_to_de_map = {"water": "das wasser", "towel": "das handtuch", "toothbrush": "die Zahnbürste", "black_square":"", 
         "toothpaste": "die Zahnpasta", "take_water": "Nimm Wasser", "wet_toothbrush": "Befeuchte deine Zahnbürste", 
         "open_toothpaste": "öffne die Zahnpasta", "take_toothpaste": "Nimm Zahnpasta", "brushing": "putzt deine Zähne", 
@@ -42,9 +45,9 @@ class MigraveGameToothBrush(GameBase):
         super().game_start()
         rospy.loginfo("Tooth brush game starts")
         self.say_text("Heute lernst du wie du deine Zähne waschen kannst. Fangen wir an!")
-        self.show_emotion("showing_smile")
+        self.show_emotion("happy")
         self.say_text("Hände auf den Tisch. Schau mich an.")
-        self.show_emotion("showing_smile")
+        self.show_emotion("happy")
 
     def task_start(self):
 
@@ -62,9 +65,6 @@ class MigraveGameToothBrush(GameBase):
 
         elif self.task in ["order_steps","order_steps_resume"]:
             rospy.loginfo(f"Starting ordering task '{self.task}'")
-            # we reset the list of previously used generalisation objects
-            # before (re)starting a generalisation task
-            self.used_ordering_activities = []
             self.start_new_ordering_round()
 
     def start_new_round_and_grade(self):
@@ -94,6 +94,9 @@ class MigraveGameToothBrush(GameBase):
 
         list_of_images = [self.object_image, distractors[0], distractors[1]]
         self.activity_parameters.images = random.sample(list_of_images, len(list_of_images))
+        
+        look_at_tablet = random.choice(self.initial_phrase)
+        self.say_text(f"{look_at_tablet} Was brauchst du zum Zähneputzen?")
 
         rospy.sleep(2)
         self.msg_acknowledged = False
@@ -105,26 +108,17 @@ class MigraveGameToothBrush(GameBase):
             rospy.sleep(0.5)
         rospy.sleep(2)
 
-        look_at_tablet = random.choice(self.initial_phrase)
-        self.say_text(f"{look_at_tablet} Was brauchst du zum Zähneputzen?")
-
     def start_new_selection_round(self):
 
         look_at_tablet = random.choice(self.initial_phrase)
-
-        possible_activities = random.sample(self.target_activities, 2)
-        if self.target_activities.index(possible_activities[0]) < self.target_activities.index(possible_activities[1]):
-            self.object = possible_activities[0]
-            distractors = possible_activities[1]
-            distractor_images = f"{possible_activities[1]}"
-        else:
-            self.object = possible_activities[1]
-            distractors = possible_activities[0]
-            distractor_images = f"{possible_activities[0]}"
-            
-        audio_text = look_at_tablet + "Was kommt zuerst? Tippe auf das richtige Bild!"
+    
+        self.object = self.first[self.round_count]
         self.object_image = f"{self.object}"
-
+        distractors = self.after[self.round_count]
+        distractor_images = f"{distractors}"
+        audio_text = look_at_tablet + "Was kommt zuerst? Tippe auf das richtige Bild!"
+        self.say_text(audio_text)
+        
         self.activity_parameters.correct_image = [self.object_image]
         self.activity_parameters.correct_image_highlighted = [f"{self.object_image}-highlighted"]
 
@@ -140,7 +134,7 @@ class MigraveGameToothBrush(GameBase):
             self.activity_parameters_pub.publish(self.activity_parameters)
             rospy.sleep(0.5)
         rospy.sleep(2)
-        self.say_text(audio_text)
+        
 
     def start_new_ordering_round(self):
 
@@ -168,6 +162,7 @@ class MigraveGameToothBrush(GameBase):
         rospy.sleep(2)
         
         look_at_tablet = random.choice(self.initial_phrase)
+        self.ordering_activity = self.en_to_de_map[self.object[self.partially_correct_answer_count]]
 
         if self.partially_correct_answer_count == 0:
             self.say_text(f"{look_at_tablet} Bring die Bilder in die richtige Reihenfolge! Was kommt zuerst?")
@@ -185,24 +180,24 @@ class MigraveGameToothBrush(GameBase):
             self.possitive_feedback = random.choice(["Wunderbar", "Klasse", "Spitzenmäßig", "Sehr gut", "Toll", "Super"])
 
         feedback_emotions = {
-            "right": "showing_smile",
-            "right_1": "showing_smile",
-            "right_2": "showing_smile",
-            "partially_correct": "showing_smile",
+            "right": "kiss",
+            "right_1": "kiss",
+            "right_2": "kiss",
+            "partially_correct": "kiss",
             "wrong": "",
             "wrong_1": "",
             "wrong_2": ""
         }
         right_texts = {
-            "order_steps": fr" \emph\ Richtig! \emph\ {self.en_to_de_map[self.object_image]}! \emph\ {self.possitive_feedback}!",
+            "order_steps": fr" \emph\ Richtig! \emph\ {self.ordering_activity}! \emph\ {self.possitive_feedback}!",
             "object_vs_objects": fr"\emph\ Richtig! \emph\ {self.en_to_de_map[self.object_image]}! \emph\ {self.possitive_feedback}!",
-            "first_activity": fr"\emph\ Richtig! \emph\ {self.en_to_de_map[self.object_image]}! \emph\ {self.possitive_feedback}!"
+            "first_activity": fr"\emph\ Richtig! \emph\ {self.answer_what_comes_first[self.round_count]}! \emph\ {self.possitive_feedback}!"
         }
 
         feedback_texts = {
             "right": right_texts[self.task],
             "wrong": "Lass es uns nochmal probieren!",
-            "partially_correct": "Richtig!"
+            "partially_correct": "Richtig!" + self.ordering_activity
         }
         super().evaluate_answer(feedback_emotions, feedback_texts)
 
@@ -229,6 +224,12 @@ class MigraveGameToothBrush(GameBase):
             else:
                 self.activity_parameters.images = [self.activity_parameters.correct_image_highlighted[0]]
                 self.activity_parameters.correct_image = [self.activity_parameters.correct_image_highlighted[0]]
+        
+        look_at_tablet = random.choice(self.initial_phrase)
+        if self.task in ["order_steps","order_steps_resume"]:
+            self.say_text(f"{look_at_tablet} Bring die Bilder in die richtige Reihenfolge!")
+        else:
+            self.say_text(f"{look_at_tablet} Tippe auf das richtige Bild!")
 
         rospy.sleep(2)
         self.msg_acknowledged = False
@@ -238,12 +239,4 @@ class MigraveGameToothBrush(GameBase):
                           f"all images: {self.activity_parameters.images}")
             self.activity_parameters_pub.publish(self.activity_parameters)
             rospy.sleep(0.5)
-        rospy.sleep(2)
-        look_at_tablet = random.choice(self.initial_phrase)
-        
-        if self.task in ["order_steps","order_steps_resume"]:
-            self.say_text(f"{look_at_tablet} Bring die Bilder in die richtige Reihenfolge!")
-        else:
-            self.say_text(f"{look_at_tablet} Tippe auf das richtige Bild!")
-
-       
+        rospy.sleep(2)  

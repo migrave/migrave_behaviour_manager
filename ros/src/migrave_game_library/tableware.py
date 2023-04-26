@@ -21,7 +21,9 @@ class MigraveGameTableware(GameBase):
         self.target_tableware = self.game_config["game_specific_params"]["target_tableware"]
         self.distractor_objects = self.game_config["game_specific_params"]["distractor_objects"]
         self.generalisation_objects = self.game_config["game_specific_params"]["generalisation_objects"]
-
+        self.kid_action_feedback = self.game_config["media_params"]["answer_feedback_kid"]
+        self.object_action_feedback = self.game_config["media_params"]["answer_feedback_object"]
+        
         # during a generalisation task, objects should not be repeated in multiple rounds;
         # we thus keep a list of selected objects so that they can be avoided in subsequent rounds
         
@@ -35,21 +37,15 @@ class MigraveGameTableware(GameBase):
                                "Guck mal auf das Tablet!", "Sieh mal auf das Tablet!"]
         self.en_to_de_crockery_map = {"fork": "Gabel", "spoon": "Löffel", "knife": "Messer", "glass": "Becher", "bowl": "Schüssel"}
         self.en_article_crockery_map = {"fork": "die", "spoon": "den", "knife": "das", "glass": "der", "bowl": "die"}
-        self.kid_action_feedback = {"fork": "Das Kind isst mit der Gabel!", "spoon": "Das Kind isst mit dem Löffel!", 
-                                    "knife": "Das Kind schneidet mit dem Messer!", "glass": "Das Kind trinkt aus dem Becher!",
-                                    "bowl": "Das Kind isst aus der Schüssel!"}
-        self.object_action_feedback = {"fork": "Mit der Gabel kann man Nudeln essen!", "spoon": "Mit dem Löffel kann man Suppe essen",
-                                       "knife": "Mit dem Messer kann man schneiden!", "glass": "Aus dem Becher kann man trinken!", 
-                                       "bowl": "Aus der Schüssel kann man Suppe essen!"}
         
     def game_start(self):
         super().game_start()
 
         rospy.loginfo("Tableware game starts")
         self.say_text("Heute lernen wir verschiedene Gegenstände kennen, die wir zum Essen brauche, Fangen wir an!")
-        self.show_emotion("showing_smile")
+        self.show_emotion("happy")
         self.say_text("Hände auf den Tisch. Schau mich an.")
-        self.show_emotion("showing_smile")
+        self.show_emotion("happy")
         self.say_text("Ich nenne dir ein Wort und du tippst auf das passende Bild.")
 
     def task_start(self):
@@ -74,6 +70,7 @@ class MigraveGameTableware(GameBase):
             self.start_new_generalisation_round()
 
     def start_new_round_and_grade(self):
+
         self.msg_acknowledged = False
         while not self.msg_acknowledged:
             rospy.loginfo("[start_new_round_and_grade] Publishing task status 'running'")
@@ -97,7 +94,11 @@ class MigraveGameTableware(GameBase):
         
         self.crockery = self.task
         self.crockery_image = f"{self.target_tableware[self.task][0]}"
-
+        
+        look_at_tablet = random.choice(self.initial_phrase)  
+        self.say_text(f"{look_at_tablet} Tippe auf {self.en_article_crockery_map[self.crockery]} {self.en_to_de_crockery_map[self.crockery]}!")
+        rospy.sleep(0.5)
+        
         self.activity_parameters.images = [self.crockery_image]
         self.activity_parameters.correct_image = [self.crockery_image]
         rospy.sleep(2)
@@ -109,13 +110,14 @@ class MigraveGameTableware(GameBase):
             rospy.sleep(0.5)
         rospy.sleep(2)
 
-        look_at_tablet = random.choice(self.initial_phrase)  
-        self.say_text(f"{look_at_tablet} Tippe auf {self.en_article_crockery_map[self.crockery]} {self.en_to_de_crockery_map[self.crockery]}!")
-
-    def start_new_differentiation_round(self, type_of_differentiation):
+    def start_new_differentiation_round(self):
 
         self.crockery = self.task.split("_")[0]
         self.crockery_image = random.choice(self.target_tableware[self.crockery])
+
+        look_at_tablet = random.choice(self.initial_phrase)
+        self.say_text(f"{look_at_tablet} Tippe auf {self.en_article_crockery_map[self.crockery]} {self.en_to_de_crockery_map[self.crockery]}!")
+        rospy.sleep(0.5)
 
         if "objects" in self.task:
             distractors = random.sample(self.distractor_objects, 2)
@@ -140,9 +142,7 @@ class MigraveGameTableware(GameBase):
             self.activity_parameters_pub.publish(self.activity_parameters)
             rospy.sleep(0.5)
         rospy.sleep(2)        
-        look_at_tablet = random.choice(self.initial_phrase)
-        self.say_text(f"{look_at_tablet} Tippe auf {self.en_article_crockery_map[self.crockery]} {self.en_to_de_crockery_map[self.crockery]}!")
-
+       
     def start_new_generalisation_round(self):
         
         self.crockery = random.choice(self.options_tableware)
@@ -153,7 +153,12 @@ class MigraveGameTableware(GameBase):
 
         elif "kids" in self.task:
             self.crockery_image = f"{self.crockery}-kid"
-            possible_choices = [v for v in self.generalisation_objects if v != self.crockery_image]
+            if self.crockery == "spoon":
+                possible_choices = [v for v in self.generalisation_objects if (v != self.crockery_image and v != "bowl-kid")]
+            elif self.crockery == "bowl":
+                possible_choices = [v for v in self.generalisation_objects if (v != self.crockery_image and v != "spoon-kid")]
+            else: 
+                possible_choices = [v for v in self.generalisation_objects if v != self.crockery_image]
             distractors = random.sample(possible_choices, 2)
 
         elif "random" in self.task: 
@@ -166,6 +171,15 @@ class MigraveGameTableware(GameBase):
            
         list_of_images = [self.crockery_image, distractors[0], distractors[1]]            
         self.activity_parameters.images = random.sample(list_of_images, len(list_of_images))
+                
+        look_at_tablet = random.choice(self.initial_phrase)
+        if "kids" in self.task:
+            self.say_text(f"{look_at_tablet} {self.kid_action_feedback[self.crockery][0]}!")
+        elif "random" in self.task:
+            self.say_text(f"{look_at_tablet} {self.object_action_feedback[self.crockery][0]}!")
+        else:
+            self.say_text(f"{look_at_tablet} Tippe auf {self.en_article_crockery_map[self.crockery]} {self.en_to_de_crockery_map[self.crockery]}!")
+
         rospy.sleep(2)
         self.msg_acknowledged = False
         while not self.msg_acknowledged:
@@ -176,10 +190,6 @@ class MigraveGameTableware(GameBase):
             rospy.sleep(0.5)
         rospy.sleep(2)
 
-        look_at_tablet = random.choice(self.initial_phrase)
-        self.say_text(f"{look_at_tablet} Tippe auf {self.en_article_crockery_map[self.crockery]} {self.en_to_de_crockery_map[self.crockery]}!")
-
-
     def evaluate_answer(self):
         self.possitive_feedback = []
         if self.wrong_answer_count > 0:
@@ -188,9 +198,9 @@ class MigraveGameTableware(GameBase):
             self.possitive_feedback = random.choice(["Wunderbar", "Klasse", "Spitzenmäßig", "Sehr gut", "Toll", "Super"])
 
         feedback_emotions = {
-            "right": "showing_smile",
-            "right_1": "showing_smile",
-            "right_2": "showing_smile",
+            "right": "kiss",
+            "right_1": "kiss",
+            "right_2": "kiss",
             "wrong": "",
             "wrong_1": "",
             "wrong_2": ""
@@ -216,9 +226,9 @@ class MigraveGameTableware(GameBase):
             "bowl_vs_objects": fr"\emph\ Richtig! \emph\ die Schüssel! \emph\ {self.possitive_feedback}!",
             "bowl_vs_tableware": fr"\emph\ Richtig! \emph\ die Schüssel! \emph\ {self.possitive_feedback}!",
             
-            "object_vs_others": fr"\emph\ Richtig! \emph\ {self.object_action_feedback[self.crockery]}! \emph\ {self.possitive_feedback}!",
-            "kid_vs_kids": fr"\emph\ Richtig! \emph\ {self.kid_action_feedback[self.crockery]}! \emph\ {self.possitive_feedback}!",
-            "object_vs_random": fr"\emph\ Richtig! \emph\ {self.object_action_feedback[self.crockery]}! \emph\ {self.possitive_feedback}!"
+            "object_vs_others": fr"\emph\ Richtig! \emph\ {self.en_article_crockery_map[self.crockery]} {self.en_to_de_crockery_map[self.crockery]}! \emph\ {self.possitive_feedback}!",
+            "kid_vs_kids": fr"\emph\ Richtig! \emph\ {self.kid_action_feedback[self.crockery][1]}! \emph\ {self.possitive_feedback}!",
+            "object_vs_random": fr"\emph\ Richtig! \emph\ {self.object_action_feedback[self.crockery][1]}! \emph\ {self.possitive_feedback}!"
         }
         feedback_texts = {
             "right": right_texts[self.task],
@@ -241,6 +251,14 @@ class MigraveGameTableware(GameBase):
             self.activity_parameters.images = [self.activity_parameters.correct_image_highlighted[0]]
             self.activity_parameters.correct_image = self.activity_parameters.correct_image_highlighted
 
+        look_at_tablet = random.choice(self.initial_phrase)
+        if "kids" in self.task:
+            self.say_text(f"{look_at_tablet} {self.kid_action_feedback[self.crockery][0]}!")
+        elif "random" in self.task:
+            self.say_text(f"{look_at_tablet} {self.object_action_feedback[self.crockery][0]}!")
+        else:
+            self.say_text(f"{look_at_tablet} Tippe auf {self.en_article_crockery_map[self.crockery]} {self.en_to_de_crockery_map[self.crockery]}!")
+
         rospy.sleep(2)
         self.msg_acknowledged = False
         while not self.msg_acknowledged:
@@ -251,6 +269,4 @@ class MigraveGameTableware(GameBase):
             rospy.sleep(0.5)
         rospy.sleep(2)
         
-        look_at_tablet = random.choice(self.initial_phrase)
-        self.say_text(f"{look_at_tablet} Tippe auf {self.en_article_crockery_map[self.crockery]} {self.en_to_de_crockery_map[self.crockery]}!")
-
+       

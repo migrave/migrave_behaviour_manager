@@ -24,8 +24,12 @@ class MigraveGameHandWash(GameBase):
         self.ordered_activities = self.game_config["game_specific_params"]["target_activities"]
         self.when_to_wash = self.game_config["game_specific_params"]["wash"]
         self.when_to_not_wash = self.game_config["game_specific_params"]["not_wash"]
+        self.first = self.game_config["game_specific_params"]["first"]
+        self.after = self.game_config["game_specific_params"]["after"]
         self.initial_phrase = ["Schau auf das Tablet!", "Guck auf das Tablet!", "Schau mal auf das Tablet!", "Guck mal auf das Tablet!",  "Sieh mal auf das Tablet!"]
-
+        self.questions_when_to_wash = self.game_config["media_params"]["questions_when_to_wash"]
+        self.questions_what_comes_first = self.game_config["media_params"]["questions_what_comes_first"]
+        
         self.activity_parameters = UIActivityParameters()
         self.activity_parameters_pub = rospy.Publisher("/migrave_game_hand_wash/activity_parameters",
                                                        UIActivityParameters, queue_size=1)
@@ -34,21 +38,21 @@ class MigraveGameHandWash(GameBase):
         length = len(self.ordered_activities)
         self.ordering_sequence = [1, length - 2]
         self.ordering_game_idx = 0
+        self.ordering_activity = ""
         self.en_to_de_map = {"soap": "die seife", "water": "das wasser", "hand_towel": "das handtuch", 
-        "open_water_tap": "öffne den Wasserhahn", "wet_hands": "Befeuchte deine Hände", 
-        "take_soap": "Nimm Seife", "rub_hands": "Reibe deine Hände", "rinse_hands": "Wasche deine Hände",
-        "close_water_tap": "Schließ den Wasserhahn", "dry_hands": "Trockne deine Hände",
-        "eat": "Vor dem Essen", "use_toilet": "Nach der Toilette", "blow_nose": "Nach dem Nase putzen",
-        "dirty_hands": "Wenn sie schmutzig sind", "play_outside": "Nach dem Spielen draußen", "black_square":""}
-        
+                             "open_water_tap": "Wasserhahn aufmachen", "take_soap": "Seife nehmen", 
+                             "rub_hands": "Hände einseifen", "rinse_hands": "Seife abspülen", "black_square":"",
+                             "close_water_tap": "Wasserhahn zumachen", "dry_hands": "Hände abtrocknen",
+                             "eat": "Vor dem Essen ", "use_toilet": "Nach der Toilette", "blow_nose": "Nach dem Naseputzen", 
+                             "dirty_hands": "Wenn die Hände schmutzig sind", "play_outside": "Nach dem Spielen draußen"}
     def game_start(self):
 
         super().game_start()
         rospy.loginfo("Hand wash game starts")
         self.say_text("Heute lernst du wie du deine Hände waschen kannst. Fangen wir an!")
-        self.show_emotion("showing_smile")
+        self.show_emotion("happy")
         self.say_text("Hände auf den Tisch. Schau mich an.")
-        self.show_emotion("showing_smile")
+        self.show_emotion("happy")
 
     def task_start(self):
 
@@ -60,20 +64,13 @@ class MigraveGameHandWash(GameBase):
             rospy.loginfo(f"Starting differentiation task '{self.task}'")
             self.start_new_differentiation_round()
 
-        elif self.task in ["first_activity","first_activity_resume"]:
+        elif self.task in ["first_activity","first_activity_resume", "when_to_wash","when_to_wash_resume"]:
             rospy.loginfo(f"Starting select first task '{self.task}'")
-            self.start_new_selection_round("first")
+            self.start_new_selection_round()
 
         elif self.task in ["order_steps","order_steps_resume"]:
             rospy.loginfo(f"Starting ordering task '{self.task}'")
-            # we reset the list of previously used generalisation objects
-            # before (re)starting a generalisation task
-            self.used_ordering_activities = []
             self.start_new_ordering_round()
-
-        elif self.task in ["when_to_wash","when_to_wash_resume"]:
-            rospy.loginfo(f"Starting generalisation task '{self.task}'")
-            self.start_new_selection_round("correct")
 
     def start_new_round_and_grade(self):
 
@@ -85,18 +82,19 @@ class MigraveGameHandWash(GameBase):
 
         if self.task in ["object_vs_objects", "object_vs_objects_resume"]:
             self.start_new_differentiation_round()
-        elif self.task in ["first_activity","first_activity_resume"]:
-            self.start_new_selection_round("first")
+        elif self.task in ["first_activity","first_activity_resume", "when_to_wash","when_to_wash_resume"]:
+            self.start_new_selection_round()
         elif self.task in ["order_steps", "order_steps_resume"]:
             self.start_new_ordering_round()
-        elif self.task in ["when_to_wash","when_to_wash_resume"]:
-            self.start_new_selection_round("correct")
 
     def start_new_differentiation_round(self):
         
         possible_objects = list(self.target_objects)
         self.object = random.choice(possible_objects)
         self.object_image = f"{self.object}"
+        
+        look_at_tablet = random.choice(self.initial_phrase)
+        self.say_text(f"{look_at_tablet} Was brauchst du zum Hände waschen?")
 
         distractors = random.sample(self.distractor_objects, 2)
         self.activity_parameters.correct_image = [self.object_image]
@@ -115,34 +113,25 @@ class MigraveGameHandWash(GameBase):
             rospy.sleep(0.5)
         rospy.sleep(2)
 
-        look_at_tablet = random.choice(self.initial_phrase)
-        self.say_text(f"{look_at_tablet} Was brauchst du zum Hände waschen?")
-
-    def start_new_selection_round(self, game_type):
+    def start_new_selection_round(self):
 
         look_at_tablet = random.choice(self.initial_phrase)
-
-        if game_type == "first":
-            possible_activities = random.sample(self.target_activities, 2)
-            if self.target_activities.index(possible_activities[0]) < self.target_activities.index(possible_activities[1]):
-                self.object = possible_activities[0]
-                distractors = possible_activities[1]
-                distractor_images = f"{possible_activities[1]}"
-            else:
-                self.object = possible_activities[1]
-                distractors = possible_activities[0]
-                distractor_images = f"{possible_activities[0]}"
-            
-            audio_text = look_at_tablet + "Was kommt zuerst? Tippe auf das richtigee Bild!"
+        if "first_activity" in self.task:
+            self.object = self.first[self.round_count]
             self.object_image = f"{self.object}"
-
-        elif game_type == "correct":
-            self.object = random.sample(self.when_to_wash, 1)[0]
-            self.object_image = f"{self.object}"
-            distractors = random.sample(self.when_to_not_wash, 1)[0]
+            distractors = self.after[self.round_count]
             distractor_images = f"{distractors}"
+            audio_text = look_at_tablet + "Was kommt zuerst?"
 
-            audio_text = look_at_tablet + "Wann solltest du deine Hände waschen?"
+        elif "when_to_wash" in self.task:
+            self.object = self.when_to_wash[self.round_count]
+            self.object_image = f"{self.object}"
+            distractors = self.when_to_not_wash[self.round_count]
+            distractor_images = f"{distractors}"
+            audio_text = look_at_tablet + "Wann solltest du deine Hände waschen?" + self.questions_when_to_wash[self.round_count]
+        
+        self.say_text(audio_text)
+        self.say_text("Tippe auf das richtige Bild!")
 
         self.activity_parameters.correct_image = [self.object_image]
         self.activity_parameters.correct_image_highlighted = [f"{self.object_image}-highlighted"]
@@ -159,8 +148,7 @@ class MigraveGameHandWash(GameBase):
             self.activity_parameters_pub.publish(self.activity_parameters)
             rospy.sleep(0.5)
         rospy.sleep(2)
-        self.say_text(audio_text)
-
+       
     def start_new_ordering_round(self):
         
         possible_activities = list(self.ordered_activities)
@@ -172,8 +160,13 @@ class MigraveGameHandWash(GameBase):
             self.object[black_image] = 'black_square'
         self.numbers = [str(game_idx), str(game_idx + 1), str(game_idx + 2)]
         list_of_images = random.sample(self.object, len(self.object)) + self.numbers
-        self.object_image = self.object[self.ordering_game_idx]
         self.activity_parameters.images = list_of_images
+
+        if self.partially_correct_answer_count == 0:
+            look_at_tablet = random.choice(self.initial_phrase)
+            self.say_text(f"{look_at_tablet} Bringe die Bilder in die richtigee Reihenfolge, Was kommt zuerst?")
+        else:
+            self.say_text("Was ist der nächste Schritt?")
 
         rospy.sleep(2)
         self.msg_acknowledged = False
@@ -185,9 +178,8 @@ class MigraveGameHandWash(GameBase):
             self.activity_parameters_pub.publish(self.activity_parameters)
             rospy.sleep(0.5)
         rospy.sleep(2)
-        
-        look_at_tablet = random.choice(self.initial_phrase)
-        self.say_text(f"{look_at_tablet} Bringe die Bilder in die richtigee Reihenfolge")
+        self.object_image = self.object[self.partially_correct_answer_count]
+        self.ordering_activity = self.en_to_de_map[self.object[self.partially_correct_answer_count]]
 
         if self.partially_correct_answer_count == 2:
             self.ordering_game_idx += 1
@@ -200,29 +192,30 @@ class MigraveGameHandWash(GameBase):
             self.possitive_feedback = random.choice(["Wunderbar", "Klasse", "Spitzenmäßig", "Sehr gut", "Toll", "Super"])
 
         feedback_emotions = {
-            "right": "showing_smile",
-            "right_1": "showing_smile",
-            "right_2": "showing_smile",
-            "partially_correct": "showing_smile",
+            "right": "kiss",
+            "right_1": "kiss",
+            "right_2": "kiss",
+            "partially_correct": "kiss",
             "wrong": "",
             "wrong_1": "",
             "wrong_2": ""
         }
         right_texts = {
-            "order_steps": fr" \emph\ Richtig! \emph\ {self.en_to_de_map[self.object_image]}! \emph\ {self.possitive_feedback}!",
+            "order_steps": fr" \emph\ Richtig! \emph\ {self.ordering_activity}! \emph\ {self.possitive_feedback}!",
             "when_to_wash": fr"\emph\ Richtig! \emph\ {self.en_to_de_map[self.object_image]}! \emph\ {self.possitive_feedback}!", 
             "object_vs_objects": fr"\emph\ Richtig! \emph\ {self.en_to_de_map[self.object_image]}! \emph\ {self.possitive_feedback}!",
-            "first_activity": fr"\emph\ Richtig! \emph\ {self.en_to_de_map[self.object_image]}! \emph\ {self.possitive_feedback}!"
+            "first_activity": fr"\emph\ Richtig! \emph\ {self.questions_what_comes_first[self.round_count]}! \emph\ {self.possitive_feedback}!"
         }
 
         feedback_texts = {
             "right": right_texts[self.task],
             "wrong": "Lass es uns nochmal probieren!",
-            "partially_correct": "Richtig, was ist der nächste Schritt?"
+            "partially_correct": "Richtig!" + self.ordering_activity
         }
         super().evaluate_answer(feedback_emotions, feedback_texts)
 
     def retry_after_wrong(self):
+
         rospy.loginfo("[retry_after_wrong] Publishing task status 'running'")
         self.msg_acknowledged = False
         while not self.msg_acknowledged:
@@ -245,6 +238,12 @@ class MigraveGameHandWash(GameBase):
             else:
                 self.activity_parameters.images = [self.activity_parameters.correct_image_highlighted[0]]
                 self.activity_parameters.correct_image = [self.activity_parameters.correct_image_highlighted[0]]
+        
+        look_at_tablet = random.choice(self.initial_phrase)
+        if self.task in ["order_steps","order_steps_resume"]:
+            self.say_text(f"{look_at_tablet} Sortieren der Bilder in der richtigeen Reihenfolge!")
+        else:
+            self.say_text(f"{look_at_tablet} Tippe auf das richtigee Bild!")
 
         rospy.sleep(2)
         self.msg_acknowledged = False
@@ -255,11 +254,3 @@ class MigraveGameHandWash(GameBase):
             self.activity_parameters_pub.publish(self.activity_parameters)
             rospy.sleep(0.5)
         rospy.sleep(2)
-        look_at_tablet = random.choice(self.initial_phrase)
-        
-        if self.task in ["order_steps","order_steps_resume"]:
-            self.say_text(f"{look_at_tablet} Sortieren der Bilder in der richtigeen Reihenfolge!")
-        else:
-            self.say_text(f"{look_at_tablet} Tippe auf das richtigee Bild!")
-
-       

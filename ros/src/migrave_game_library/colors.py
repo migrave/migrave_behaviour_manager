@@ -41,9 +41,9 @@ class MigraveGameColors(GameBase):
 
         rospy.loginfo("Color game starts")
         self.say_text("Heute lernen wir Farben. Fangen wir an!")
-        self.show_emotion("showing_smile")
+        self.show_emotion("happy")
         self.say_text("Hände auf den Tisch. Schau mich an.")
-        self.show_emotion("showing_smile")
+        self.show_emotion("happy")
         self.say_text("Ich nenne dir eine Farbe und du tippst auf das passende Bild.")
 
     def task_start(self):
@@ -67,7 +67,6 @@ class MigraveGameColors(GameBase):
             # we reset the list of previously used generalisation objects
             # before (re)starting a generalisation task
             self.used_generalisation_objects = []
-
             self.start_new_generalisation_round()
 
     def start_new_round_and_grade(self):
@@ -92,6 +91,9 @@ class MigraveGameColors(GameBase):
 
         self.activity_parameters.images = [self.color_image]
         self.activity_parameters.correct_image = [self.color_image]
+        
+        look_at_tablet = random.choice(self.initial_phrase)
+        self.say_text(f"{look_at_tablet} Tippe auf {self.en_to_de_color_map[self.color]}!")
 
         rospy.sleep(2)
         self.msg_acknowledged = False
@@ -101,9 +103,6 @@ class MigraveGameColors(GameBase):
             self.activity_parameters_pub.publish(self.activity_parameters)
             rospy.sleep(0.5)
         rospy.sleep(2)
-
-        look_at_tablet = random.choice(self.initial_phrase)
-        self.say_text(f"{look_at_tablet} Tippe auf {self.en_to_de_color_map[self.color]}!")
 
     def start_new_differentiation_round(self):
         # differentiation tasks are expected to have names of the form
@@ -126,6 +125,9 @@ class MigraveGameColors(GameBase):
             self.activity_parameters.images = [self.color_image, distractor_image]
         else:
             self.activity_parameters.images = [distractor_image, self.color_image]
+        
+        look_at_tablet = random.choice(self.initial_phrase)
+        self.say_text(f"{look_at_tablet} Tippe auf {self.en_to_de_color_map[self.color]}!")
 
         rospy.sleep(2)
         self.msg_acknowledged = False
@@ -136,9 +138,6 @@ class MigraveGameColors(GameBase):
             self.activity_parameters_pub.publish(self.activity_parameters)
             rospy.sleep(0.5)
         rospy.sleep(2)
-
-        look_at_tablet = random.choice(self.initial_phrase)
-        self.say_text(f"{look_at_tablet} Tippe auf {self.en_to_de_color_map[self.color]}!")
 
     def start_new_generalisation_round(self):
         possible_colors = list(self.target_colors)
@@ -177,6 +176,10 @@ class MigraveGameColors(GameBase):
             self.color_image = self.activity_parameters.images[possible_colors.index(self.color)]
             self.activity_parameters.correct_image = [self.color_image]
             self.activity_parameters.correct_image_highlighted = [f"{self.color_image}-highlighted"]
+        
+        look_at_tablet = random.choice(self.initial_phrase)
+        self.say_text(f"{look_at_tablet} Tippe auf {self.en_to_de_color_map[self.color]}!")
+
         rospy.sleep(2)
         self.msg_acknowledged = False
         while not self.msg_acknowledged:
@@ -187,9 +190,6 @@ class MigraveGameColors(GameBase):
             rospy.sleep(0.5)
         rospy.sleep(2)
         
-        look_at_tablet = random.choice(self.initial_phrase)
-        self.say_text(f"{look_at_tablet} Tippe auf {self.en_to_de_color_map[self.color]}!")
-
     def evaluate_answer(self):
         self.possitive_feedback = []
         if self.wrong_answer_count > 0:
@@ -198,9 +198,9 @@ class MigraveGameColors(GameBase):
             self.possitive_feedback = random.choice(["Wunderbar", "Klasse", "Spitzenmäßig", "Sehr gut"])
 
         feedback_emotions = {
-            "right": "showing_smile",
-            "right_1": "showing_smile",
-            "right_2": "showing_smile",
+            "right": "kiss",
+            "right_1": "kiss",
+            "right_2": "kiss",
             "wrong": "",
             "wrong_1": "",
             "wrong_2": ""
@@ -240,6 +240,10 @@ class MigraveGameColors(GameBase):
         elif self.wrong_answer_count == 2:
             self.activity_parameters.images = self.activity_parameters.correct_image_highlighted
             self.activity_parameters.correct_image = self.activity_parameters.correct_image_highlighted
+
+        look_at_tablet = random.choice(self.initial_phrase)
+        self.say_text(f"{look_at_tablet} Tippe auf {self.en_to_de_color_map[self.color]}!")
+
         rospy.sleep(2)
         self.msg_acknowledged = False
         while not self.msg_acknowledged:
@@ -249,6 +253,3 @@ class MigraveGameColors(GameBase):
             self.activity_parameters_pub.publish(self.activity_parameters)
             rospy.sleep(0.5)
         rospy.sleep(2)
-
-        look_at_tablet = random.choice(self.initial_phrase)
-        self.say_text(f"{look_at_tablet} Tippe auf {self.en_to_de_color_map[self.color]}!")

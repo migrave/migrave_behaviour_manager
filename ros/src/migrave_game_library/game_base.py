@@ -80,7 +80,7 @@ class GameBase(object):
         self.received_answer_msg_ids = []
         self.received_status_msg_ids = []
         self.game_config = load_yaml_file(os.path.join(game_config_dir_path, game_id + '.yaml'))
-
+        
         self.game_id = self.game_config["game_id"]
         self.tasks = self.game_config["general_game_params"]["tasks"]
         self.game_activity_ids = self.game_config["general_game_params"]["game_activity_ids"]
@@ -97,7 +97,7 @@ class GameBase(object):
         self.game_performance.game_activity.game_activity_id = "game_init"
         self.game_performance.stamp = rospy.Time.now()
         self.game_performance_pub.publish(self.game_performance)
-
+        
         rospy.set_param("/migrave/game_performance/game_id", self.game_id)
 
         # reset counters
@@ -157,8 +157,8 @@ class GameBase(object):
         self.game_performance.answer_correctness = 1 if "right" in result else 0
         self.game_performance_pub.publish(self.game_performance)
         rospy.loginfo("Publish game performance")
-        emotion = feedback_emotions[result]
-        self.show_emotion(emotion)
+        # emotion = feedback_emotions[result]
+        # self.show_emotion(emotion)
         text = feedback_texts[result]
         self.say_text(text)
 
@@ -190,7 +190,7 @@ class GameBase(object):
                 self.finish_one_task()
             else:
                 rospy.loginfo("Continuing current task")
-                self.show_emotion("kiss")
+                # self.show_emotion("kiss")
                 self.say_text("Noch einmal!")
                 self.start_new_round_and_grade()
         elif result == "wrong":
@@ -201,7 +201,7 @@ class GameBase(object):
             self.wrong_answer_count = 0
             self.partially_correct_answer_count += 1
             rospy.loginfo("Continuing current ordering round")
-            self.show_emotion("kiss")
+            # self.show_emotion("kiss")
             self.start_new_round_and_grade()
 
     def retry_after_wrong(self):
@@ -349,7 +349,7 @@ class GameBase(object):
             self.game_performance.stamp = rospy.Time.now()
             self.game_performance_pub.publish(self.game_performance)
 
-            qt_emotion_show(emotion)
+            qt_emotion_show("QT/" + emotion)
 
             # publish robot action info (finish showing emotion)
             self.game_performance.game_activity.game_activity_id = "robot_emotion_end"
@@ -363,7 +363,6 @@ class GameBase(object):
         self.correct_answer_count = 0
         self.wrong_answer_count = 0
 
-        self.show_emotion("kiss")
         self.say_text("Super, du hast alle Sterne gesammelt!")
         self.show_emotion("kiss")
         self.say_text("Gut gemacht!")

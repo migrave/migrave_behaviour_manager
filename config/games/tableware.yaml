@@ -70,3 +70,15 @@ game_specific_params:
     generalisation_objects: [fork-kid, spoon-kid, knife-kid, glass-kid, bowl-kid]
 media_params:
     celebration_sound_name: rfh-koeln/MIGRAVE/Fireworks
+    answer_feedback_kid:
+        fork: ["Welches Kind isst mit der Gabel?", "Das Kind isst mit der Gabel!"] 
+        spoon: ["Welches Kind isst mit dem Löffel?", "Das Kind isst mit dem Löffel!"]
+        knife: ["Welches Kind schneidet mit dem Messer?", "Das Kind schneidet mit dem Messer!"]
+        glass: ["Welches Kind trinkt aus dem Becher?", "Das Kind trinkt aus dem Becher!"]
+        bowl: ["Welches Kind isst aus der Schüssel?", "Das Kind isst aus der Schüssel!"]
+    answer_feedback_object:
+        fork: ["Womit kann man Nudeln essen?", "Mit der Gabel kann man Nudeln essen!"]
+        spoon: ["Womit kann man Suppe essen?", "Mit dem Löffel kann man Suppe essen"]
+        knife: ["Womit kann man schneiden?", "Mit dem Messer kann man schneiden!"]
+        glass: ["Woraus kann man trinken?", "Aus dem Becher kann man trinken!"]
+        bowl: ["Womit kann man Suppe essen?", "Aus der Schüssel kann man Suppe essen!"]

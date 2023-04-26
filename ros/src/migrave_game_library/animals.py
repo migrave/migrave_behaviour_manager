@@ -95,6 +95,9 @@ class MigraveGameAnimals(GameBase):
 
         self.activity_parameters.images = [self.animal_image]
         self.activity_parameters.correct_image = [self.animal_image]
+       
+        look_at_tablet = random.choice(self.initial_phrase)
+        self.say_text(f"{look_at_tablet} Tippe auf {self.ak_article_animal_map[self.animal]} {self.en_to_de_animal_map[self.animal]}!")
 
         rospy.sleep(2)
         self.msg_acknowledged = False
@@ -104,9 +107,6 @@ class MigraveGameAnimals(GameBase):
             self.activity_parameters_pub.publish(self.activity_parameters)
             rospy.sleep(0.5)
         rospy.sleep(2)
-
-        look_at_tablet = random.choice(self.initial_phrase)
-        self.say_text(f"{look_at_tablet} Tippe auf {self.ak_article_animal_map[self.animal]} {self.en_to_de_animal_map[self.animal]}!")
 
     def start_new_differentiation_round(self, type_of_differentiation):
 
@@ -126,6 +126,9 @@ class MigraveGameAnimals(GameBase):
         list_of_images = [self.animal_image, distractors[0], distractors[1]]
         self.activity_parameters.images = random.sample(list_of_images, len(list_of_images))
 
+        look_at_tablet = random.choice(self.initial_phrase)
+        self.say_text(f"{look_at_tablet} Tippe auf {self.ak_article_animal_map[self.animal]} {self.en_to_de_animal_map[self.animal]}!")
+
         rospy.sleep(2)
         self.msg_acknowledged = False
         while not self.msg_acknowledged:
@@ -135,9 +138,6 @@ class MigraveGameAnimals(GameBase):
             self.activity_parameters_pub.publish(self.activity_parameters)
             rospy.sleep(0.5)
         rospy.sleep(2)
-
-        look_at_tablet = random.choice(self.initial_phrase)
-        self.say_text(f"{look_at_tablet} Tippe auf {self.ak_article_animal_map[self.animal]} {self.en_to_de_animal_map[self.animal]}!")
 
     def start_new_generalisation_round(self):
        
@@ -161,6 +161,9 @@ class MigraveGameAnimals(GameBase):
         #geralisation with random images (no animals)
         list_of_images = [self.animal_image, distractors[0], distractors[1]]            
         self.activity_parameters.images = random.sample(list_of_images, len(list_of_images))
+        
+        look_at_tablet = random.choice(self.initial_phrase)
+        self.say_text(f"{look_at_tablet} Tippe auf {self.ak_article_animal_map[self.animal]} {self.en_to_de_animal_map[self.animal]}!")
 
         rospy.sleep(2)
         self.msg_acknowledged = False
@@ -172,9 +175,6 @@ class MigraveGameAnimals(GameBase):
             rospy.sleep(0.5)
         rospy.sleep(2)
         
-        look_at_tablet = random.choice(self.initial_phrase)
-        self.say_text(f"{look_at_tablet} Tippe auf {self.ak_article_animal_map[self.animal]} {self.en_to_de_animal_map[self.animal]}!")
-
     def evaluate_answer(self):
         if self.wrong_answer_count > 0:
             self.possitive_feedback = random.choice(["Gut gemacht", "Gut", "Prima"])
@@ -182,9 +182,9 @@ class MigraveGameAnimals(GameBase):
             self.possitive_feedback = random.choice(["Wunderbar", "Klasse", "Spitzenmäßig", "Sehr gut", "Toll", "Super"])
 
         feedback_emotions = {
-            "right": "showing_smile",
-            "right_1": "showing_smile",
-            "right_2": "showing_smile",
+            "right": "kiss",
+            "right_1": "kiss",
+            "right_2": "kiss",
             "wrong": "",
             "wrong_1": "",
             "wrong_2": ""
@@ -268,6 +268,8 @@ class MigraveGameAnimals(GameBase):
 
         look_at_tablet = random.choice(self.initial_phrase)
         self.say_text(f"{look_at_tablet}")
+        self.say_text(f"Tippe auf {self.ak_article_animal_map[self.animal]} {self.en_to_de_animal_map[self.animal]}!")
+        rospy.sleep(2)
 
         self.msg_acknowledged = False
         while not self.msg_acknowledged:
@@ -276,4 +278,3 @@ class MigraveGameAnimals(GameBase):
                           f"all images: {self.activity_parameters.images}")
             self.activity_parameters_pub.publish(self.activity_parameters)
             rospy.sleep(0.5)
-        self.say_text(f"Tippe auf {self.ak_article_animal_map[self.animal]} {self.en_to_de_animal_map[self.animal]}!")
