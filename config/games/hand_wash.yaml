@@ -20,8 +20,13 @@ general_game_params:
 game_specific_params:
     target_objects: [soap, water, hand_towel]
     target_activities: [take_soap, open_water_tap, rub_hands, rinse_hands, close_water_tap, dry_hands]
+    after: [dry_hands, rub_hands, rinse_hands, dry_hands, rinse_hands]
+    first: [rinse_hands, take_soap, open_water_tap, close_water_tap, rub_hands]
     distractor_objects: [hairbrush, toothbrush_holder,rubber_duck, toilet_brush, toothbrush, toilet, swimwear, toothpaste, toilet_paper]
     wash: [eat, use_toilet, blow_nose, dirty_hands, play_outside]
-    not_wash: [play, read, swimming, clean_hands]
+    not_wash: [play, read, swimming, clean_hands, read]
 media_params:
     celebration_sound_name: rfh-koeln/MIGRAVE/Fireworks
+    questions_when_to_wash: ["Vor dem Essen oder Vor dem Spielen", " Nach dem Lesen oder Nach der Toilette", "Nach dem Naseputzen oder Nach dem Schwimmen",
+                             "Wenn die Hände schmutzig sind oder Wenn die Hände sauber sind", "Nach dem Spielen draußen oder Nach dem Lesen"]
+    questions_what_comes_first: ["Seife abspülen", "Seife nehmen", "Wasserhahn aufmachen", "Wasserhahn zumachen", "Hände einseifen"]

@@ -18,5 +18,8 @@ game_specific_params:
     target_objects: [toothbrush, water, towel, toothpaste]
     target_activities: [open_toothpaste, take_toothpaste, brushing, rinse_mouth, clean_toothbrush, wipe_mouth]
     distractor_objects: [apple, cutlery, hairbrush, rubber_duck, screw, shampoo, sponge, toilet_paper, hammer]
+    after: [wipe_mouth, rinse_mouth, wipe_mouth, clean_toothbrush, rinse_mouth]
+    first: [take_toothpaste, take_water, brushing, rinse_mouth, brushing]
 media_params:
     celebration_sound_name: rfh-koeln/MIGRAVE/Fireworks
+    answer_what_comes_first: ["Zahnpasta auf die Zahnbürste geben", " Wasser in Zahnputzbecher füllen", "Zähne putzen", "Wasser ausspucken", "Zähne putzen"]
