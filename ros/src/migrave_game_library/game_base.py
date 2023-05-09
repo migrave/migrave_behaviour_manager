@@ -75,7 +75,7 @@ class GameBase(object):
                  game_performance_topic: str,
                  msg_acknowledgement_topic: str = '/migrave/msg_acknowledgement',
                  avg_engagement_action: str = '/migrave_perception/get_avg_engagement',
-                 waiting_times_before_robot_prompt_s = {'level1': 5., 'level2': 15.}):
+                 waiting_times_before_robot_prompt_s = {'level1': 5., 'level2': 12.5, 'level3': 20.}):
         self.game_id = game_id
         self.game_status_topic = game_status_topic
         self.game_answer_topic = game_answer_topic
@@ -97,7 +97,16 @@ class GameBase(object):
 
         self.game_activity_start_time = None
         self.waiting_times_before_robot_prompt_s = waiting_times_before_robot_prompt_s
-        self.coping_reactions_performed = {'level1': False, 'level2': False, 'gone': False, 'disengaged': False}
+
+        # level 1: basic prompt to press something on the tablet
+        # level 2: prompt due to disengagement
+        # level 3: final prompt before a therapist intervenes
+        # gone: the player is not visible to the robot anymore
+        self.coping_reactions_performed = {'level1': False,
+                                           'level2': False,
+                                           'level3': False,
+                                           'gone': False}
+
         self.game_state = 'idle'
 
         self.setup_ros()
@@ -109,14 +118,24 @@ class GameBase(object):
                 elapsed_time = rospy.Time.now().to_sec() - self.game_activity_start_time
                 coping_reactions_remaining = sum([1 if not x else 0 for (_,x) in self.coping_reactions_performed.items()]) > 0
                 if coping_reactions_remaining:
+                    # A level 1 reaction is simply prompting the player to press the tablet
                     if not self.coping_reactions_performed['level1'] and elapsed_time > self.waiting_times_before_robot_prompt_s['level1']:
                         self.say_text("Tippe auf das Tablet.")
                         self.coping_reactions_performed['level1'] = True
-                    elif not self.coping_reactions_performed['level2'] and elapsed_time > self.waiting_times_before_robot_prompt_s['level2']:
+                    # A level 3 reaction is again prompting the player to press the tablet;
+                    # this is the last reaction level before a therapist intervenes
+                    elif not self.coping_reactions_performed['level3'] and elapsed_time > self.waiting_times_before_robot_prompt_s['level3']:
                         self.say_text("Tippe bitte auf das Tablet!")
-                        self.coping_reactions_performed['level2'] = True
+                        self.coping_reactions_performed['level3'] = True
 
-                    if self.coping_reactions_performed['level1'] and not self.coping_reactions_performed['level2']:
+                    # For a level 2 reaction, we are monitoring the player's engagement, such that
+                    # there are two cases to distinguish: (i) the player is visible to the robot,
+                    # but is disengaged, in which case we prompt with motivating feedback, and
+                    # (ii) the player is not visible to the robot anymore (has gone out of sight),
+                    # in which case we prompt them to come back. Either of these is only performed once.
+                    # We only monitor the engagement until a level 3 reaction is performed because
+                    # a therapist will intervene after that
+                    if self.waiting_times_before_robot_prompt_s['level3'] > elapsed_time > self.waiting_times_before_robot_prompt_s['level2']:
                         avg_engagement_goal = GetAverageEngagementGoal()
                         avg_engagement_goal.end_time = rospy.Time.now().to_sec()
                         avg_engagement_goal.start_time = rospy.Time.now().to_sec() - self.avg_engagement_window_s
@@ -131,11 +150,11 @@ class GameBase(object):
                             else:
                                 mean_engagement = np.mean(avg_engagement_result.avg_engagement)
                                 if mean_engagement < 0:
-                                    if not self.coping_reactions_performed['disengaged']:
+                                    if not self.coping_reactions_performed['level2']:
                                         self.say_text("Tippe auf das Tablet und du wirst einen Stern bekommen.")
-                                        self.coping_reactions_performed['disengaged'] = True
+                                        self.coping_reactions_performed['level2'] = True
                                 else:
-                                    self.coping_reactions_performed['disengaged'] = False
+                                    self.coping_reactions_performed['level2'] = False
 
     def game_start(self):
         # publish game performance
