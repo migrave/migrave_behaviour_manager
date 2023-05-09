@@ -124,12 +124,12 @@ class GameBase(object):
                         avg_engagement_result = self.avg_engagement_client.get_result()
                         rospy.logerr('Engagement: %s', avg_engagement_result)
                         if avg_engagement_result is not None:
-                            if not avg_engagement_result.avg_engagement:
+                            if not avg_engagement_result.avg_engagement and not self.coping_reactions_performed['gone']:
                                 self.say_text("Hey, wo bist du? Komm zurueck!")
                                 self.coping_reactions_performed['gone'] = True
                             else:
                                 mean_engagement = np.mean(avg_engagement_result.avg_engagement)
-                                if mean_engagement < 0:
+                                if mean_engagement < 0 and not self.coping_reactions_performed['disengaged']:
                                     self.say_text("Tippe auf das Tablet und du wirst einen Stern bekommen.")
                                     self.coping_reactions_performed['disengaged'] = True
                                 else:
