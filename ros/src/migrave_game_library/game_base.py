@@ -123,7 +123,6 @@ class GameBase(object):
                         self.avg_engagement_client.send_goal(avg_engagement_goal)
                         self.avg_engagement_client.wait_for_result(rospy.Duration(2))
                         avg_engagement_result = self.avg_engagement_client.get_result()
-                        rospy.logerr('Engagement: %s', avg_engagement_result)
                         if avg_engagement_result is not None:
                             if not avg_engagement_result.avg_engagement:
                                 if not self.coping_reactions_performed['gone']:
@@ -219,7 +218,7 @@ class GameBase(object):
             if feedback_sounds != None:
                 self.audio_play(str(feedback_sounds[result]) + ".mp3")
             self.say_text("Dafür bekommst du einen Stern!")
-            # self.audio_play("rfh-koeln/MIGRAVE/Reward2")
+            self.audio_play("rfh-koeln/MIGRAVE/Reward2")
             if self.task.find('order_steps') != -1:
                 image = f"{self.correct_answer_count}_2Token"
                 rospy.loginfo(f"Publish image: {self.correct_answer_count}_2Token")
