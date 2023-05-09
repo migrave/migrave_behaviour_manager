@@ -115,7 +115,8 @@ class GameBase(object):
                     elif not self.coping_reactions_performed['level2'] and elapsed_time > self.waiting_times_before_robot_prompt_s['level2']:
                         self.say_text("Tippe bitte auf das Tablet!")
                         self.coping_reactions_performed['level2'] = True
-                    else:
+
+                    if self.coping_reactions_performed['level1'] and not self.coping_reactions_performed['level2']:
                         avg_engagement_goal = GetAverageEngagementGoal()
                         avg_engagement_goal.end_time = rospy.Time.now().to_sec()
                         avg_engagement_goal.start_time = rospy.Time.now().to_sec() - self.avg_engagement_window_s
