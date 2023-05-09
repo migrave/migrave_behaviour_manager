@@ -75,7 +75,7 @@ class GameBase(object):
                  game_performance_topic: str,
                  msg_acknowledgement_topic: str = '/migrave/msg_acknowledgement',
                  avg_engagement_action: str = '/migrave_perception/get_avg_engagement',
-                 waiting_times_before_robot_prompt_s = {'level1': 5., 'level2': 12.5, 'level3': 20.}):
+                 waiting_times_before_robot_prompt_s = {'level1': 5., 'level2': 12.5, 'level3': 25.}):
         self.game_id = game_id
         self.game_status_topic = game_status_topic
         self.game_answer_topic = game_answer_topic
