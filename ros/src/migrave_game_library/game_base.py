@@ -1,13 +1,15 @@
 from typing import Dict
 import os
+import numpy as np
 import rospy
+import actionlib
 from std_msgs.msg import String, Bool
 
 from qt_robot_interface.srv import behavior_talk_text, emotion_show, audio_play
 from qt_gesture_controller.srv import gesture_play as qt_gesture_play
 
 from mas_tools.file_utils import load_yaml_file
-from migrave_ros_msgs.msg import GamePerformance, StampedString
+from migrave_ros_msgs.msg import GamePerformance, StampedString, GetAverageEngagementAction, GetAverageEngagementGoal
 
 class GameBase(object):
     """! Base class for implementing games.
@@ -64,18 +66,22 @@ class GameBase(object):
 
     gesture_speed = 1.0
 
+    avg_engagement_window_s = 2.0
+
     def __init__(self, game_config_dir_path: str,
                  game_id: str,
                  game_status_topic: str,
                  game_answer_topic: str,
                  game_performance_topic: str,
                  msg_acknowledgement_topic: str = '/migrave/msg_acknowledgement',
+                 avg_engagement_action: str = '/migrave_perception/get_avg_engagement',
                  waiting_times_before_robot_prompt_s = {'level1': 5., 'level2': 15.}):
         self.game_id = game_id
         self.game_status_topic = game_status_topic
         self.game_answer_topic = game_answer_topic
         self.game_performance_topic = game_performance_topic
         self.msg_acknowledgement_topic = msg_acknowledgement_topic
+        self.avg_engagement_action = avg_engagement_action
         self.game_performance = GamePerformance()
         self.msg_acknowledged = False
         self.received_answer_msg_ids = []
@@ -91,7 +97,7 @@ class GameBase(object):
 
         self.game_activity_start_time = None
         self.waiting_times_before_robot_prompt_s = waiting_times_before_robot_prompt_s
-        self.coping_reactions_performed = {'level1': False, 'level2': False}
+        self.coping_reactions_performed = {'level1': False, 'level2': False, 'gone': False, 'disengaged': False}
         self.game_state = 'idle'
 
         self.setup_ros()
@@ -101,17 +107,33 @@ class GameBase(object):
             rospy.sleep(0.1)
             if self.task_status == 'waiting_for_child_input':
                 elapsed_time = rospy.Time.now().to_sec() - self.game_activity_start_time
-                should_perform_coping = sum([1 if elapsed_time > x else 0 for (_,x) in self.waiting_times_before_robot_prompt_s.items()]) > 0
-
-                if not should_perform_coping:
-                    rospy.loginfo('Not coping')
-                    continue
-
                 coping_reactions_remaining = sum([1 if not x else 0 for (_,x) in self.coping_reactions_performed.items()]) > 0
                 if coping_reactions_remaining:
-                    if not self.coping_reactions_performed['level1']:
+                    if not self.coping_reactions_performed['level1'] and elapsed_time > self.waiting_times_before_robot_prompt_s['level1']:
                         self.say_text("Tippe auf das Tablet.")
                         self.coping_reactions_performed['level1'] = True
+                    elif not self.coping_reactions_performed['level2'] and elapsed_time > self.waiting_times_before_robot_prompt_s['level2']:
+                        self.say_text("Tippe bitte auf das Tablet!")
+                        self.coping_reactions_performed['level2'] = True
+                    else:
+                        avg_engagement_goal = GetAverageEngagementGoal()
+                        avg_engagement_goal.end_time = rospy.Time.now().to_sec()
+                        avg_engagement_goal.start_time = rospy.Time.now().to_sec() - self.avg_engagement_window_s
+                        self.avg_engagement_client.send_goal(avg_engagement_goal)
+                        self.avg_engagement_client.wait_for_result(rospy.Duration(2))
+                        avg_engagement_result = self.avg_engagement_client.get_result()
+                        rospy.logerr('Engagement: %s', avg_engagement_result)
+                        if avg_engagement_result is not None:
+                            if not avg_engagement_result.avg_engagement:
+                                self.say_text("Hey, wo bist du? Komm zurueck!")
+                                self.coping_reactions_performed['gone'] = True
+                            else:
+                                mean_engagement = np.mean(avg_engagement_result.avg_engagement)
+                                if mean_engagement < 0:
+                                    self.say_text("Tippe auf das Tablet und du wirst einen Stern bekommen.")
+                                    self.coping_reactions_performed['disengaged'] = True
+                                else:
+                                    self.coping_reactions_performed['disengaged'] = False
 
     def game_start(self):
         # publish game performance
@@ -453,6 +475,10 @@ class GameBase(object):
                                                         self.msg_acknowledgement_cb)
         rospy.loginfo('[%s] Initialised %s subscriber', self.game_id, self.msg_acknowledgement_topic)
 
+        self.avg_engagement_client = actionlib.SimpleActionClient(self.avg_engagement_action, GetAverageEngagementAction)
+        rospy.loginfo('[%s] Waiting for action server %s', self.game_id, self.avg_engagement_action)
+        self.avg_engagement_client.wait_for_server()
+        rospy.loginfo('[%s] Server %s initialised', self.game_id, self.avg_engagement_action)
 
     def reset_coping_reactions(self):
         self.game_activity_start_time = rospy.Time.now().to_sec()
