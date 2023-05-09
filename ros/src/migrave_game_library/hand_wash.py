@@ -45,8 +45,9 @@ class MigraveGameHandWash(GameBase):
                              "close_water_tap": "Wasserhahn zumachen", "dry_hands": "Hände abtrocknen",
                              "eat": "Vor dem Essen ", "use_toilet": "Nach der Toilette", "blow_nose": "Nach dem Naseputzen", 
                              "dirty_hands": "Wenn die Hände schmutzig sind", "play_outside": "Nach dem Spielen draußen"}
-    def game_start(self):
+        self.monitor_game()
 
+    def game_start(self):
         super().game_start()
         rospy.loginfo("Hand wash game starts")
         self.say_text("Heute lernst du wie du deine Hände waschen kannst. Fangen wir an!")
@@ -55,7 +56,6 @@ class MigraveGameHandWash(GameBase):
         self.show_emotion("happy")
 
     def task_start(self):
-
         super().task_start()
         if self.task_status == "done":
             return
@@ -71,6 +71,7 @@ class MigraveGameHandWash(GameBase):
         elif self.task in ["order_steps","order_steps_resume"]:
             rospy.loginfo(f"Starting ordering task '{self.task}'")
             self.start_new_ordering_round()
+        self.reset_coping_reactions()
 
     def start_new_round_and_grade(self):
 
@@ -88,7 +89,6 @@ class MigraveGameHandWash(GameBase):
             self.start_new_ordering_round()
 
     def start_new_differentiation_round(self):
-        
         possible_objects = list(self.target_objects)
         self.object = random.choice(possible_objects)
         self.object_image = f"{self.object}"
@@ -111,10 +111,8 @@ class MigraveGameHandWash(GameBase):
                           f"all images: {list_of_images}")
             self.activity_parameters_pub.publish(self.activity_parameters)
             rospy.sleep(0.5)
-        rospy.sleep(2)
 
     def start_new_selection_round(self):
-
         look_at_tablet = random.choice(self.initial_phrase)
         if "first_activity" in self.task:
             self.object = self.first[self.round_count]
@@ -147,10 +145,8 @@ class MigraveGameHandWash(GameBase):
                           f"distractor images: {distractor_images}")
             self.activity_parameters_pub.publish(self.activity_parameters)
             rospy.sleep(0.5)
-        rospy.sleep(2)
        
     def start_new_ordering_round(self):
-        
         possible_activities = list(self.ordered_activities)
         game_idx = self.ordering_sequence[self.ordering_game_idx]
         self.object = [possible_activities[game_idx - 1], possible_activities[game_idx], possible_activities[game_idx + 1]]
@@ -177,7 +173,7 @@ class MigraveGameHandWash(GameBase):
                           f"correct image: {self.activity_parameters.correct_image}")
             self.activity_parameters_pub.publish(self.activity_parameters)
             rospy.sleep(0.5)
-        rospy.sleep(2)
+
         self.object_image = self.object[self.partially_correct_answer_count]
         self.ordering_activity = self.en_to_de_map[self.object[self.partially_correct_answer_count]]
 
@@ -185,7 +181,6 @@ class MigraveGameHandWash(GameBase):
             self.ordering_game_idx += 1
 
     def evaluate_answer(self):
-
         if self.wrong_answer_count > 0:
             self.possitive_feedback = random.choice(["Gut gemacht", "Gut", "Prima"])
         else:
@@ -215,7 +210,6 @@ class MigraveGameHandWash(GameBase):
         super().evaluate_answer(feedback_emotions, feedback_texts)
 
     def retry_after_wrong(self):
-
         rospy.loginfo("[retry_after_wrong] Publishing task status 'running'")
         self.msg_acknowledged = False
         while not self.msg_acknowledged:
@@ -253,4 +247,3 @@ class MigraveGameHandWash(GameBase):
                           f"all images: {self.activity_parameters.images}")
             self.activity_parameters_pub.publish(self.activity_parameters)
             rospy.sleep(0.5)
-        rospy.sleep(2)

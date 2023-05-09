@@ -35,6 +35,7 @@ class MigraveGameColors(GameBase):
 
         self.en_to_de_color_map = {"red": "rot", "green": "grün",
                                    "blue": "blau", "yellow": "gelb"}
+        self.monitor_game()
 
     def game_start(self):
         super().game_start()
@@ -68,6 +69,7 @@ class MigraveGameColors(GameBase):
             # before (re)starting a generalisation task
             self.used_generalisation_objects = []
             self.start_new_generalisation_round()
+        self.reset_coping_reactions()
 
     def start_new_round_and_grade(self):
         self.msg_acknowledged = False
@@ -102,7 +104,6 @@ class MigraveGameColors(GameBase):
                           f"-- color: {self.color}, image: {self.color_image}")
             self.activity_parameters_pub.publish(self.activity_parameters)
             rospy.sleep(0.5)
-        rospy.sleep(2)
 
     def start_new_differentiation_round(self):
         # differentiation tasks are expected to have names of the form
@@ -137,7 +138,6 @@ class MigraveGameColors(GameBase):
                           f"distractor image: {distractor_image}")
             self.activity_parameters_pub.publish(self.activity_parameters)
             rospy.sleep(0.5)
-        rospy.sleep(2)
 
     def start_new_generalisation_round(self):
         possible_colors = list(self.target_colors)
@@ -188,7 +188,6 @@ class MigraveGameColors(GameBase):
                           f"all images: {self.activity_parameters.images}")
             self.activity_parameters_pub.publish(self.activity_parameters)
             rospy.sleep(0.5)
-        rospy.sleep(2)
         
     def evaluate_answer(self):
         self.possitive_feedback = []
@@ -252,4 +251,3 @@ class MigraveGameColors(GameBase):
                           f"all images: {self.activity_parameters.images}")
             self.activity_parameters_pub.publish(self.activity_parameters)
             rospy.sleep(0.5)
-        rospy.sleep(2)

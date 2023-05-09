@@ -37,7 +37,8 @@ class MigraveGameTableware(GameBase):
                                "Guck mal auf das Tablet!", "Sieh mal auf das Tablet!"]
         self.en_to_de_crockery_map = {"fork": "Gabel", "spoon": "Löffel", "knife": "Messer", "glass": "Becher", "bowl": "Schüssel"}
         self.en_article_crockery_map = {"fork": "die", "spoon": "den", "knife": "das", "glass": "der", "bowl": "die"}
-        
+        self.monitor_game()
+
     def game_start(self):
         super().game_start()
 
@@ -68,9 +69,9 @@ class MigraveGameTableware(GameBase):
                            "object_vs_random", "object_vs_random_resume"]:
             rospy.loginfo(f"Starting differentiation task '{self.task}'")
             self.start_new_generalisation_round()
+        self.reset_coping_reactions()
 
     def start_new_round_and_grade(self):
-
         self.msg_acknowledged = False
         while not self.msg_acknowledged:
             rospy.loginfo("[start_new_round_and_grade] Publishing task status 'running'")
@@ -91,7 +92,6 @@ class MigraveGameTableware(GameBase):
             self.start_new_generalisation_round()
 
     def start_new_simple_round(self):
-        
         self.crockery = self.task
         self.crockery_image = f"{self.target_tableware[self.task][0]}"
         
@@ -108,10 +108,8 @@ class MigraveGameTableware(GameBase):
                           f"-- crockery: {self.crockery}, image: {self.crockery_image}")
             self.activity_parameters_pub.publish(self.activity_parameters)
             rospy.sleep(0.5)
-        rospy.sleep(2)
 
     def start_new_differentiation_round(self):
-
         self.crockery = self.task.split("_")[0]
         self.crockery_image = random.choice(self.target_tableware[self.crockery])
 
@@ -141,10 +139,8 @@ class MigraveGameTableware(GameBase):
                           f"distractor image: {distractor_image}")
             self.activity_parameters_pub.publish(self.activity_parameters)
             rospy.sleep(0.5)
-        rospy.sleep(2)        
-       
+
     def start_new_generalisation_round(self):
-        
         self.crockery = random.choice(self.options_tableware)
         if "others" in self.task: 
             self.crockery_image = self.target_tableware[self.crockery][0]
@@ -188,7 +184,6 @@ class MigraveGameTableware(GameBase):
                           f"all images: {self.activity_parameters.images}")
             self.activity_parameters_pub.publish(self.activity_parameters)
             rospy.sleep(0.5)
-        rospy.sleep(2)
 
     def evaluate_answer(self):
         self.possitive_feedback = []
@@ -267,6 +262,3 @@ class MigraveGameTableware(GameBase):
                           f"all images: {self.activity_parameters.images}")
             self.activity_parameters_pub.publish(self.activity_parameters)
             rospy.sleep(0.5)
-        rospy.sleep(2)
-        
-       

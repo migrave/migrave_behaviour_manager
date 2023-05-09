@@ -69,7 +69,8 @@ class GameBase(object):
                  game_status_topic: str,
                  game_answer_topic: str,
                  game_performance_topic: str,
-                 msg_acknowledgement_topic: str = '/migrave/msg_acknowledgement'):
+                 msg_acknowledgement_topic: str = '/migrave/msg_acknowledgement',
+                 waiting_times_before_robot_prompt_s = {'level1': 5., 'level2': 15.}):
         self.game_id = game_id
         self.game_status_topic = game_status_topic
         self.game_answer_topic = game_answer_topic
@@ -80,7 +81,7 @@ class GameBase(object):
         self.received_answer_msg_ids = []
         self.received_status_msg_ids = []
         self.game_config = load_yaml_file(os.path.join(game_config_dir_path, game_id + '.yaml'))
-        
+
         self.game_id = self.game_config["game_id"]
         self.tasks = self.game_config["general_game_params"]["tasks"]
         self.game_activity_ids = self.game_config["general_game_params"]["game_activity_ids"]
@@ -88,7 +89,29 @@ class GameBase(object):
         self.end_sentence = self.game_config["general_game_params"]["end_sentence"]
         # self.celebration_sound_name = self.game_config["media_params"]["celebration_sound_name"]
 
+        self.game_activity_start_time = None
+        self.waiting_times_before_robot_prompt_s = waiting_times_before_robot_prompt_s
+        self.coping_reactions_performed = {'level1': False, 'level2': False}
+        self.game_state = 'idle'
+
         self.setup_ros()
+
+    def monitor_game(self):
+        while not rospy.is_shutdown():
+            rospy.sleep(0.1)
+            if self.task_status == 'waiting_for_child_input':
+                elapsed_time = rospy.Time.now().to_sec() - self.game_activity_start_time
+                should_perform_coping = sum([1 if elapsed_time > x else 0 for (_,x) in self.waiting_times_before_robot_prompt_s.items()]) > 0
+
+                if not should_perform_coping:
+                    rospy.loginfo('Not coping')
+                    continue
+
+                coping_reactions_remaining = sum([1 if not x else 0 for (_,x) in self.coping_reactions_performed.items()]) > 0
+                if coping_reactions_remaining:
+                    if not self.coping_reactions_performed['level1']:
+                        self.say_text("Tippe auf das Tablet.")
+                        self.coping_reactions_performed['level1'] = True
 
     def game_start(self):
         # publish game performance
@@ -144,7 +167,7 @@ class GameBase(object):
             rospy.loginfo(f"Running task: {self.task}")
             rospy.loginfo("Publishing task status: running")
             self.task_status = "running"
-            self.task_status_pub.publish(self.task_status)
+            self.task_status_pub.publish('running')
 
     def evaluate_answer(self, feedback_emotions: Dict[str, str],
                         feedback_texts: Dict[str, str],
@@ -171,7 +194,7 @@ class GameBase(object):
             if feedback_sounds != None:
                 self.audio_play(str(feedback_sounds[result]) + ".mp3")
             self.say_text("Dafür bekommst du einen Stern!")
-            self.audio_play("rfh-koeln/MIGRAVE/Reward2")
+            # self.audio_play("rfh-koeln/MIGRAVE/Reward2")
             if self.task.find('order_steps') != -1:
                 image = f"{self.correct_answer_count}_2Token"
                 rospy.loginfo(f"Publish image: {self.correct_answer_count}_2Token")
@@ -193,16 +216,19 @@ class GameBase(object):
                 # self.show_emotion("kiss")
                 self.say_text("Noch einmal!")
                 self.start_new_round_and_grade()
+                self.reset_coping_reactions()
         elif result == "wrong":
             self.wrong_answer_count += 1
             rospy.loginfo(f"Wrong answer count: {self.wrong_answer_count}")
             self.retry_after_wrong()
+            self.reset_coping_reactions()
         elif result == "partially_correct":
             self.wrong_answer_count = 0
             self.partially_correct_answer_count += 1
             rospy.loginfo("Continuing current ordering round")
             # self.show_emotion("kiss")
             self.start_new_round_and_grade()
+            self.reset_coping_reactions()
 
     def retry_after_wrong(self):
         raise NotImplementedError("retry_after_wrong needs to be overridden")
@@ -213,6 +239,8 @@ class GameBase(object):
     def game_answer_cb(self, msg: StampedString):
         rospy.loginfo("[game_answer_cb] Publishing acknowledgement")
         self.msg_acknowledgement_pub.publish(True)
+
+        self.task_status = 'processing_answer'
 
         # we sleep for a while to allow subscribers on
         # the game side to receive the acknowledgement
@@ -425,3 +453,9 @@ class GameBase(object):
                                                         self.msg_acknowledgement_cb)
         rospy.loginfo('[%s] Initialised %s subscriber', self.game_id, self.msg_acknowledgement_topic)
 
+
+    def reset_coping_reactions(self):
+        self.game_activity_start_time = rospy.Time.now().to_sec()
+        for x in self.coping_reactions_performed:
+            self.coping_reactions_performed[x] = False
+        self.task_status = 'waiting_for_child_input'

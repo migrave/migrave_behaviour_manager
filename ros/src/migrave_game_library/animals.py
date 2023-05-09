@@ -35,6 +35,7 @@ class MigraveGameAnimals(GameBase):
         self.en_to_de_animal_map = {"cat": "Katze", "dog": "Hund", "cow": "Kuh", "pig": "Schwein", "mouse": "Maus"}
         self.ak_article_animal_map = {"cat": "die", "dog": "den", "cow": "die", "pig": "das", "mouse": "die"}
         self.no_article_animal_map = {"cat": "die", "dog": "der", "cow": "die", "pig": "das", "mouse": "die"}
+        self.monitor_game()
 
     def game_start(self):
         super().game_start()
@@ -67,6 +68,7 @@ class MigraveGameAnimals(GameBase):
                            "animal_vs_others_resume", "animal_vs_animals_resume"]:     
             rospy.loginfo(f"Starting generalisation task '{self.task}'")
             self.start_new_generalisation_round()
+        self.reset_coping_reactions()
 
     def start_new_round_and_grade(self):
         self.msg_acknowledged = False
@@ -106,10 +108,8 @@ class MigraveGameAnimals(GameBase):
                           f"-- animal: {self.animal}, image: {self.animal_image}")
             self.activity_parameters_pub.publish(self.activity_parameters)
             rospy.sleep(0.5)
-        rospy.sleep(2)
 
     def start_new_differentiation_round(self, type_of_differentiation):
-
         self.animal = self.task.split("_")[0]
         if type_of_differentiation == 'objects':
             self.animal_image = random.choice(self.target_animals[self.animal])
@@ -137,7 +137,6 @@ class MigraveGameAnimals(GameBase):
                           f"distractor image: {distractor_image}")
             self.activity_parameters_pub.publish(self.activity_parameters)
             rospy.sleep(0.5)
-        rospy.sleep(2)
 
     def start_new_generalisation_round(self):
        
@@ -173,8 +172,7 @@ class MigraveGameAnimals(GameBase):
                           f"all images: {self.activity_parameters.images}")
             self.activity_parameters_pub.publish(self.activity_parameters)
             rospy.sleep(0.5)
-        rospy.sleep(2)
-        
+
     def evaluate_answer(self):
         if self.wrong_answer_count > 0:
             self.possitive_feedback = random.choice(["Gut gemacht", "Gut", "Prima"])

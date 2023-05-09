@@ -39,18 +39,17 @@ class MigraveGameToothBrush(GameBase):
         "toothpaste": "die Zahnpasta", "take_water": "Nimm Wasser", "wet_toothbrush": "Befeuchte deine Zahnbürste", 
         "open_toothpaste": "öffne die Zahnpasta", "take_toothpaste": "Nimm Zahnpasta", "brushing": "putzt deine Zähne", 
         "clean_toothbrush": "reinigst deine Zahnbürste", "rinse_mouth": "reinigst deinen Mund", "wipe_mouth": "wisch dir deinen Mund ab"}
-        
-    def game_start(self):
+        self.monitor_game()
 
+    def game_start(self):
         super().game_start()
         rospy.loginfo("Tooth brush game starts")
-        self.say_text("Heute lernst du wie du deine Zähne waschen kannst. Fangen wir an!")
+        self.say_text("Heute lernst du wie du deine Zähne putzen kannst. Fangen wir an!")
         self.show_emotion("happy")
         self.say_text("Hände auf den Tisch. Schau mich an.")
         self.show_emotion("happy")
 
     def task_start(self):
-
         super().task_start()
         if self.task_status == "done":
             return
@@ -66,9 +65,9 @@ class MigraveGameToothBrush(GameBase):
         elif self.task in ["order_steps","order_steps_resume"]:
             rospy.loginfo(f"Starting ordering task '{self.task}'")
             self.start_new_ordering_round()
+        self.reset_coping_reactions()
 
     def start_new_round_and_grade(self):
-
         self.msg_acknowledged = False
         while not self.msg_acknowledged:
             rospy.loginfo("[start_new_round_and_grade] Publishing task status 'running'")
@@ -83,7 +82,6 @@ class MigraveGameToothBrush(GameBase):
             self.start_new_ordering_round()
     
     def start_new_differentiation_round(self):
-        
         possible_objects = list(self.target_objects)
         self.object = random.choice(possible_objects)
         self.object_image = f"{self.object}"
@@ -106,10 +104,8 @@ class MigraveGameToothBrush(GameBase):
                           f"all images: {list_of_images}")
             self.activity_parameters_pub.publish(self.activity_parameters)
             rospy.sleep(0.5)
-        rospy.sleep(2)
 
     def start_new_selection_round(self):
-
         look_at_tablet = random.choice(self.initial_phrase)
     
         self.object = self.first[self.round_count]
@@ -133,11 +129,8 @@ class MigraveGameToothBrush(GameBase):
                           f"distractor images: {distractor_images}")
             self.activity_parameters_pub.publish(self.activity_parameters)
             rospy.sleep(0.5)
-        rospy.sleep(2)
         
-
     def start_new_ordering_round(self):
-
         possible_activities = list(self.ordered_activities)
         game_idx = self.ordering_sequence[self.ordering_game_idx]
         self.object = [possible_activities[game_idx - 1], possible_activities[game_idx], possible_activities[game_idx + 1]]
@@ -173,7 +166,6 @@ class MigraveGameToothBrush(GameBase):
             self.say_text(f"{look_at_tablet} Was kommt jetzt?")
 
     def evaluate_answer(self):
-
         if self.wrong_answer_count > 0:
             self.possitive_feedback = random.choice(["Gut gemacht", "Gut", "Prima"])
         else:
@@ -239,4 +231,3 @@ class MigraveGameToothBrush(GameBase):
                           f"all images: {self.activity_parameters.images}")
             self.activity_parameters_pub.publish(self.activity_parameters)
             rospy.sleep(0.5)
-        rospy.sleep(2)  
