@@ -8,16 +8,25 @@ class GameRestarter(object):
     def __init__(self):
         game_restarter_topic = rospy.get_param("~game_restarter_topic",
                                                "/migrave_games/restart")
+        game_stopper_topic = rospy.get_param("~game_stopper_topic",
+                                             "/migrave_games/stop")
         systemd_manager_script_path = rospy.get_param("~systemd_manager_script_path",
                                                       "/home/qtrobot/.utils/manage_systemd_service.sh")
         self.systemd_manager_script_path = systemd_manager_script_path
         self.restart_game_sub = rospy.Subscriber(game_restarter_topic,
                                                  String,
                                                  self.game_restart_cb)
+        self.stop_game_sub = rospy.Subscriber(game_stopper_topic,
+                                              String,
+                                              self.game_stop_cb)
 
     def game_restart_cb(self, msg):
         rospy.loginfo("Restarting service %s", msg.data)
         self.manage_service("restart", "game_{0}".format(msg.data))
+
+    def game_stop_cb(self, msg):
+        rospy.loginfo("Stopping service %s", msg.data)
+        self.manage_service("stop", "game_{0}".format(msg.data))
 
     def manage_service(self, action: str, executable_to_recover: str) -> bool:
         try:
