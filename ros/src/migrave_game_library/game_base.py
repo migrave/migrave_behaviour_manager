@@ -498,8 +498,8 @@ class GameBase(object):
 
         self.avg_engagement_client = actionlib.SimpleActionClient(self.avg_engagement_action, GetAverageEngagementAction)
         rospy.loginfo('[%s] Waiting for action server %s', self.game_id, self.avg_engagement_action)
-        self.avg_engagement_client.wait_for_server()
-        rospy.loginfo('[%s] Server %s initialised', self.game_id, self.avg_engagement_action)
+        self.avg_engagement_client.wait_for_server(rospy.Duration(5))
+        rospy.loginfo('[%s] Server %s initialised or timeout expired', self.game_id, self.avg_engagement_action)
 
     def reset_coping_reactions(self):
         self.game_activity_start_time = rospy.Time.now().to_sec()
