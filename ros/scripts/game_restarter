@@ -1,0 +1,35 @@
+#!/usr/bin/env python
+
+import subprocess
+import rospy
+from std_msgs.msg import String
+
+class GameRestarter(object):
+    def __init__(self):
+        game_restarter_topic = rospy.get_param("~game_restarter_topic",
+                                               "/migrave_games/restart")
+        systemd_manager_script_path = rospy.get_param("~systemd_manager_script_path",
+                                                      "/home/qtrobot/.utils/manage_systemd_service.sh")
+        self.systemd_manager_script_path = systemd_manager_script_path
+        self.restart_game_sub = rospy.Subscriber(game_restarter_topic,
+                                                 String,
+                                                 self.game_restart_cb)
+
+    def game_restart_cb(self, msg):
+        rospy.loginfo("Restarting service %s", msg.data)
+        self.manage_service("restart", "game_{0}".format(msg.data))
+
+    def manage_service(self, action: str, executable_to_recover: str) -> bool:
+        try:
+            subprocess.check_output(['sudo', self.systemd_manager_script_path,
+                                     action, executable_to_recover])
+            return True
+        except subprocess.CalledProcessError as exc:
+            print('[perform_recovery] ERROR: {0}'.format(str(exc)))
+            return False
+
+if __name__ == '__main__':
+    rospy.init_node('game_restarter')
+    game_restarter = GameRestarter()
+    while not rospy.is_shutdown():
+        rospy.sleep(0.05)

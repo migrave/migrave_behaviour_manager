@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<launch>
+    <arg name="game_restarter_topic" default="/migrave_games/restart" />
+    <arg name="systemd_manager_script_path" default="/home/qtrobot/.utils/manage_systemd_service.sh" />
+
+    <node pkg="migrave_behaviour_manager" type="game_restarter"
+          name="game_restarter" ns='migrave_games' output="screen">
+          <param name="game_restarter_topic" type="str" value="$(arg game_restarter_topic)" />
+          <param name="systemd_manager_script_path" type="str" value="$(arg systemd_manager_script_path)" />
+    </node>
+</launch>
