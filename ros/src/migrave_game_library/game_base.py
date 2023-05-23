@@ -125,7 +125,7 @@ class GameBase(object):
                     # A level 3 reaction is again prompting the player to press the tablet;
                     # this is the last reaction level before a therapist intervenes
                     elif not self.coping_reactions_performed['level3'] and elapsed_time > self.waiting_times_before_robot_prompt_s['level3']:
-                        self.say_text("Tippe bitte auf das Tablet!")
+                        self.say_text("Tippe auf das Tablet und du wirst einen Stern bekommen.")
                         self.coping_reactions_performed['level3'] = True
 
                     # For a level 2 reaction, we are monitoring the player's engagement, such that
@@ -151,7 +151,7 @@ class GameBase(object):
                                 mean_engagement = np.mean(avg_engagement_result.avg_engagement)
                                 if mean_engagement < 0:
                                     if not self.coping_reactions_performed['level2']:
-                                        self.say_text("Tippe auf das Tablet und du wirst einen Stern bekommen.")
+                                        self.say_text("Hey, wo bist du? Tippe auf das Tablet!")
                                         self.coping_reactions_performed['level2'] = True
                                 else:
                                     self.coping_reactions_performed['level2'] = False
