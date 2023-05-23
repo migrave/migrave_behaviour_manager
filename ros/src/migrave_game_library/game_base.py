@@ -436,6 +436,7 @@ class GameBase(object):
 
         self.say_text("Super, du hast alle Sterne gesammelt!")
         self.show_emotion("kiss")
+        self.gesture_play("QT/happy")
         self.say_text("Gut gemacht!")
         rospy.loginfo("Publishing task status: finish")
         self.task_status_pub.publish("finish")
