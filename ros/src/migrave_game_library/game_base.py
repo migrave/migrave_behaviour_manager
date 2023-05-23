@@ -506,3 +506,9 @@ class GameBase(object):
         for x in self.coping_reactions_performed:
             self.coping_reactions_performed[x] = False
         self.task_status = 'waiting_for_child_input'
+
+    def has_performed_coping(self):
+        """Returns True if any coping reaction has been performed (as indicated by the
+        entries in self.coping_reactions_performed); returns False otherwise.
+        """
+        return sum([1 if x else 0 for (_,x) in self.coping_reactions_performed.items()]) > 0

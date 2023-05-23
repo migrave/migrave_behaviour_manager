@@ -200,7 +200,7 @@ class MigraveGameColors(GameBase):
         
     def evaluate_answer(self):
         self.possitive_feedback = []
-        if self.wrong_answer_count > 0:
+        if self.wrong_answer_count > 0 or self.has_performed_coping():
             self.possitive_feedback = random.choice(["gut gemacht", "gut"])
         else:
             self.possitive_feedback = random.choice(["Wunderbar", "Klasse", "Spitzenmäßig", "Sehr gut"])
