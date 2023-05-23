@@ -97,9 +97,12 @@ class MigraveGameAnimals(GameBase):
 
         self.activity_parameters.images = [self.animal_image]
         self.activity_parameters.correct_image = [self.animal_image]
-       
-        look_at_tablet = random.choice(self.initial_phrase)
-        self.say_text(f"{look_at_tablet} Tippe auf {self.ak_article_animal_map[self.animal]} {self.en_to_de_animal_map[self.animal]}!")
+
+        if self.round_count == 0:
+            look_at_tablet = random.choice(self.initial_phrase)
+            self.say_text(f"{look_at_tablet} Tippe auf {self.ak_article_animal_map[self.animal]} {self.en_to_de_animal_map[self.animal]}!")
+        else:
+            self.say_text(f"Tippe auf {self.ak_article_animal_map[self.animal]} {self.en_to_de_animal_map[self.animal]}!")
 
         rospy.sleep(2)
         self.msg_acknowledged = False
@@ -126,8 +129,11 @@ class MigraveGameAnimals(GameBase):
         list_of_images = [self.animal_image, distractors[0], distractors[1]]
         self.activity_parameters.images = random.sample(list_of_images, len(list_of_images))
 
-        look_at_tablet = random.choice(self.initial_phrase)
-        self.say_text(f"{look_at_tablet} Tippe auf {self.ak_article_animal_map[self.animal]} {self.en_to_de_animal_map[self.animal]}!")
+        if self.round_count == 0:
+            look_at_tablet = random.choice(self.initial_phrase)
+            self.say_text(f"{look_at_tablet} Tippe auf {self.ak_article_animal_map[self.animal]} {self.en_to_de_animal_map[self.animal]}!")
+        else:
+            self.say_text(f"Tippe auf {self.ak_article_animal_map[self.animal]} {self.en_to_de_animal_map[self.animal]}!")
 
         rospy.sleep(2)
         self.msg_acknowledged = False
@@ -139,17 +145,14 @@ class MigraveGameAnimals(GameBase):
             rospy.sleep(0.5)
 
     def start_new_generalisation_round(self):
-       
         self.animal = random.choice(self.options_animals)
         if "objects" in self.task: 
             self.animal_image = self.target_animals[self.animal][0]
             distractors = random.sample(self.distractor_objects, 2)
-
         elif "others" in self.task:
             self.animal_image = self.target_animals[self.animal][0]
             possible_choices = [f"{v}-1" for v in self.options_animals if v != self.animal]
             distractors = random.sample(possible_choices, 2)
-
         elif "animals" in self.task:
             possible_animals = list(self.target_animals[self.animal] + self.generalisation_objects[self.animal])
             self.animal_image = random.choice(possible_animals)
@@ -160,9 +163,12 @@ class MigraveGameAnimals(GameBase):
         #geralisation with random images (no animals)
         list_of_images = [self.animal_image, distractors[0], distractors[1]]            
         self.activity_parameters.images = random.sample(list_of_images, len(list_of_images))
-        
-        look_at_tablet = random.choice(self.initial_phrase)
-        self.say_text(f"{look_at_tablet} Tippe auf {self.ak_article_animal_map[self.animal]} {self.en_to_de_animal_map[self.animal]}!")
+
+        if self.round_count == 0:
+            look_at_tablet = random.choice(self.initial_phrase)
+            self.say_text(f"{look_at_tablet} Tippe auf {self.ak_article_animal_map[self.animal]} {self.en_to_de_animal_map[self.animal]}!")
+        else:
+            self.say_text(f"Tippe auf {self.ak_article_animal_map[self.animal]} {self.en_to_de_animal_map[self.animal]}!")
 
         rospy.sleep(2)
         self.msg_acknowledged = False

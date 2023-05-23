@@ -92,9 +92,12 @@ class MigraveGameHandWash(GameBase):
         possible_objects = list(self.target_objects)
         self.object = random.choice(possible_objects)
         self.object_image = f"{self.object}"
-        
-        look_at_tablet = random.choice(self.initial_phrase)
-        self.say_text(f"{look_at_tablet} Was brauchst du zum Hände waschen?")
+
+        if self.round_count == 0:
+            look_at_tablet = random.choice(self.initial_phrase)
+            self.say_text(f"{look_at_tablet} Was brauchst du zum Hände waschen?")
+        else:
+            self.say_text(f"Was brauchst du zum Hände waschen?")
 
         distractors = random.sample(self.distractor_objects, 2)
         self.activity_parameters.correct_image = [self.object_image]
@@ -119,15 +122,18 @@ class MigraveGameHandWash(GameBase):
             self.object_image = f"{self.object}"
             distractors = self.after[self.round_count]
             distractor_images = f"{distractors}"
-            audio_text = look_at_tablet + "Was kommt zuerst?"
+            audio_text = "Was kommt zuerst?"
 
         elif "when_to_wash" in self.task:
             self.object = self.when_to_wash[self.round_count]
             self.object_image = f"{self.object}"
             distractors = self.when_to_not_wash[self.round_count]
             distractor_images = f"{distractors}"
-            audio_text = look_at_tablet + "Wann solltest du deine Hände waschen?" + self.questions_when_to_wash[self.round_count]
-        
+            audio_text = "Wann solltest du deine Hände waschen?" + self.questions_when_to_wash[self.round_count]
+
+        if self.round_count == 0:
+            audio_text = f"{look_at_tablet} " + audio_text
+
         self.say_text(audio_text)
         self.say_text("Tippe auf das richtige Bild!")
 
@@ -158,7 +164,7 @@ class MigraveGameHandWash(GameBase):
         list_of_images = random.sample(self.object, len(self.object)) + self.numbers
         self.activity_parameters.images = list_of_images
 
-        if self.partially_correct_answer_count == 0:
+        if self.round_count == 0:
             look_at_tablet = random.choice(self.initial_phrase)
             self.say_text(f"{look_at_tablet} Bringe die Bilder in die richtigee Reihenfolge, Was kommt zuerst?")
         else:

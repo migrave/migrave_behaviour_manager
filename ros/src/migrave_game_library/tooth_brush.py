@@ -92,9 +92,12 @@ class MigraveGameToothBrush(GameBase):
 
         list_of_images = [self.object_image, distractors[0], distractors[1]]
         self.activity_parameters.images = random.sample(list_of_images, len(list_of_images))
-        
-        look_at_tablet = random.choice(self.initial_phrase)
-        self.say_text(f"{look_at_tablet} Was brauchst du zum Zähneputzen?")
+
+        if self.round_count == 0:
+            look_at_tablet = random.choice(self.initial_phrase)
+            self.say_text(f"{look_at_tablet} Was brauchst du zum Zähneputzen?")
+        else:
+            self.say_text(f"Was brauchst du zum Zähneputzen?")
 
         rospy.sleep(2)
         self.msg_acknowledged = False
@@ -112,7 +115,11 @@ class MigraveGameToothBrush(GameBase):
         self.object_image = f"{self.object}"
         distractors = self.after[self.round_count]
         distractor_images = f"{distractors}"
-        audio_text = look_at_tablet + "Was kommt zuerst? Tippe auf das richtige Bild!"
+
+        if self.round_count == 0:
+            audio_text = look_at_tablet + "Was kommt zuerst? Tippe auf das richtige Bild!"
+        else:
+            audio_text = "Was kommt zuerst? Tippe auf das richtige Bild!"
         self.say_text(audio_text)
         
         self.activity_parameters.correct_image = [self.object_image]
@@ -157,13 +164,19 @@ class MigraveGameToothBrush(GameBase):
         look_at_tablet = random.choice(self.initial_phrase)
         self.ordering_activity = self.en_to_de_map[self.object[self.partially_correct_answer_count]]
 
+        sentence_to_say = ""
         if self.partially_correct_answer_count == 0:
-            self.say_text(f"{look_at_tablet} Bring die Bilder in die richtige Reihenfolge! Was kommt zuerst?")
+            sentence_to_say = "Bringe die Bilder in die richtige Reihenfolge! Was kommt zuerst?"
         elif self.partially_correct_answer_count == 1:
-            self.say_text(f"{look_at_tablet} Was kommt jetzt?")
+            sentence_to_say = "Was kommt jetzt?"
         elif self.partially_correct_answer_count == 2:
             self.ordering_game_idx += 1
-            self.say_text(f"{look_at_tablet} Was kommt jetzt?")
+            sentence_to_say = "Was kommt jetzt?"
+
+        if self.round_count == 0:
+            self.say_text(f"{look_at_tablet} {sentence_to_say}")
+        else:
+            self.say_text(f"{sentence_to_say}")
 
     def evaluate_answer(self):
         if self.wrong_answer_count > 0:

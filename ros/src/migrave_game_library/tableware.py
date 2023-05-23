@@ -94,9 +94,12 @@ class MigraveGameTableware(GameBase):
     def start_new_simple_round(self):
         self.crockery = self.task
         self.crockery_image = f"{self.target_tableware[self.task][0]}"
-        
-        look_at_tablet = random.choice(self.initial_phrase)  
-        self.say_text(f"{look_at_tablet} Tippe auf {self.en_article_crockery_map[self.crockery]} {self.en_to_de_crockery_map[self.crockery]}!")
+
+        if self.round_count == 0:
+            look_at_tablet = random.choice(self.initial_phrase)
+            self.say_text(f"{look_at_tablet} Tippe auf {self.en_article_crockery_map[self.crockery]} {self.en_to_de_crockery_map[self.crockery]}!")
+        else:
+            self.say_text(f"Tippe auf {self.en_article_crockery_map[self.crockery]} {self.en_to_de_crockery_map[self.crockery]}!")
         rospy.sleep(0.5)
         
         self.activity_parameters.images = [self.crockery_image]
@@ -113,8 +116,11 @@ class MigraveGameTableware(GameBase):
         self.crockery = self.task.split("_")[0]
         self.crockery_image = random.choice(self.target_tableware[self.crockery])
 
-        look_at_tablet = random.choice(self.initial_phrase)
-        self.say_text(f"{look_at_tablet} Tippe auf {self.en_article_crockery_map[self.crockery]} {self.en_to_de_crockery_map[self.crockery]}!")
+        if self.round_count == 0:
+            look_at_tablet = random.choice(self.initial_phrase)
+            self.say_text(f"{look_at_tablet} Tippe auf {self.en_article_crockery_map[self.crockery]} {self.en_to_de_crockery_map[self.crockery]}!")
+        else:
+            self.say_text(f"Tippe auf {self.en_article_crockery_map[self.crockery]} {self.en_to_de_crockery_map[self.crockery]}!")
         rospy.sleep(0.5)
 
         if "objects" in self.task:
@@ -167,14 +173,20 @@ class MigraveGameTableware(GameBase):
            
         list_of_images = [self.crockery_image, distractors[0], distractors[1]]            
         self.activity_parameters.images = random.sample(list_of_images, len(list_of_images))
-                
+
         look_at_tablet = random.choice(self.initial_phrase)
+        sentence_to_say = ""
         if "kids" in self.task:
-            self.say_text(f"{look_at_tablet} {self.kid_action_feedback[self.crockery][0]}!")
+            sentence_to_say = self.kid_action_feedback[self.crockery][0]
         elif "random" in self.task:
-            self.say_text(f"{look_at_tablet} {self.object_action_feedback[self.crockery][0]}!")
+            sentence_to_say = self.object_action_feedback[self.crockery][0]
         else:
-            self.say_text(f"{look_at_tablet} Tippe auf {self.en_article_crockery_map[self.crockery]} {self.en_to_de_crockery_map[self.crockery]}!")
+            sentence_to_say = f"Tippe auf {self.en_article_crockery_map[self.crockery]} {self.en_to_de_crockery_map[self.crockery]}"
+
+        if self.round_count == 0:
+            self.say_text(f"{look_at_tablet} {sentence_to_say}")
+        else:
+            self.say_text(f"{sentence_to_say}")
 
         rospy.sleep(2)
         self.msg_acknowledged = False

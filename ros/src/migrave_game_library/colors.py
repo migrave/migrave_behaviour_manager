@@ -94,8 +94,11 @@ class MigraveGameColors(GameBase):
         self.activity_parameters.images = [self.color_image]
         self.activity_parameters.correct_image = [self.color_image]
         
-        look_at_tablet = random.choice(self.initial_phrase)
-        self.say_text(f"{look_at_tablet} Tippe auf {self.en_to_de_color_map[self.color]}!")
+        if self.round_count == 0:
+            look_at_tablet = random.choice(self.initial_phrase)
+            self.say_text(f"{look_at_tablet} Tippe auf {self.en_to_de_color_map[self.color]}!")
+        else:
+            self.say_text(f"Tippe auf {self.en_to_de_color_map[self.color]}!")
 
         rospy.sleep(2)
         self.msg_acknowledged = False
@@ -127,8 +130,11 @@ class MigraveGameColors(GameBase):
         else:
             self.activity_parameters.images = [distractor_image, self.color_image]
         
-        look_at_tablet = random.choice(self.initial_phrase)
-        self.say_text(f"{look_at_tablet} Tippe auf {self.en_to_de_color_map[self.color]}!")
+        if self.round_count == 0:
+            look_at_tablet = random.choice(self.initial_phrase)
+            self.say_text(f"{look_at_tablet} Tippe auf {self.en_to_de_color_map[self.color]}!")
+        else:
+            self.say_text(f"Tippe auf {self.en_to_de_color_map[self.color]}!")
 
         rospy.sleep(2)
         self.msg_acknowledged = False
@@ -176,9 +182,12 @@ class MigraveGameColors(GameBase):
             self.color_image = self.activity_parameters.images[possible_colors.index(self.color)]
             self.activity_parameters.correct_image = [self.color_image]
             self.activity_parameters.correct_image_highlighted = [f"{self.color_image}-highlighted"]
-        
-        look_at_tablet = random.choice(self.initial_phrase)
-        self.say_text(f"{look_at_tablet} Tippe auf {self.en_to_de_color_map[self.color]}!")
+
+        if self.round_count == 0:
+            look_at_tablet = random.choice(self.initial_phrase)
+            self.say_text(f"{look_at_tablet} Tippe auf {self.en_to_de_color_map[self.color]}!")
+        else:
+            self.say_text(f"Tippe auf {self.en_to_de_color_map[self.color]}!")
 
         rospy.sleep(2)
         self.msg_acknowledged = False
