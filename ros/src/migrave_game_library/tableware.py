@@ -201,29 +201,29 @@ class MigraveGameTableware(GameBase):
             "wrong_2": ""
         }
         right_texts = {
-            "fork": fr"\emph\ Richtig! \emph\ die Gabel! \emph\ {self.possitive_feedback}!",
-            "fork_vs_objects": fr"\emph\ Richtig! \emph\ die Gabel! \emph\ {self.possitive_feedback}!",
-            "fork_vs_tableware": fr"\emph\ Richtig! \emph\ die Gabel! \emph\ {self.possitive_feedback}!",
+            "fork": fr"\emph\ die Gabel! \emph\ {self.possitive_feedback}!",
+            "fork_vs_objects": fr"\emph\ die Gabel! \emph\ {self.possitive_feedback}!",
+            "fork_vs_tableware": fr"\emph\ die Gabel! \emph\ {self.possitive_feedback}!",
             
-            "spoon": fr"\emph\ Richtig! \emph\ der Löffel! \emph\ Richtig! \emph\ {self.possitive_feedback}!",
-            "spoon_vs_objects": fr"\emph\ Richtig! \emph\ der Löffel! \emph\ {self.possitive_feedback}!",
-            "spoon_vs_tableware": fr"\emph\ Richtig! \emph\ der Löffel! \emph\ {self.possitive_feedback}!",
+            "spoon": fr"\emph\ der Löffel! \emph\ {self.possitive_feedback}!",
+            "spoon_vs_objects": fr"\emph\ der Löffel! \emph\ {self.possitive_feedback}!",
+            "spoon_vs_tableware": fr"\emph\ der Löffel! \emph\ {self.possitive_feedback}!",
             
-            "knife": fr"\emph\ Richtig! \emph\ das Messer! \emph\ Richtig! \emph\ {self.possitive_feedback}!",
-            "knife_vs_objects": fr"\emph\ Richtig! \emph\ das Messer! \emph\ {self.possitive_feedback}!",
-            "knife_vs_tableware": fr"\emph\ Richtig! \emph\ das Messer! \emph\ {self.possitive_feedback}!",
+            "knife": fr"\emph\ das Messer! \emph\ {self.possitive_feedback}!",
+            "knife_vs_objects": fr"\emph\ das Messer! \emph\ {self.possitive_feedback}!",
+            "knife_vs_tableware": fr"\emph\ das Messer! \emph\ {self.possitive_feedback}!",
             
-            "glass": fr"\emph\ Richtig! \emph\ der Becher! \emph\ {self.possitive_feedback}!",
-            "glass_vs_objects": fr"\emph\ Richtig! \emph\ der Becher! \emph\ {self.possitive_feedback}!",
-            "glass_vs_tableware": fr"\emph\ Richtig! \emph\ der Becher! \emph\ {self.possitive_feedback}!",
+            "glass": fr"\emph\ der Becher! \emph\ {self.possitive_feedback}!",
+            "glass_vs_objects": fr"\emph\ der Becher! \emph\ {self.possitive_feedback}!",
+            "glass_vs_tableware": fr"\emph\ der Becher! \emph\ {self.possitive_feedback}!",
             
-            "bowl": fr"\emph\ Richtig! \emph\ die Schüssel! \emph\ {self.possitive_feedback}!",
-            "bowl_vs_objects": fr"\emph\ Richtig! \emph\ die Schüssel! \emph\ {self.possitive_feedback}!",
-            "bowl_vs_tableware": fr"\emph\ Richtig! \emph\ die Schüssel! \emph\ {self.possitive_feedback}!",
+            "bowl": fr"\emph\ die Schüssel! \emph\ {self.possitive_feedback}!",
+            "bowl_vs_objects": fr"\emph\ die Schüssel! \emph\ {self.possitive_feedback}!",
+            "bowl_vs_tableware": fr"\emph\ die Schüssel! \emph\ {self.possitive_feedback}!",
             
-            "object_vs_others": fr"\emph\ Richtig! \emph\ {self.en_article_crockery_map[self.crockery]} {self.en_to_de_crockery_map[self.crockery]}! \emph\ {self.possitive_feedback}!",
-            "kid_vs_kids": fr"\emph\ Richtig! \emph\ {self.kid_action_feedback[self.crockery][1]}! \emph\ {self.possitive_feedback}!",
-            "object_vs_random": fr"\emph\ Richtig! \emph\ {self.object_action_feedback[self.crockery][1]}! \emph\ {self.possitive_feedback}!"
+            "object_vs_others": fr"\emph\ {self.en_article_crockery_map[self.crockery]} {self.en_to_de_crockery_map[self.crockery]}! \emph\ {self.possitive_feedback}!",
+            "kid_vs_kids": fr"\emph\ {self.kid_action_feedback[self.crockery][1]}! \emph\ {self.possitive_feedback}!",
+            "object_vs_random": fr"\emph\ {self.object_action_feedback[self.crockery][1]}! \emph\ {self.possitive_feedback}!"
         }
         feedback_texts = {
             "right": right_texts[self.task],

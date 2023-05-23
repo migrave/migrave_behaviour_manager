@@ -205,19 +205,19 @@ class MigraveGameColors(GameBase):
             "wrong_2": ""
         }
         right_texts = {
-            "red": fr"\emph\ Richtig! \emph\ Rot! \emph\ {self.possitive_feedback}!",
-            "red_vs_other": fr"\emph\ Richtig! \emph\ Rot! \emph\ {self.possitive_feedback}!",
-            "green": fr" \emph\ Richtig! \emph\ Grün! \emph\ {self.possitive_feedback}!",
-            "green_vs_other": fr" \emph\ Richtig! \emph\ Grün! \emph\ {self.possitive_feedback}!",
-            "blue": fr" \emph\ Richtig! \emph\ Blau! \emph\ {self.possitive_feedback}!",
-            "blue_vs_other": fr" \emph\ Richtig! \emph\ Blau! \emph\ {self.possitive_feedback}!",
-            "yellow": fr"\emph\ Richtig! \emph\ Gelb! \emph\ {self.possitive_feedback}!",
-            "yellow_vs_other": fr"\emph\ Richtig! \emph\ Gelb! \emph\ {self.possitive_feedback}!",
-            "red_or_yellow_vs_other": fr"\emph\ Richtig! \emph\ {self.en_to_de_color_map[self.color]}! \emph\ {self.possitive_feedback}!",
-            "blue_or_green_vs_other": fr"\emph\ Richtig! {self.en_to_de_color_map[self.color]}! \emph\ {self.possitive_feedback}!",
-            "three_squares": fr"\emph\ Richtig! \emph\ {self.en_to_de_color_map[self.color]}! \emph\ {self.possitive_feedback}!",
-            "three_cars": fr"\emph\ Richtig! \emph\ {self.en_to_de_color_map[self.color]}!  \emph\ {self.possitive_feedback}!",
-            "three_objects": fr"\emph\ Richtig! \emph\ {self.en_to_de_color_map[self.color]}! \emph\ {self.possitive_feedback}!"
+            "red": fr"\emph\ Rot! \emph\ {self.possitive_feedback}!",
+            "red_vs_other": fr"\emph\ Rot! \emph\ {self.possitive_feedback}!",
+            "green": fr" \emph\ Grün! \emph\ {self.possitive_feedback}!",
+            "green_vs_other": fr" \emph\ Grün! \emph\ {self.possitive_feedback}!",
+            "blue": fr" \emph\ Blau! \emph\ {self.possitive_feedback}!",
+            "blue_vs_other": fr" \emph\ Blau! \emph\ {self.possitive_feedback}!",
+            "yellow": fr"\emph\ Gelb! \emph\ {self.possitive_feedback}!",
+            "yellow_vs_other": fr"\emph\ Gelb! \emph\ {self.possitive_feedback}!",
+            "red_or_yellow_vs_other": fr"\emph\ {self.en_to_de_color_map[self.color]}! \emph\ {self.possitive_feedback}!",
+            "blue_or_green_vs_other": fr"\emph\ {self.en_to_de_color_map[self.color]}! \emph\ {self.possitive_feedback}!",
+            "three_squares": fr"\emph\ {self.en_to_de_color_map[self.color]}! \emph\ {self.possitive_feedback}!",
+            "three_cars": fr"\emph\ {self.en_to_de_color_map[self.color]}!  \emph\ {self.possitive_feedback}!",
+            "three_objects": fr"\emph\ {self.en_to_de_color_map[self.color]}! \emph\ {self.possitive_feedback}!"
         }
         feedback_texts = {
             "right": right_texts[self.task],

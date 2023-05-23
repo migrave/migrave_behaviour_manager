@@ -181,15 +181,15 @@ class MigraveGameToothBrush(GameBase):
             "wrong_2": ""
         }
         right_texts = {
-            "order_steps": fr" \emph\ Richtig! \emph\ {self.ordering_activity}! \emph\ {self.possitive_feedback}!",
-            "object_vs_objects": fr"\emph\ Richtig! \emph\ {self.en_to_de_map[self.object_image]}! \emph\ {self.possitive_feedback}!",
-            "first_activity": fr"\emph\ Richtig! \emph\ {self.answer_what_comes_first[self.round_count]}! \emph\ {self.possitive_feedback}!"
+            "order_steps": fr" \emph\ {self.ordering_activity}! \emph\ {self.possitive_feedback}!",
+            "object_vs_objects": fr"\emph\ {self.en_to_de_map[self.object_image]}! \emph\ {self.possitive_feedback}!",
+            "first_activity": fr"\emph\ {self.answer_what_comes_first[self.round_count]}! \emph\ {self.possitive_feedback}!"
         }
 
         feedback_texts = {
             "right": right_texts[self.task],
             "wrong": "Lass es uns nochmal probieren!",
-            "partially_correct": "Richtig!" + self.ordering_activity
+            "partially_correct": self.ordering_activity
         }
         super().evaluate_answer(feedback_emotions, feedback_texts)
 

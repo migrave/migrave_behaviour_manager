@@ -188,29 +188,29 @@ class MigraveGameAnimals(GameBase):
             "wrong_2": ""
         }
         right_texts = {
-            "cat": fr"\emph\ Richtig! \emph\ die Katze! \emph\ {self.possitive_feedback}!",
-            "cat_vs_objects": fr"\emph\ Richtig! \emph\ die Katze! \emph\ {self.possitive_feedback}!",
-            "cat_vs_animals": fr"\emph\ Richtig! \emph\ die Katze! \emph\ {self.possitive_feedback}!",
+            "cat": fr"\emph\ die Katze! \emph\ {self.possitive_feedback}!",
+            "cat_vs_objects": fr"\emph\ die Katze! \emph\ {self.possitive_feedback}!",
+            "cat_vs_animals": fr"\emph\ die Katze! \emph\ {self.possitive_feedback}!",
 
-            "dog": fr"\emph\ Richtig!\emph\ der Hund! \emph\ {self.possitive_feedback}!",
-            "dog_vs_objects": fr"\emph\ Richtig! \emph\ der Hund! \emph\ {self.possitive_feedback}!",
-            "dog_vs_animals": fr"\emph\ Richtig! \emph\ der Hund! \emph\ {self.possitive_feedback}!",
+            "dog": fr"\emph\ der Hund! \emph\ {self.possitive_feedback}!",
+            "dog_vs_objects": fr"\emph\ der Hund! \emph\ {self.possitive_feedback}!",
+            "dog_vs_animals": fr"\emph\ der Hund! \emph\ {self.possitive_feedback}!",
 
-            "cow": fr"\emph\ Richtig! \emph\ die Kuh! \emph\ {self.possitive_feedback}!",
-            "cow_vs_objects": fr"\emph\ Richtig! \emph\ die Kuh! \emph\ {self.possitive_feedback}!",
-            "cow_vs_animals": fr"\emph\ Richtig! \emph\ die Kuh! \emph\ {self.possitive_feedback}!",
+            "cow": fr"\emph\ die Kuh! \emph\ {self.possitive_feedback}!",
+            "cow_vs_objects": fr"\emph\ die Kuh! \emph\ {self.possitive_feedback}!",
+            "cow_vs_animals": fr"\emph\ die Kuh! \emph\ {self.possitive_feedback}!",
 
-            "pig": fr"\emph\ Richtig! \emph\ das Schwein! \emph\ {self.possitive_feedback}!",
-            "pig_vs_objects": fr"\emph\ Richtig! \emph\ das Schwein! \emph\ {self.possitive_feedback}!",
-            "pig_vs_animals": fr"\emph\ Richtig! \emph\ das Schwein! \emph\ {self.possitive_feedback}!", 
+            "pig": fr"\emph\ das Schwein! \emph\ {self.possitive_feedback}!",
+            "pig_vs_objects": fr"\emph\ das Schwein! \emph\ {self.possitive_feedback}!",
+            "pig_vs_animals": fr"\emph\ das Schwein! \emph\ {self.possitive_feedback}!", 
            
-            "mouse": fr"\emph\ Richtig! \emph\ die Maus! \emph\ {self.possitive_feedback}!",
-            "mouse_vs_objects": fr"\emph\ Richtig! \emph\ die Maus! \emph\ {self.possitive_feedback}!",
-            "mouse_vs_animals": fr"\emph\ Richtig! \emph\ die Maus! \emph\ {self.possitive_feedback}!",
+            "mouse": fr"\emph\ die Maus! \emph\ {self.possitive_feedback}!",
+            "mouse_vs_objects": fr"\emph\ die Maus! \emph\ {self.possitive_feedback}!",
+            "mouse_vs_animals": fr"\emph\ die Maus! \emph\ {self.possitive_feedback}!",
             
-            "animal_vs_objects": fr"\emph\ Richtig! \emph\ {self.no_article_animal_map[self.animal]} {self.en_to_de_animal_map[self.animal]}! \emph\ {self.possitive_feedback}!",
-            "animal_vs_others": fr"\emph\ Richtig! \emph\ {self.no_article_animal_map[self.animal]} {self.en_to_de_animal_map[self.animal]}! \emph\ {self.possitive_feedback}!",
-            "animal_vs_animals": fr"\emph\ Richtig! \emph\ {self.no_article_animal_map[self.animal]} {self.en_to_de_animal_map[self.animal]}! \emph\ {self.possitive_feedback}!"
+            "animal_vs_objects": fr"\emph\ {self.no_article_animal_map[self.animal]} {self.en_to_de_animal_map[self.animal]}! \emph\ {self.possitive_feedback}!",
+            "animal_vs_others": fr"\emph\ {self.no_article_animal_map[self.animal]} {self.en_to_de_animal_map[self.animal]}! \emph\ {self.possitive_feedback}!",
+            "animal_vs_animals": fr"\emph\ {self.no_article_animal_map[self.animal]} {self.en_to_de_animal_map[self.animal]}! \emph\ {self.possitive_feedback}!"
         }
 
         right_audios = {
