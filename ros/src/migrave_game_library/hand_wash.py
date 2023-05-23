@@ -238,12 +238,11 @@ class MigraveGameHandWash(GameBase):
             else:
                 self.activity_parameters.images = [self.activity_parameters.correct_image_highlighted[0]]
                 self.activity_parameters.correct_image = [self.activity_parameters.correct_image_highlighted[0]]
-        
-        look_at_tablet = random.choice(self.initial_phrase)
+
         if self.task in ["order_steps","order_steps_resume"]:
-            self.say_text(f"{look_at_tablet} Sortieren der Bilder in der richtigeen Reihenfolge!")
+            self.say_text(f"Sortieren der Bilder in der richtigeen Reihenfolge!")
         else:
-            self.say_text(f"{look_at_tablet} Tippe auf das richtigee Bild!")
+            self.say_text(f"Tippe auf das richtigee Bild!")
 
         rospy.sleep(2)
         self.msg_acknowledged = False

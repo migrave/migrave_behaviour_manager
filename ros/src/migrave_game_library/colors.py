@@ -249,8 +249,7 @@ class MigraveGameColors(GameBase):
             self.activity_parameters.images = self.activity_parameters.correct_image_highlighted
             self.activity_parameters.correct_image = self.activity_parameters.correct_image_highlighted
 
-        look_at_tablet = random.choice(self.initial_phrase)
-        self.say_text(f"{look_at_tablet} Tippe auf {self.en_to_de_color_map[self.color]}!")
+        self.say_text(f"Tippe auf {self.en_to_de_color_map[self.color]}!")
 
         rospy.sleep(2)
         self.msg_acknowledged = False

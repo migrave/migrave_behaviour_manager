@@ -229,12 +229,11 @@ class MigraveGameToothBrush(GameBase):
             else:
                 self.activity_parameters.images = [self.activity_parameters.correct_image_highlighted[0]]
                 self.activity_parameters.correct_image = [self.activity_parameters.correct_image_highlighted[0]]
-        
-        look_at_tablet = random.choice(self.initial_phrase)
+
         if self.task in ["order_steps","order_steps_resume"]:
-            self.say_text(f"{look_at_tablet} Bring die Bilder in die richtige Reihenfolge!")
+            self.say_text(f"Bring die Bilder in die richtige Reihenfolge!")
         else:
-            self.say_text(f"{look_at_tablet} Tippe auf das richtige Bild!")
+            self.say_text(f"Tippe auf das richtige Bild!")
 
         rospy.sleep(2)
         self.msg_acknowledged = False

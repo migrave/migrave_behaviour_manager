@@ -270,8 +270,6 @@ class MigraveGameAnimals(GameBase):
             self.activity_parameters.images = self.activity_parameters.correct_image_highlighted
             self.activity_parameters.correct_image = self.activity_parameters.correct_image_highlighted
 
-        look_at_tablet = random.choice(self.initial_phrase)
-        self.say_text(f"{look_at_tablet}")
         self.say_text(f"Tippe auf {self.ak_article_animal_map[self.animal]} {self.en_to_de_animal_map[self.animal]}!")
         rospy.sleep(2)
 
