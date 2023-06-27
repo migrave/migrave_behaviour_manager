@@ -49,11 +49,11 @@ class MigraveGameHandWash(GameBase):
 
     def game_start(self):
         super().game_start()
-        rospy.loginfo("Hand wash game starts")
-        self.say_text("Heute lernst du wie du deine Hände waschen kannst. Fangen wir an!")
-        self.show_emotion("happy")
-        self.say_text("Hände auf den Tisch. Schau mich an.")
-        self.show_emotion("happy")
+        # rospy.loginfo("Hand wash game starts")
+        # self.say_text("Heute lernst du wie du deine Hände waschen kannst. Fangen wir an!")
+        # self.show_emotion("happy")
+        # self.say_text("Hände auf den Tisch. Schau mich an.")
+        # self.show_emotion("happy")
 
     def task_start(self):
         super().task_start()

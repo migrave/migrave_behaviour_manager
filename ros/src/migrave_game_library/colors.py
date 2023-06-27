@@ -41,11 +41,11 @@ class MigraveGameColors(GameBase):
         super().game_start()
 
         rospy.loginfo("Color game starts")
-        self.say_text("Heute lernen wir Farben. Fangen wir an!")
-        self.show_emotion("happy")
-        self.say_text("Hände auf den Tisch. Schau mich an.")
-        self.show_emotion("happy")
-        self.say_text("Ich nenne dir eine Farbe und du tippst auf das passende Bild.")
+        # self.say_text("Heute lernen wir Farben. Fangen wir an!")
+        # self.show_emotion("happy")
+        # self.say_text("Hände auf den Tisch. Schau mich an.")
+        # self.show_emotion("happy")
+        # self.say_text("Ich nenne dir eine Farbe und du tippst auf das passende Bild.")
 
     def task_start(self):
         super().task_start()

@@ -43,11 +43,11 @@ class MigraveGameToothBrush(GameBase):
 
     def game_start(self):
         super().game_start()
-        rospy.loginfo("Tooth brush game starts")
-        self.say_text("Heute lernst du wie du deine Zähne putzen kannst. Fangen wir an!")
-        self.show_emotion("happy")
-        self.say_text("Hände auf den Tisch. Schau mich an.")
-        self.show_emotion("happy")
+        # rospy.loginfo("Tooth brush game starts")
+        # self.say_text("Heute lernst du wie du deine Zähne putzen kannst. Fangen wir an!")
+        # self.show_emotion("happy")
+        # self.say_text("Hände auf den Tisch. Schau mich an.")
+        # self.show_emotion("happy")
 
     def task_start(self):
         super().task_start()

@@ -41,11 +41,11 @@ class MigraveGameAnimals(GameBase):
         super().game_start()
 
         rospy.loginfo("Animal game starts")
-        self.say_text("Heute lernen wir Tiere kennen. Fangen wir an!")
-        self.show_emotion("showing_smile")
-        self.say_text("Hände auf den Tisch. Schau mich an.")
-        self.show_emotion("showing_smile")
-        self.say_text("Ich nenne dir ein Tier und du tippst auf das passende Bild.")
+        # self.say_text("Heute lernen wir Tiere kennen. Fangen wir an!")
+        # self.show_emotion("showing_smile")
+        # self.say_text("Hände auf den Tisch. Schau mich an.")
+        # self.show_emotion("showing_smile")
+        # self.say_text("Ich nenne dir ein Tier und du tippst auf das passende Bild.")
         
     def task_start(self):
         super().task_start()
