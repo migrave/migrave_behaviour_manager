@@ -195,9 +195,9 @@ class GameBase(object):
             self.task_idx = self.tasks.index(task_name)
         elif "next_task" in self.game_status:
             self.task_idx += 1
-            if self.task_idx != len(self.tasks):
-                self.say_text("Lass uns weiter machen!")
-                rospy.sleep(2)
+            # if self.task_idx != len(self.tasks):
+            #     self.say_text("Lass uns weiter machen!")
+            #     rospy.sleep(2)
 
         # we complete the game if the previous activity was the last one
         if self.task_idx == len(self.tasks) or self.one_task_done:
