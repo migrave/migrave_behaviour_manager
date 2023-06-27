@@ -16,7 +16,7 @@ general_game_params:
         first_activity: 2
         order_steps: 3
         when_to_wash: 4
-    end_sentence: Wir sind fertig mit dem Händewaschen. Gut gemacht!
+    end_sentence: Wir sind fertig mit Händewaschen. Gut gemacht!
 game_specific_params:
     target_objects: [soap, water, hand_towel]
     target_activities: [take_soap, open_water_tap, rub_hands, rinse_hands, close_water_tap, dry_hands]

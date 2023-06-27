@@ -57,7 +57,7 @@ general_game_params:
         kid_vs_kids: 4
         object_vs_random: 5
 
-    end_sentence: Wir sind fertig für heute. Gut gemacht! 
+    end_sentence: Wir sind fertig mit Besteck und Geschirr lernen. Gut gemacht! 
 game_specific_params:
     options: [fork, spoon, knife, glass, bowl]
     target_tableware: 
