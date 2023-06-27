@@ -151,7 +151,7 @@ class GameBase(object):
                                     self.coping_reactions_performed['gone'] = True
                             else:
                                 mean_engagement = np.mean(avg_engagement_result.avg_engagement)
-                                if mean_engagement < 0:
+                                if mean_engagement < 0.5:
                                     if not self.coping_reactions_performed['level2']:
                                         self.say_text("Hey, wo bist du? Tippe auf das Tablet!")
                                         self.coping_reactions_performed['level2'] = True
