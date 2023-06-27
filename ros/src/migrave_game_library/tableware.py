@@ -54,6 +54,13 @@ class MigraveGameTableware(GameBase):
         if self.task_status == "done":
             return
 
+        rospy.loginfo("Tableware game starts")
+        self.say_text("Heute lernen wir verschiedene Gegenstände kennen, die wir zum Essen brauche, Fangen wir an!")
+        self.show_emotion("happy")
+        self.say_text("Hände auf den Tisch. Schau mich an.")
+        self.show_emotion("happy")
+        self.say_text("Ich nenne dir ein Wort und du tippst auf das passende Bild.")
+
         if self.task in ["fork", "spoon", "knife", "glass", "bowl", "fork_resume", 
                          "spoon_resume", "knife_resume", "glass_resume", "bowl_resume"]:
             rospy.loginfo(f"Starting simple task '{self.task}'")

@@ -68,6 +68,8 @@ class GameBase(object):
 
     avg_engagement_window_s = 2.0
 
+    one_task_done = False
+
     def __init__(self, game_config_dir_path: str,
                  game_id: str,
                  game_status_topic: str,
@@ -198,13 +200,14 @@ class GameBase(object):
                 rospy.sleep(2)
 
         # we complete the game if the previous activity was the last one
-        if self.task_idx == len(self.tasks):
+        if self.task_idx == len(self.tasks) or self.one_task_done:
             rospy.loginfo("Game complete; no new task to start")
             self.say_text("Geschafft, du hast super mitgemacht!")
             self.show_emotion("kiss")
             self.say_text(self.end_sentence)
             self.task_status = "done"
             self.task_status_pub.publish("done")
+            self.one_task_done = False
         else:
             self.task = self.tasks[self.task_idx]
             rospy.loginfo(f"Running task: {self.task}")
@@ -445,6 +448,8 @@ class GameBase(object):
         self.say_text("Schau mal auf das Tablet. Da ist ein Feuerwerk für dich!")
         self.tablet_image_pub.publish("fireworks")
         rospy.sleep(1)
+
+        self.one_task_done = True
 
         # rospy.loginfo("Publishing sounds: Fireworks")
         # rospy.sleep(2)

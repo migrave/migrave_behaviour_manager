@@ -54,6 +54,12 @@ class MigraveGameToothBrush(GameBase):
         if self.task_status == "done":
             return
 
+        rospy.loginfo("Tooth brush game starts")
+        self.say_text("Heute lernst du wie du deine Zähne putzen kannst. Fangen wir an!")
+        self.show_emotion("happy")
+        self.say_text("Hände auf den Tisch. Schau mich an.")
+        self.show_emotion("happy")
+
         if self.task in ["object_vs_objects", "object_vs_objects_resume"]:
             rospy.loginfo(f"Starting differentiation task '{self.task}'")
             self.start_new_differentiation_round()

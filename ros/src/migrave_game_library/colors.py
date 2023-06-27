@@ -52,6 +52,13 @@ class MigraveGameColors(GameBase):
         if self.task_status == "done":
             return
 
+        rospy.loginfo("Color game starts")
+        self.say_text("Heute lernen wir Farben. Fangen wir an!")
+        self.show_emotion("happy")
+        self.say_text("Hände auf den Tisch. Schau mich an.")
+        self.show_emotion("happy")
+        self.say_text("Ich nenne dir eine Farbe und du tippst auf das passende Bild.")
+
         if self.task in ["red", "green", "blue", "yellow",
                          "red_resume", "green_resume", "blue_resume", "yellow_resume"]:
             rospy.loginfo(f"Starting simple task '{self.task}'")

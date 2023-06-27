@@ -52,6 +52,12 @@ class MigraveGameAnimals(GameBase):
         if self.task_status == "done":
             return
 
+        self.say_text("Heute lernen wir Tiere kennen. Fangen wir an!")
+        self.show_emotion("showing_smile")
+        self.say_text("Hände auf den Tisch. Schau mich an.")
+        self.show_emotion("showing_smile")
+        self.say_text("Ich nenne dir ein Tier und du tippst auf das passende Bild.")
+
         if self.task in ["cat", "dog", "cow", "pig", "mouse"]:
             rospy.loginfo(f"Starting simple task '{self.task}'")
             self.start_new_simple_round()

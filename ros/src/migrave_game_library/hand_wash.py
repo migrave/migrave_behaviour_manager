@@ -60,6 +60,18 @@ class MigraveGameHandWash(GameBase):
         if self.task_status == "done":
             return
 
+        rospy.loginfo("Hand wash game starts")
+        self.say_text("Heute lernst du wie du deine Hände waschen kannst. Fangen wir an!")
+        self.show_emotion("happy")
+        self.say_text("Hände auf den Tisch. Schau mich an.")
+        self.show_emotion("happy")
+
+        rospy.loginfo("Hand wash game starts")
+        self.say_text("Heute lernst du wie du deine Hände waschen kannst. Fangen wir an!")
+        self.show_emotion("happy")
+        self.say_text("Hände auf den Tisch. Schau mich an.")
+        self.show_emotion("happy")
+
         if self.task in ["object_vs_objects", "object_vs_objects_resume"]:
             rospy.loginfo(f"Starting differentiation task '{self.task}'")
             self.start_new_differentiation_round()
