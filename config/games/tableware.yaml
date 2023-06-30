@@ -81,4 +81,4 @@ media_params:
         spoon: ["Womit kann man Suppe essen?", "Mit dem Löffel kann man Suppe essen"]
         knife: ["Womit kann man schneiden?", "Mit dem Messer kann man schneiden!"]
         glass: ["Woraus kann man trinken?", "Aus dem Becher kann man trinken!"]
-        bowl: ["Womit kann man Suppe essen?", "Aus der Schüssel kann man Suppe essen!"]
+        bowl: ["Woraus kann man Suppe essen?", "Aus der Schüssel kann man Suppe essen!"]
