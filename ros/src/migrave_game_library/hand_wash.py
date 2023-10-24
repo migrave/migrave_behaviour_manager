@@ -60,11 +60,11 @@ class MigraveGameHandWash(GameBase):
         if self.task_status == "done":
             return
 
-        rospy.loginfo("Hand wash game starts")
-        self.say_text("Heute lernst du wie du deine Hände waschen kannst. Fangen wir an!")
-        self.show_emotion("happy")
-        self.say_text("Hände auf den Tisch. Schau mich an.")
-        self.show_emotion("happy")
+        #rospy.loginfo("Hand wash game starts")
+        #self.say_text("Heute lernst du wie du deine Hände waschen kannst. Fangen wir an!")
+        #self.show_emotion("happy")
+        #self.say_text("Hände auf den Tisch. Schau mich an.")
+        #self.show_emotion("happy")
 
         rospy.loginfo("Hand wash game starts")
         self.say_text("Heute lernst du wie du deine Hände waschen kannst. Fangen wir an!")
@@ -252,7 +252,7 @@ class MigraveGameHandWash(GameBase):
                 self.activity_parameters.correct_image = [self.activity_parameters.correct_image_highlighted[0]]
 
         if self.task in ["order_steps","order_steps_resume"]:
-            self.say_text(f"Sortieren der Bilder in der richtigeen Reihenfolge!")
+            self.say_text(f"Sortiere die Bilder in die richtigee Reihenfolge!")
         else:
             self.say_text(f"Tippe auf das richtigee Bild!")
 

@@ -37,8 +37,8 @@ class MigraveGameToothBrush(GameBase):
         self.ordering_activity = ""
         self.en_to_de_map = {"water": "das wasser", "towel": "das handtuch", "toothbrush": "die Zahnbürste", "black_square":"", 
         "toothpaste": "die Zahnpasta", "take_water": "Nimm Wasser", "wet_toothbrush": "Befeuchte deine Zahnbürste", 
-        "open_toothpaste": "öffne die Zahnpasta", "take_toothpaste": "Nimm Zahnpasta", "brushing": "putzt deine Zähne", 
-        "clean_toothbrush": "reinigst deine Zahnbürste", "rinse_mouth": "reinigst deinen Mund", "wipe_mouth": "wisch dir deinen Mund ab"}
+        "open_toothpaste": "öffne die Zahnpasta", "take_toothpaste": "Nimm Zahnpasta", "brushing": "putz deine Zähne", 
+        "clean_toothbrush": "reinige deine Zahnbürste", "rinse_mouth": "reinige deinen Mund", "wipe_mouth": "wisch dir deinen Mund ab"}
         self.monitor_game()
 
     def game_start(self):
@@ -172,7 +172,7 @@ class MigraveGameToothBrush(GameBase):
 
         sentence_to_say = ""
         if self.partially_correct_answer_count == 0:
-            sentence_to_say = "Bringe die Bilder in die richtige Reihenfolge! Was kommt zuerst?"
+            sentence_to_say = "Bringe die Bilder in die richtigee Reihenfolge! Was kommt zuerst?"
         elif self.partially_correct_answer_count == 1:
             sentence_to_say = "Was kommt jetzt?"
         elif self.partially_correct_answer_count == 2:
@@ -237,7 +237,7 @@ class MigraveGameToothBrush(GameBase):
                 self.activity_parameters.correct_image = [self.activity_parameters.correct_image_highlighted[0]]
 
         if self.task in ["order_steps","order_steps_resume"]:
-            self.say_text(f"Bring die Bilder in die richtige Reihenfolge!")
+            self.say_text(f"Bring die Bilder in die richtigee Reihenfolge!")
         else:
             self.say_text(f"Tippe auf das richtige Bild!")
 

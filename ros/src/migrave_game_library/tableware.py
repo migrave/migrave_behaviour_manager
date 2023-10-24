@@ -43,7 +43,7 @@ class MigraveGameTableware(GameBase):
         super().game_start()
 
         rospy.loginfo("Tableware game starts")
-        # self.say_text("Heute lernen wir verschiedene Gegenstände kennen, die wir zum Essen brauche, Fangen wir an!")
+        # self.say_text("Heute lernen wir verschiedene Gegenstände kennen, die wir zum Essen brauchen. Fangen wir an!")
         # self.show_emotion("happy")
         # self.say_text("Hände auf den Tisch. Schau mich an.")
         # self.show_emotion("happy")
@@ -55,7 +55,7 @@ class MigraveGameTableware(GameBase):
             return
 
         rospy.loginfo("Tableware game starts")
-        self.say_text("Heute lernen wir verschiedene Gegenstände kennen, die wir zum Essen brauche, Fangen wir an!")
+        self.say_text("Heute lernen wir verschiedene Gegenstände kennen, die wir zum Essen brauchen. Fangen wir an!")
         self.show_emotion("happy")
         self.say_text("Hände auf den Tisch. Schau mich an.")
         self.show_emotion("happy")
