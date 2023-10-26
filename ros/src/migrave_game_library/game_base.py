@@ -82,7 +82,7 @@ class GameBase(object):
                  enable_game_sounds_topic='/migrave/enable_game_sounds',
                  enable_game_robot_motions_topic='/migrave/enable_game_robot_motions',
                  waiting_times_before_robot_prompt_s = {'level1': 5., 'level2': 12.5, 'level3': 25.},
-                 allowed_robot_motions=['QT/happy'],
+                 allowed_robot_motions=['QT/happy', 'QT/send_kiss', 'QT/monkey', 'QT/clapping', 'QT/emotions/hoora'],
                  default_token='star',
                  game_sounds_enabled=True,
                  game_robot_motions_enabled=True):
