@@ -1,5 +1,6 @@
 from typing import Dict
 import os
+import random
 import numpy as np
 import rospy
 import actionlib
@@ -77,18 +78,32 @@ class GameBase(object):
                  game_performance_topic: str,
                  msg_acknowledgement_topic: str = '/migrave/msg_acknowledgement',
                  avg_engagement_action: str = '/migrave_perception/get_avg_engagement',
-                 waiting_times_before_robot_prompt_s = {'level1': 5., 'level2': 12.5, 'level3': 25.}):
+                 reward_token_topic='/migrave/reward_token',
+                 enable_game_sounds_topic='/migrave/enable_game_sounds',
+                 enable_game_robot_motions_topic='/migrave/enable_game_robot_motions',
+                 waiting_times_before_robot_prompt_s = {'level1': 5., 'level2': 12.5, 'level3': 25.},
+                 allowed_robot_motions=['QT/happy'],
+                 default_token='star',
+                 game_sounds_enabled=True,
+                 game_robot_motions_enabled=True):
         self.game_id = game_id
         self.game_status_topic = game_status_topic
         self.game_answer_topic = game_answer_topic
         self.game_performance_topic = game_performance_topic
         self.msg_acknowledgement_topic = msg_acknowledgement_topic
+        self.reward_token_topic = reward_token_topic
+        self.enable_game_sounds_topic = enable_game_sounds_topic
+        self.enable_game_robot_motions_topic = enable_game_robot_motions_topic
         self.avg_engagement_action = avg_engagement_action
         self.game_performance = GamePerformance()
         self.msg_acknowledged = False
         self.received_answer_msg_ids = []
         self.received_status_msg_ids = []
         self.game_config = load_yaml_file(os.path.join(game_config_dir_path, game_id + '.yaml'))
+        self.allowed_robot_motions = allowed_robot_motions
+        self.reward_token = default_token
+        self.game_sounds_enabled = game_sounds_enabled
+        self.game_robot_motions_enabled = game_robot_motions_enabled
 
         self.game_id = self.game_config["game_id"]
         self.tasks = self.game_config["general_game_params"]["tasks"]
@@ -237,16 +252,21 @@ class GameBase(object):
             self.correct_answer_count += 1
             self.wrong_answer_count = 0
             rospy.loginfo(f"Count: {self.round_count}; Correct: {self.correct_answer_count}")
-            if feedback_sounds != None:
+            if feedback_sounds != None and self.game_sounds_enabled:
                 self.audio_play(str(feedback_sounds[result]) + ".mp3")
             self.say_text("Dafür bekommst du einen Stern!")
             self.audio_play("aleksandar.mitrevski/MigrAVE/positive_feedback.mp3")
+
+            if self.game_robot_motions_enabled:
+                robot_gesture = random.choice(self.allowed_robot_motions)
+                self.gesture_play(robot_gesture)
+
             if self.task.find('order_steps') != -1:
-                image = f"{self.correct_answer_count}_2Token"
-                rospy.loginfo(f"Publish image: {self.correct_answer_count}_2Token")
+                image = f"tokens/{self.reward_token}/{self.correct_answer_count}_2Token"
+                rospy.loginfo(f"Publish image: {image}")
             else: 
-                image = f"{self.correct_answer_count}Token"
-                rospy.loginfo(f"Publish image: {self.correct_answer_count}Token")
+                image = f"tokens/{self.reward_token}/{self.correct_answer_count}Token"
+                rospy.loginfo(f"Publish image: {image}")
             rospy.loginfo(image)
             self.tablet_image_pub.publish(image)
 
@@ -343,6 +363,15 @@ class GameBase(object):
 
     def msg_acknowledgement_cb(self, msg: Bool):
         self.msg_acknowledged = True
+
+    def reward_token_cb(self, msg: String):
+        self.reward_token = msg.data
+
+    def enable_game_sounds_cb(self, msg: Bool):
+        self.game_sounds_enabled = msg.data
+
+    def enable_game_robot_motions_cb(self, msg: Bool):
+        self.game_robot_motions_enabled = msg.data
 
     def audio_play(self, audio: str):
         qt_audio_play = rospy.ServiceProxy("/qt_robot/audio/play", audio_play)
@@ -501,6 +530,21 @@ class GameBase(object):
         self.msg_acknowledgement_sub = rospy.Subscriber(self.msg_acknowledgement_topic, Bool,
                                                         self.msg_acknowledgement_cb)
         rospy.loginfo('[%s] Initialised %s subscriber', self.game_id, self.msg_acknowledgement_topic)
+
+        rospy.loginfo('[%s] Initialising subscriber on topic %s', self.game_id, self.reward_token_topic)
+        self.reward_token_sub = rospy.Subscriber(self.reward_token_topic, String,
+                                                 self.reward_token_cb)
+        rospy.loginfo('[%s] Initialised %s subscriber', self.game_id, self.reward_token_topic)
+
+        rospy.loginfo('[%s] Initialising subscriber on topic %s', self.game_id, self.enable_game_sounds_topic)
+        self.enable_game_sounds_sub = rospy.Subscriber(self.enable_game_sounds_topic, Bool,
+                                                       self.enable_game_sounds_cb)
+        rospy.loginfo('[%s] Initialised %s subscriber', self.game_id, self.enable_game_sounds_topic)
+
+        rospy.loginfo('[%s] Initialising subscriber on topic %s', self.game_id, self.enable_game_robot_motions_topic)
+        self.enable_game_robot_motions_sub = rospy.Subscriber(self.enable_game_robot_motions_topic, Bool,
+                                                              self.enable_game_robot_motions_cb)
+        rospy.loginfo('[%s] Initialised %s subscriber', self.game_id, self.enable_game_robot_motions_topic)
 
         self.avg_engagement_client = actionlib.SimpleActionClient(self.avg_engagement_action, GetAverageEngagementAction)
         rospy.loginfo('[%s] Waiting for action server %s', self.game_id, self.avg_engagement_action)
