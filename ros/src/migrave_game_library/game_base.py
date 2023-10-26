@@ -81,11 +81,13 @@ class GameBase(object):
                  reward_token_topic='/migrave/reward_token',
                  enable_game_sounds_topic='/migrave/enable_game_sounds',
                  enable_game_robot_motions_topic='/migrave/enable_game_robot_motions',
+                 praise_type_topic='/migrave/praise_type',
                  waiting_times_before_robot_prompt_s = {'level1': 5., 'level2': 12.5, 'level3': 25.},
                  allowed_robot_motions=['QT/happy', 'QT/send_kiss', 'QT/monkey', 'QT/clapping', 'QT/emotions/hoora'],
                  default_token='star',
                  game_sounds_enabled=True,
-                 game_robot_motions_enabled=True):
+                 game_robot_motions_enabled=True,
+                 default_praise_type='fireworks_and_motion'):
         self.game_id = game_id
         self.game_status_topic = game_status_topic
         self.game_answer_topic = game_answer_topic
@@ -94,6 +96,7 @@ class GameBase(object):
         self.reward_token_topic = reward_token_topic
         self.enable_game_sounds_topic = enable_game_sounds_topic
         self.enable_game_robot_motions_topic = enable_game_robot_motions_topic
+        self.praise_type_topic = praise_type_topic
         self.avg_engagement_action = avg_engagement_action
         self.game_performance = GamePerformance()
         self.msg_acknowledged = False
@@ -104,6 +107,7 @@ class GameBase(object):
         self.reward_token = default_token
         self.game_sounds_enabled = game_sounds_enabled
         self.game_robot_motions_enabled = game_robot_motions_enabled
+        self.praise_type = default_praise_type
 
         self.game_id = self.game_config["game_id"]
         self.tasks = self.game_config["general_game_params"]["tasks"]
@@ -373,6 +377,9 @@ class GameBase(object):
     def enable_game_robot_motions_cb(self, msg: Bool):
         self.game_robot_motions_enabled = msg.data
 
+    def praise_type_cb(self, msg: String):
+        self.praise_type = msg.data
+
     def audio_play(self, audio: str):
         qt_audio_play = rospy.ServiceProxy("/qt_robot/audio/play", audio_play)
         rospy.wait_for_service("/qt_robot/audio/play")
@@ -467,16 +474,21 @@ class GameBase(object):
         self.wrong_answer_count = 0
 
         self.say_text("Super, du hast alle Sterne gesammelt!")
-        self.show_emotion("kiss")
-        self.gesture_play("QT/happy")
-        self.say_text("Gut gemacht!")
         rospy.loginfo("Publishing task status: finish")
         self.task_status_pub.publish("finish")
 
-        rospy.loginfo("Publishing image: fireworks")
-        self.say_text("Schau mal auf das Tablet. Da ist ein Feuerwerk für dich!")
-        self.tablet_image_pub.publish("fireworks")
-        rospy.sleep(1)
+        self.show_emotion("kiss")
+        self.say_text("Gut gemacht!")
+
+        if 'motion' in self.praise_type:
+            robot_gesture = random.choice(self.allowed_robot_motions)
+            self.gesture_play(robot_gesture)
+
+        if 'fireworks' in self.praise_type:
+            rospy.loginfo("Publishing image: fireworks")
+            self.say_text("Schau mal auf das Tablet. Da ist ein Feuerwerk für dich!")
+            self.tablet_image_pub.publish("fireworks")
+            rospy.sleep(1)
 
         self.one_task_done = True
 
@@ -545,6 +557,11 @@ class GameBase(object):
         self.enable_game_robot_motions_sub = rospy.Subscriber(self.enable_game_robot_motions_topic, Bool,
                                                               self.enable_game_robot_motions_cb)
         rospy.loginfo('[%s] Initialised %s subscriber', self.game_id, self.enable_game_robot_motions_topic)
+
+        rospy.loginfo('[%s] Initialising subscriber on topic %s', self.game_id, self.praise_type_topic)
+        self.praise_type_sub = rospy.Subscriber(self.praise_type_topic, String,
+                                                self.praise_type_cb)
+        rospy.loginfo('[%s] Initialised %s subscriber', self.game_id, self.praise_type_topic)
 
         self.avg_engagement_client = actionlib.SimpleActionClient(self.avg_engagement_action, GetAverageEngagementAction)
         rospy.loginfo('[%s] Waiting for action server %s', self.game_id, self.avg_engagement_action)
