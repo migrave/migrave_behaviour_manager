@@ -256,23 +256,23 @@ class GameBase(object):
             self.correct_answer_count += 1
             self.wrong_answer_count = 0
             rospy.loginfo(f"Count: {self.round_count}; Correct: {self.correct_answer_count}")
+
             if feedback_sounds != None and self.game_sounds_enabled:
                 self.audio_play(str(feedback_sounds[result]) + ".mp3")
+            
             self.say_text("Dafür bekommst du einen Stern!")
+            if self.task.find('order_steps') != -1:
+                image = f"{self.reward_token}/{self.correct_answer_count}_2Token"
+                rospy.loginfo(f"Publish image: {image}")
+            else: 
+                image = f"{self.reward_token}/{self.correct_answer_count}Token"
+                rospy.loginfo(f"Publish image: {image}")
+            self.tablet_image_pub.publish(image)
             self.audio_play("aleksandar.mitrevski/MigrAVE/positive_feedback.mp3")
 
             if self.game_robot_motions_enabled:
                 robot_gesture = random.choice(self.allowed_robot_motions)
                 self.gesture_play(robot_gesture)
-
-            if self.task.find('order_steps') != -1:
-                image = f"tokens/{self.reward_token}/{self.correct_answer_count}_2Token"
-                rospy.loginfo(f"Publish image: {image}")
-            else: 
-                image = f"tokens/{self.reward_token}/{self.correct_answer_count}Token"
-                rospy.loginfo(f"Publish image: {image}")
-            rospy.loginfo(image)
-            self.tablet_image_pub.publish(image)
 
             rospy.sleep(3)
             if self.round_count == 2 and self.task.find('order_steps') != -1:
